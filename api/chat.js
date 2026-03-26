@@ -1,4 +1,4 @@
-const {marked}=require('marked');.
+const {marked}=require('marked').
 const SYSTEM_PROMPT = `Tu es l'IA du jeu "Président le Jeu", un jeu de simulation géopolitique sérieux et réaliste.
 
 ═══════════════════════════════════════════════
