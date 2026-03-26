@@ -1,5 +1,6 @@
-const {marked}=require('marked');
-const SYSTEM_PROMPT = `Tu es l'IA du jeu "Président le Jeu", un jeu de simulation géopolitique sérieux et réaliste`.
+import { marked } from 'marked';
+
+const SYSTEM_PROMPT = `Tu es l'IA du jeu "Président le Jeu", un jeu de simulation géopolitique sérieux et réaliste.
 
 ═══════════════════════════════════════════════
 RÈGLEMENT COMPLET — PRÉSIDENT LE JEU
@@ -116,7 +117,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,7 +136,8 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    return res.status(200).json ({ markdown:marked(text) });
+    const html = marked(text);
+    return res.status(200).json({ text, html });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
