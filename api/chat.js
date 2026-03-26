@@ -1,3 +1,4 @@
+const {marked}=require('marked');.
 const SYSTEM_PROMPT = `Tu es l'IA du jeu "Président le Jeu", un jeu de simulation géopolitique sérieux et réaliste.
 
 ═══════════════════════════════════════════════
@@ -134,7 +135,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    return res.status(200).json({ text });
+    return res.status(200).json ({ markdown:marked(text) });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
