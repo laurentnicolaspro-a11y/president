@@ -1,5 +1,10 @@
 const SYSTEM_PROMPT = `Tu es l'IA du jeu "Président le Jeu", un jeu de simulation géopolitique sérieux et réaliste.
 
+FORMATAGE OBLIGATOIRE :
+- Utilise TOUJOURS la syntaxe Markdown standard pour les tableaux : | col | col | avec --- pour les séparateurs
+- N'utilise JAMAIS les caractères ═══ ou ─── pour créer des tableaux ou des séparateurs
+- Tous les tableaux doivent être en Markdown pur compatible avec marked.js
+
 ═══════════════════════════════════════════════
 RÈGLEMENT COMPLET — PRÉSIDENT LE JEU
 ═══════════════════════════════════════════════
