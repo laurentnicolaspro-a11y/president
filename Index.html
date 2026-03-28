@@ -6,29 +6,41 @@
 <title>Président le Jeu</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script>
-const marked = { parse: (text) => {
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+window.marked = { parse: function(text) {
+  var html = text
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,'<em>$1</em>')
     .replace(/^### (.+)$/gm,'<h3>$1</h3>')
     .replace(/^## (.+)$/gm,'<h2>$1</h2>')
     .replace(/^# (.+)$/gm,'<h1>$1</h1>')
-    .replace(/\|(.+)\|/g, (match) => {
-      const cells = match.split('|').filter(c => c.trim() && !c.match(/^[\s\-:]+$/));
-      return '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
-    })
-    .replace(/(<tr>.*<\/tr>\n?)+/gs, (t) => {
-      const rows = t.trim().split('\n');
-      const header = rows[0].replace(/<td>/g,'<th>').replace(/<\/td>/g,'</th>');
-      const body = rows.slice(1).join('\n');
-      return `<table>${header}${body}</table>`;
-    })
-    .replace(/^- (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/gs,'<ul>$&</ul>')
-    .replace(/\n\n/g,'</p><p>')
-    .replace(/\n/g,'<br>');
+    .replace(/^- (.+)$/gm,'<li>$1</li>');
+
+  // Tableaux Markdown
+  var lines = html.split('\n');
+  var result = [];
+  var inTable = false;
+  var isHeader = true;
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    if (line.match(/^\|(.+)\|$/)) {
+      if (line.match(/^\|[\s\-\|:]+\|$/)) { isHeader = false; continue; }
+      var cells = line.slice(1,-1).split('|').map(function(c){ return c.trim(); });
+      if (!inTable) { result.push('<table>'); inTable = true; isHeader = true; }
+      var tag = isHeader ? 'th' : 'td';
+      result.push('<tr>' + cells.map(function(c){ return '<'+tag+'>'+c+'</'+tag+'>'; }).join('') + '</tr>');
+      isHeader = false;
+    } else {
+      if (inTable) { result.push('</table>'); inTable = false; }
+      result.push(line);
+    }
+  }
+  if (inTable) result.push('</table>');
+  return result.join('\n');
 }};
+</script>
 </script>
 <style>
   :root {
