@@ -66,6 +66,12 @@
   .play-btn:hover::before{transform:translateX(0);}
   .rules-btn{padding:1rem 2rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
   .rules-btn:hover{border-color:var(--muted);color:var(--text);}
+  .resume-btn{padding:1rem 2rem;background:rgba(52,168,83,0.08);border:2px solid var(--accent3);color:var(--accent3);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.12em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);position:relative;overflow:hidden;}
+  .resume-btn::before{content:'';position:absolute;inset:0;background:var(--accent3);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
+  .resume-btn:hover{color:#fff;box-shadow:0 0 20px rgba(52,168,83,0.4);}
+  .resume-btn:hover::before{transform:translateX(0);}
+  .save-indicator{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--accent3);letter-spacing:0.1em;margin-top:0.5rem;opacity:0;transition:opacity 0.5s;}
+  .save-indicator.show{opacity:1;}
 
   /* GAME */
   #game{display:none;position:relative;z-index:1;min-height:100vh;padding:1rem;flex-direction:column;}
@@ -312,9 +318,13 @@
     <div class="g-dots"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div></div>
     Propulsé par <span>Google Gemini</span> — Gratuit pour tous les joueurs
   </div>
-  <div class="btn-row">
+  <div class="btn-row" id="btn-row">
     <button class="play-btn" onclick="startGame()">▶ JOUER</button>
     <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('active')">RÈGLES</button>
+  </div>
+  <div id="save-info" style="margin-top:1rem;display:none;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;" id="save-desc"></div>
+    <button class="resume-btn" onclick="resumeGame()">↺ REPRENDRE LA PARTIE</button>
   </div>
 </div>
 
@@ -344,7 +354,10 @@
   </div>
   <div class="bottom-bar">
     <span class="hint">↵ Entrée pour envoyer · Maj+Entrée pour saut de ligne</span>
-    <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
+      <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
+    </div>
   </div>
 </div>
 
@@ -457,6 +470,99 @@ window.marked = {
 let conversationHistory = [];
 let isLoading = false;
 
+// ===== SAUVEGARDE =====
+function saveGame() {
+  try {
+    localStorage.setItem('president_history', JSON.stringify(conversationHistory));
+    localStorage.setItem('president_hud', JSON.stringify({
+      country: document.getElementById('hud-country').textContent,
+      date:    document.getElementById('hud-date').textContent,
+      diff:    document.getElementById('hud-diff').textContent
+    }));
+    // Flash indicateur
+    const ind = document.getElementById('save-indicator');
+    if (ind) { ind.classList.add('show'); setTimeout(() => ind.classList.remove('show'), 2000); }
+  } catch(e) { console.warn('Sauvegarde impossible', e); }
+}
+
+function loadSave() {
+  try {
+    const h = localStorage.getItem('president_history');
+    const hud = localStorage.getItem('president_hud');
+    if (!h) return null;
+    return { history: JSON.parse(h), hud: hud ? JSON.parse(hud) : null };
+  } catch(e) { return null; }
+}
+
+function clearSave() {
+  localStorage.removeItem('president_history');
+  localStorage.removeItem('president_hud');
+}
+
+function applyHUD(hud) {
+  if (!hud) return;
+  if (hud.country) document.getElementById('hud-country').textContent = hud.country;
+  if (hud.date)    document.getElementById('hud-date').textContent    = hud.date;
+  if (hud.diff)    document.getElementById('hud-diff').textContent    = hud.diff;
+}
+
+// Vérifie au chargement si une sauvegarde existe
+window.addEventListener('DOMContentLoaded', () => {
+  const save = loadSave();
+  if (save && save.history && save.history.length > 0) {
+    const hud = save.hud || {};
+    const country = hud.country && hud.country !== '—' ? hud.country : '?';
+    const date    = hud.date    && hud.date    !== '—' ? hud.date    : '';
+    const diff    = hud.diff    && hud.diff    !== '—' ? hud.diff    : '';
+    const desc = [country, date, diff].filter(Boolean).join(' · ');
+    document.getElementById('save-desc').textContent = '💾 Sauvegarde trouvée — ' + desc;
+    document.getElementById('save-info').style.display = 'block';
+  }
+});
+
+function resumeGame() {
+  const save = loadSave();
+  if (!save || !save.history || save.history.length === 0) { startGame(); return; }
+  document.getElementById('loading').classList.add('active');
+  setTimeout(() => {
+    document.getElementById('loading').classList.remove('active');
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('game').classList.add('active');
+    conversationHistory = save.history;
+    applyHUD(save.hud);
+    // Réaffiche tous les messages
+    const container = document.getElementById('chat-messages');
+    const typing = document.getElementById('typing');
+    conversationHistory.forEach(m => {
+      if (m.role === 'user') {
+        const div = document.createElement('div');
+        div.className = 'msg user';
+        const header = document.createElement('div');
+        header.className = 'msg-header';
+        header.textContent = '▶ VOUS';
+        const body = document.createElement('div');
+        body.className = 'msg-body';
+        body.textContent = m.content;
+        div.appendChild(header); div.appendChild(body);
+        container.insertBefore(div, typing);
+      } else if (m.role === 'assistant') {
+        const div = document.createElement('div');
+        div.className = 'msg ai';
+        const header = document.createElement('div');
+        header.className = 'msg-header';
+        header.textContent = '✦ GEMINI · PRÉSIDENT LE JEU';
+        const body = document.createElement('div');
+        body.className = 'msg-body';
+        body.innerHTML = window.marked.parse(m.content);
+        div.appendChild(header); div.appendChild(body);
+        container.insertBefore(div, typing);
+      }
+    });
+    container.scrollTop = container.scrollHeight;
+  }, 1500);
+}
+// ===== FIN SAUVEGARDE =====
+
 function startGame() {
   document.getElementById('loading').classList.add('active');
   setTimeout(() => {
@@ -510,6 +616,7 @@ async function callAPI(initMessage, isInit) {
 
     addMessage('ai', text);
     updateHUD(text);
+    saveGame();
 
   } catch (err) {
     addMessage('ai', `⚠ Erreur : ${err.message}\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel (Settings → Environment Variables).`);
@@ -570,9 +677,11 @@ function autoResize(el) {
 }
 
 function resetGame() {
-  if (!confirm('Abandonner la partie en cours ?')) return;
+  if (!confirm('Abandonner la partie en cours ? La sauvegarde sera effacée.')) return;
+  clearSave();
   document.getElementById('game').classList.remove('active');
   document.getElementById('landing').style.display = '';
+  document.getElementById('save-info').style.display = 'none';
   document.getElementById('chat-messages').innerHTML = `<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
   document.getElementById('hud-country').textContent = '—';
   document.getElementById('hud-date').textContent = '—';
