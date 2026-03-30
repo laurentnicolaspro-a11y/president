@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Président le Jeu</title>
+<title>Président le Jeu V2</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -285,6 +285,34 @@
   .corner-deco.bl{bottom:14px;left:14px;border-bottom:2px solid var(--accent3);border-left:2px solid var(--accent4);}
   .corner-deco.br{bottom:14px;right:14px;border-bottom:2px solid var(--accent4);border-right:2px solid var(--accent2);}
 
+  /* ===== BOUTON AUDIO ===== */
+  .audio-btn {
+    display:flex; align-items:center; gap:5px;
+    background:none; border:1px solid var(--border);
+    color:var(--muted); font-family:'Share Tech Mono',monospace;
+    font-size:0.68rem; padding:0.25rem 0.7rem; cursor:pointer;
+    border-radius:2px; transition:all 0.3s; letter-spacing:0.05em;
+  }
+  .audio-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .audio-btn.playing { border-color:var(--accent3); color:var(--accent3); }
+  .audio-btn.tension { border-color:var(--accent4); color:var(--accent4); }
+  .audio-btn.crisis  { border-color:var(--red); color:var(--red); animation:critPulse 1s ease-in-out infinite; }
+  .audio-bars { display:flex; align-items:flex-end; gap:2px; height:12px; }
+  .audio-bar  { width:3px; background:currentColor; border-radius:1px; }
+  .audio-btn.playing .audio-bar:nth-child(1),
+  .audio-btn.tension .audio-bar:nth-child(1),
+  .audio-btn.crisis  .audio-bar:nth-child(1) { animation:barBounce 0.8s ease-in-out infinite; }
+  .audio-btn.playing .audio-bar:nth-child(2),
+  .audio-btn.tension .audio-bar:nth-child(2),
+  .audio-btn.crisis  .audio-bar:nth-child(2) { animation:barBounce 0.8s ease-in-out infinite 0.15s; }
+  .audio-btn.playing .audio-bar:nth-child(3),
+  .audio-btn.tension .audio-bar:nth-child(3),
+  .audio-btn.crisis  .audio-bar:nth-child(3) { animation:barBounce 0.8s ease-in-out infinite 0.3s; }
+  .audio-btn.tension .audio-bar { animation-duration:0.5s !important; }
+  .audio-btn.crisis  .audio-bar { animation-duration:0.28s !important; }
+  @keyframes barBounce { 0%,100%{height:3px} 50%{height:12px} }
+  /* ===== FIN BOUTON AUDIO ===== */
+
   @media(max-width:600px){.title-main{font-size:1.8rem;}.hud-center{display:none;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}}
 </style>
 </head>
@@ -367,6 +395,14 @@
       <div class="hud-dots"><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div></div>
       GEMINI
     </span>
+    <button class="audio-btn" id="audio-btn" onclick="toggleAudio()" title="Musique d'ambiance">
+      <div class="audio-bars">
+        <div class="audio-bar" style="height:6px"></div>
+        <div class="audio-bar" style="height:10px"></div>
+        <div class="audio-bar" style="height:4px"></div>
+      </div>
+      <span id="audio-label">♪ SON</span>
+    </button>
   </div>
   <div class="chat-container">
     <div class="chat-messages" id="chat-messages">
@@ -581,7 +617,7 @@ function resumeGame() {
         const body = document.createElement('div');
         body.className = 'msg-body';
         body.innerHTML = window.marked.parse(m.content);
-        setTimeout(() => enrichTables(body), 0);
+        setTimeout(() => { enrichTables(body); detectAudioMode(body); }, 0);
         div.appendChild(header); div.appendChild(body);
         container.insertBefore(div, typing);
       }
@@ -762,8 +798,8 @@ function addMessage(role, content) {
   body.className = 'msg-body';
   if (role === 'ai') {
     body.innerHTML = window.marked.parse(content);
-    // Enrichit les tableaux après rendu
-    setTimeout(() => enrichTables(body), 0);
+    // Enrichit les tableaux après rendu + pilote le mode audio
+    setTimeout(() => { enrichTables(body); detectAudioMode(body); }, 0);
   } else {
     body.textContent = content;
   }
@@ -803,8 +839,290 @@ function autoResize(el) {
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
+// ╔══════════════════════════════════════════╗
+// ║        MOTEUR AUDIO — PRÉSIDENT LE JEU  ║
+// ║  3 modes : CALME · TENSION · CRISE      ║
+// ╚══════════════════════════════════════════╝
+const Audio = (() => {
+  let ctx = null, masterGain = null;
+  let mode = 'calm'; // 'calm' | 'tension' | 'crisis'
+  let running = false;
+  let nodes = [];      // tous les noeuds actifs
+  let fadeTimer = null;
+
+  // ── Utilitaires ──────────────────────────────────────────
+  function getCtx() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, ctx.currentTime);
+      masterGain.connect(ctx.destination);
+    }
+    return ctx;
+  }
+
+  function killAll() {
+    nodes.forEach(n => { try { n.stop && n.stop(); } catch(e){} });
+    nodes = [];
+  }
+
+  // ── Créateurs de primitives sonores ──────────────────────
+
+  // Drone basse (onde sinusoïdale lente)
+  function makeDrone(freq, gainVal, detune = 0) {
+    const ac = getCtx();
+    const osc = ac.createOscillator();
+    const g   = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.detune.value = detune;
+    g.gain.value = gainVal;
+    osc.connect(g); g.connect(masterGain);
+    osc.start();
+    nodes.push(osc);
+    return { osc, gain: g };
+  }
+
+  // Pad atmosphérique (triangle + filtre passe-bas lent)
+  function makePad(freq, gainVal, filterFreq = 800) {
+    const ac = getCtx();
+    const osc    = ac.createOscillator();
+    const filter = ac.createBiquadFilter();
+    const g      = ac.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    filter.type = 'lowpass';
+    filter.frequency.value = filterFreq;
+    filter.Q.value = 0.8;
+    g.gain.value = gainVal;
+    osc.connect(filter); filter.connect(g); g.connect(masterGain);
+    osc.start();
+    nodes.push(osc);
+    return { osc, filter, gain: g };
+  }
+
+  // Nappe de bruit (tension / atmosphère)
+  function makeNoise(gainVal, filterFreq = 500) {
+    const ac = getCtx();
+    const bufSize = ac.sampleRate * 2;
+    const buffer  = ac.createBuffer(1, bufSize, ac.sampleRate);
+    const data    = buffer.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.15;
+    const src    = ac.createBufferSource();
+    src.buffer   = buffer;
+    src.loop     = true;
+    const filter = ac.createBiquadFilter();
+    filter.type  = 'bandpass';
+    filter.frequency.value = filterFreq;
+    filter.Q.value = 0.4;
+    const g = ac.createGain();
+    g.gain.value = gainVal;
+    src.connect(filter); filter.connect(g); g.connect(masterGain);
+    src.start();
+    nodes.push(src);
+    return { src, filter, gain: g };
+  }
+
+  // Pulsation rythmique lente (cœur qui bat)
+  function makePulse(freq, gainVal, bpm = 40) {
+    const ac = getCtx();
+    const osc = ac.createOscillator();
+    const lfo = ac.createOscillator();
+    const lfoGain = ac.createGain();
+    const g   = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    lfo.type = 'sine';
+    lfo.frequency.value = bpm / 60;
+    lfoGain.gain.value = gainVal * 0.8;
+    g.gain.value = gainVal * 0.2;
+    lfo.connect(lfoGain); lfoGain.connect(g.gain);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(); lfo.start();
+    nodes.push(osc, lfo);
+    return { osc, lfo, gain: g };
+  }
+
+  // Sweep grave montant/descendant (crise)
+  function makeSweep(baseFreq, gainVal) {
+    const ac = getCtx();
+    const osc = ac.createOscillator();
+    const g   = ac.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.value = baseFreq;
+    g.gain.value = gainVal;
+    // LFO fréquence lent
+    const lfo = ac.createOscillator();
+    const lfoG = ac.createGain();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.07;
+    lfoG.gain.value = baseFreq * 0.4;
+    lfo.connect(lfoG); lfoG.connect(osc.frequency);
+    // Filtre
+    const flt = ac.createBiquadFilter();
+    flt.type = 'lowpass'; flt.frequency.value = 300; flt.Q.value = 3;
+    osc.connect(flt); flt.connect(g); g.connect(masterGain);
+    osc.start(); lfo.start();
+    nodes.push(osc, lfo);
+    return { osc, lfo, filter: flt, gain: g };
+  }
+
+  // ── Layers par mode ──────────────────────────────────────
+
+  function buildCalm() {
+    // Drone grave chaud — Do2
+    makeDrone(65.4, 0.18);
+    // Drone tierce — Mi2
+    makeDrone(82.4, 0.10, -8);
+    // Pad atmosphérique doux
+    makePad(130.8, 0.08, 600);
+    makePad(196,   0.05, 400);
+    // Pulsation très lente (30 bpm)
+    makePulse(32.7, 0.12, 30);
+    // Bruit de fond très léger (salle)
+    makeNoise(0.015, 200);
+  }
+
+  function buildTension() {
+    // Drone grave plus bas et trouble
+    makeDrone(55,  0.22);
+    makeDrone(58.3, 0.10, 12); // légère dissonance
+    // Nappe de tension
+    makeNoise(0.06, 350);
+    // Pad grave inquiet
+    makePad(110, 0.10, 500);
+    // Pulsation accélérée (50 bpm)
+    makePulse(55, 0.18, 50);
+    // Sweep subtil
+    makeSweep(40, 0.07);
+  }
+
+  function buildCrisis() {
+    // Basse très grave et lourde
+    makeDrone(41.2, 0.28);
+    makeDrone(43.6, 0.12, 20); // forte dissonance
+    makeDrone(30,   0.08);     // sub-basse
+    // Nappes de bruit intenses
+    makeNoise(0.12, 180);
+    makeNoise(0.06, 600);
+    // Pulsation rapide (70 bpm) — anxiété
+    makePulse(41.2, 0.25, 70);
+    makePulse(82.4, 0.12, 70);
+    // Sweep agressif
+    makeSweep(50, 0.15);
+    makeSweep(35, 0.10);
+  }
+
+  // ── Transition douce entre modes ─────────────────────────
+  function transitionTo(newMode) {
+    if (!running) return;
+    if (newMode === mode) return;
+    mode = newMode;
+
+    const ac = getCtx();
+    // Fade out master
+    masterGain.gain.cancelScheduledValues(ac.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, ac.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, ac.currentTime + 2.5);
+
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => {
+      killAll();
+      if (mode === 'calm')    buildCalm();
+      if (mode === 'tension') buildTension();
+      if (mode === 'crisis')  buildCrisis();
+      // Fade in
+      masterGain.gain.cancelScheduledValues(ac.currentTime);
+      masterGain.gain.setValueAtTime(0, ac.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.7, ac.currentTime + 3);
+      updateBtn();
+    }, 2600);
+  }
+
+  // ── Bouton UI ────────────────────────────────────────────
+  function updateBtn() {
+    const btn   = document.getElementById('audio-btn');
+    const label = document.getElementById('audio-label');
+    if (!btn) return;
+    btn.className = 'audio-btn';
+    if (!running) { label.textContent = '♪ SON'; return; }
+    if (mode === 'calm')    { btn.classList.add('playing'); label.textContent = '♪ CALME'; }
+    if (mode === 'tension') { btn.classList.add('tension'); label.textContent = '♪ TENSION'; }
+    if (mode === 'crisis')  { btn.classList.add('crisis');  label.textContent = '♪ CRISE'; }
+  }
+
+  // ── API publique ─────────────────────────────────────────
+  return {
+    toggle() {
+      const ac = getCtx();
+      if (ac.state === 'suspended') ac.resume();
+      if (running) {
+        // Stop
+        masterGain.gain.cancelScheduledValues(ac.currentTime);
+        masterGain.gain.setValueAtTime(masterGain.gain.value, ac.currentTime);
+        masterGain.gain.linearRampToValueAtTime(0, ac.currentTime + 1.5);
+        setTimeout(() => { killAll(); }, 1600);
+        running = false;
+      } else {
+        // Start
+        running = true;
+        killAll();
+        if (mode === 'calm')    buildCalm();
+        if (mode === 'tension') buildTension();
+        if (mode === 'crisis')  buildCrisis();
+        masterGain.gain.cancelScheduledValues(ac.currentTime);
+        masterGain.gain.setValueAtTime(0, ac.currentTime);
+        masterGain.gain.linearRampToValueAtTime(0.7, ac.currentTime + 2);
+      }
+      updateBtn();
+    },
+
+    // Appelé après analyse des tableaux
+    setMode(newMode) { transitionTo(newMode); },
+    isRunning()      { return running; },
+    stop() {
+      if (!running) return;
+      const ac = getCtx();
+      masterGain.gain.linearRampToValueAtTime(0, ac.currentTime + 1.5);
+      setTimeout(() => killAll(), 1600);
+      running = false; updateBtn();
+    }
+  };
+})();
+
+function toggleAudio() { Audio.toggle(); }
+
+// Analyse les tableaux et pilote le mode audio
+function detectAudioMode(container) {
+  if (!Audio.isRunning()) return;
+  let tensions = -1, popularite = -1, croissance = 0;
+  const rows = container.querySelectorAll('td');
+  // On relit le texte brut des cellules avant enrichissement
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    table.querySelectorAll('tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 2) return;
+      const label = cells[0].textContent.toLowerCase();
+      const val   = parseFloat(cells[1].textContent.replace(/[^\d.\-]/g,''));
+      if (isNaN(val)) return;
+      if (label.includes('tension'))    tensions    = val;
+      if (label.includes('popular'))    popularite  = val;
+      if (label.includes('croissance')) croissance  = val;
+    });
+  });
+
+  // Décision : le pire indicateur l'emporte
+  let newMode = 'calm';
+  if (tensions >= 7 || popularite < 30 || croissance < -1) newMode = 'crisis';
+  else if (tensions >= 5 || popularite < 45 || croissance < 0) newMode = 'tension';
+  Audio.setMode(newMode);
+}
+// ╚══════════════════════════════════════════╝
+
 function resetGame() {
   if (!confirm('Abandonner la partie en cours ? La sauvegarde sera effacée.')) return;
+  Audio.stop();
   clearSave();
   document.getElementById('game').classList.remove('active');
   document.getElementById('landing').style.display = '';
