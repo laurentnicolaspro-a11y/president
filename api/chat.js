@@ -62,7 +62,6 @@ Termine TOUJOURS la Phase 1 par :
 PHASE 2 : Narration et décisions (après OK du joueur)
 
 - Présente une situation détaillée avec réalisme et complexité
-- Conseils de 2 ou 3 ministres en une phrase chacun (avec leur portefeuille)
 - 3 choix numérotés aux conséquences implicitement différentes
 - Option : "4. Faire un choix personnalisé — décrivez votre action"
 
