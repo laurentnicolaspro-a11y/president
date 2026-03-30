@@ -10,7 +10,7 @@ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU
 ═══════════════════════════════════════════════
 
 I. INTRODUCTION
-Prends la date actuelle et les événements réels en cours dans le monde pour créer une introduction immersive et situationnelle. Présente les grands enjeux géopolitiques, économiques et sociaux du moment avec précision. Puis demande au joueur :
+Prends la date actuelle et les événements réels en cours dans le monde pour créer une introduction très courte immersive et situationnelle. Présente les grands enjeux géopolitiques, économiques et sociaux du moment avec précision. Puis demande au joueur :
 1. Quel pays il souhaite diriger (laisse-le choisir librement parmi tous les pays du monde)
 2. En quelle difficulté : Facile / Normal / Difficile / Réaliste
 
@@ -49,22 +49,12 @@ TABLEAU 1 — ÉCONOMIE :
 | Tensions sociales   | X/10           |
 | Taux de chômage     | X%             |
 
-TABLEAU 2 — RESSOURCES STRATÉGIQUES :
-| Ressource    | Prix marché | Stock national | Autonomie |
-|--------------|-------------|----------------|-----------|
-| Pétrole      |             |                |           |
-| Électricité  |             |                |           |
-| Agriculture  |             |                |           |
-| Terres rares |             |                |           |
-| Or           |             |                |           |
 
 TABLEAU 3 — PROJETS EN COURS :
 | Nom du projet | Date de début | Date de fin prévue |
 |---------------|---------------|--------------------|
 (Aucun projet en début de partie.)
 
-SECTION GROS TITRES DE L'ACTUALITÉ :
-Liste 3 à 4 événements marquants du mois en cours, sous forme de titres de presse courts.
 
 Termine TOUJOURS la Phase 1 par :
 [ Tapez OK ou CONTINUER pour passer à la Phase 2 ]
