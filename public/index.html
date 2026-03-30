@@ -164,6 +164,33 @@
   }
   .msg-body tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
   .msg-body tr:hover td { background: rgba(66,133,244,0.05); transition: background 0.15s; }
+
+  /* ===== INDICATEURS DYNAMIQUES ===== */
+  .ind-up   { color: #34a853; font-weight:700; }
+  .ind-down { color: #ff3b5c; font-weight:700; }
+  .ind-warn { color: #fbbc04; font-weight:700; }
+  .ind-crit { color: #ff3b5c; font-weight:700; animation: critPulse 0.8s ease-in-out infinite; }
+  .ind-ok   { color: #34a853; font-weight:700; }
+  @keyframes critPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+  .msg-body tr.row-warn td { background: rgba(251,188,4,0.07) !important; border-color: rgba(251,188,4,0.3) !important; }
+  .msg-body tr.row-crit td { background: rgba(255,59,92,0.09) !important; border-color: rgba(255,59,92,0.35) !important; }
+  .msg-body tr.row-good td { background: rgba(52,168,83,0.06) !important; border-color: rgba(52,168,83,0.25) !important; }
+
+  .alert-banner {
+    display:flex; align-items:center; gap:0.6rem;
+    background:rgba(255,59,92,0.1); border:1px solid rgba(255,59,92,0.45);
+    border-left:3px solid #ff3b5c; padding:0.5rem 0.9rem; border-radius:3px;
+    margin:0.4rem 0; font-family:'Share Tech Mono',monospace; font-size:0.78rem;
+    color:#ff3b5c; animation:critPulse 1.2s ease-in-out infinite;
+  }
+  .warn-banner {
+    display:flex; align-items:center; gap:0.6rem;
+    background:rgba(251,188,4,0.08); border:1px solid rgba(251,188,4,0.4);
+    border-left:3px solid #fbbc04; padding:0.5rem 0.9rem; border-radius:3px;
+    margin:0.4rem 0; font-family:'Share Tech Mono',monospace; font-size:0.78rem; color:#fbbc04;
+  }
+  /* ===== FIN INDICATEURS ===== */
   .msg-body ul, .msg-body ol {
     padding-left: 1.5rem;
     margin: 0.5rem 0 0.7rem;
@@ -554,6 +581,7 @@ function resumeGame() {
         const body = document.createElement('div');
         body.className = 'msg-body';
         body.innerHTML = window.marked.parse(m.content);
+        setTimeout(() => enrichTables(body), 0);
         div.appendChild(header); div.appendChild(body);
         container.insertBefore(div, typing);
       }
@@ -625,6 +653,103 @@ async function callAPI(initMessage, isInit) {
   setLoading(false);
 }
 
+// ===== INDICATEURS DYNAMIQUES =====
+function enrichTables(container) {
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (!cells.length) return;
+
+      // Récupère le label (1ère colonne) et la valeur (2ème colonne)
+      const label = cells[0] ? cells[0].textContent.trim().toLowerCase() : '';
+      const valCell = cells[1];
+      if (!valCell) return;
+      const rawVal = valCell.textContent.trim();
+
+      // ── Popularité ──
+      if (label.includes('popularité') || label.includes('popularite')) {
+        const n = parseFloat(rawVal);
+        if (!isNaN(n)) {
+          if (n >= 55) { valCell.innerHTML = `<span class="ind-ok">▲ ${rawVal}</span>`; row.classList.add('row-good'); }
+          else if (n >= 40) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
+          else { valCell.innerHTML = `<span class="ind-crit">▼ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
+        }
+      }
+
+      // ── Tensions sociales ──
+      else if (label.includes('tension')) {
+        const n = parseFloat(rawVal);
+        if (!isNaN(n)) {
+          if (n <= 3)      { valCell.innerHTML = `<span class="ind-ok">● ${rawVal}</span>`; row.classList.add('row-good'); }
+          else if (n <= 6) { valCell.innerHTML = `<span class="ind-warn">▲ ${rawVal} ⚠</span>`; row.classList.add('row-warn'); }
+          else             { valCell.innerHTML = `<span class="ind-crit">🔥 ${rawVal} — CRITIQUE</span>`; row.classList.add('row-crit'); }
+          // Banner critique
+          if (n >= 8) {
+            const banner = document.createElement('div');
+            banner.className = 'alert-banner';
+            banner.innerHTML = '⚠ ALERTE — Tensions sociales critiques ! Risque de mouvement insurrectionnel.';
+            table.parentNode.insertBefore(banner, table);
+          } else if (n >= 6) {
+            const banner = document.createElement('div');
+            banner.className = 'warn-banner';
+            banner.innerHTML = '⚡ ATTENTION — Tensions sociales élevées. Des manifestations sont possibles.';
+            table.parentNode.insertBefore(banner, table);
+          }
+        }
+      }
+
+      // ── Chômage ──
+      else if (label.includes('chômage') || label.includes('chomage')) {
+        const n = parseFloat(rawVal);
+        if (!isNaN(n)) {
+          if (n <= 5)       { valCell.innerHTML = `<span class="ind-ok">▼ ${rawVal}</span>`; row.classList.add('row-good'); }
+          else if (n <= 10) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
+          else              { valCell.innerHTML = `<span class="ind-crit">▲ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
+        }
+      }
+
+      // ── Croissance ──
+      else if (label.includes('croissance')) {
+        const n = parseFloat(rawVal);
+        if (!isNaN(n)) {
+          if (n > 1.5)      { valCell.innerHTML = `<span class="ind-up">▲ ${rawVal}</span>`; row.classList.add('row-good'); }
+          else if (n >= 0)  { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
+          else              { valCell.innerHTML = `<span class="ind-down">▼ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
+        }
+      }
+
+      // ── Dette ──
+      else if (label.includes('dette')) {
+        const n = parseFloat(rawVal);
+        if (!isNaN(n)) {
+          if (n < 60)       { valCell.innerHTML = `<span class="ind-ok">✔ ${rawVal}</span>`; row.classList.add('row-good'); }
+          else if (n < 100) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
+          else              { valCell.innerHTML = `<span class="ind-crit">▲ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
+        }
+      }
+
+      // ── Solde mensuel : +/- ──
+      else if (label.includes('solde')) {
+        if (rawVal.startsWith('+'))      { valCell.innerHTML = `<span class="ind-up">▲ ${rawVal}</span>`; row.classList.add('row-good'); }
+        else if (rawVal.startsWith('-')) { valCell.innerHTML = `<span class="ind-down">▼ ${rawVal}</span>`; row.classList.add('row-crit'); }
+      }
+
+      // ── Coffres : montant brut ──
+      else if (label.includes('coffre')) {
+        const n = parseFloat(rawVal.replace(/[^\d.\-]/g,''));
+        if (!isNaN(n)) {
+          if (n > 50)      { valCell.innerHTML = `<span class="ind-ok">✔ ${rawVal}</span>`; }
+          else if (n > 10) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
+          else             { valCell.innerHTML = `<span class="ind-crit">⚠ ${rawVal}</span>`; row.classList.add('row-crit'); }
+        }
+      }
+    });
+  });
+}
+// ===== FIN INDICATEURS =====
+
 function addMessage(role, content) {
   const container = document.getElementById('chat-messages');
   const typing = document.getElementById('typing');
@@ -637,6 +762,8 @@ function addMessage(role, content) {
   body.className = 'msg-body';
   if (role === 'ai') {
     body.innerHTML = window.marked.parse(content);
+    // Enrichit les tableaux après rendu
+    setTimeout(() => enrichTables(body), 0);
   } else {
     body.textContent = content;
   }
