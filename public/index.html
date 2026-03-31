@@ -373,6 +373,27 @@
     0%   { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
   }
+  /* ===== PLEIN ÉCRAN ===== */
+  .fs-btn {
+    display:flex; align-items:center; gap:4px;
+    background:none; border:1px solid var(--border);
+    color:var(--muted); font-family:'Share Tech Mono',monospace;
+    font-size:0.68rem; padding:0.25rem 0.6rem; cursor:pointer;
+    border-radius:2px; transition:all 0.3s; letter-spacing:0.05em;
+  }
+  .fs-btn:hover { border-color:var(--accent); color:var(--accent); }
+  /* En plein écran natif : masque HUD réduit, agrandit le chat */
+  :fullscreen #game, :-webkit-full-screen #game {
+    padding: 0.5rem;
+  }
+  :fullscreen .hud, :-webkit-full-screen .hud {
+    padding: 0.4rem 0.8rem;
+  }
+  :fullscreen .chat-container, :-webkit-full-screen .chat-container {
+    min-height: calc(100vh - 120px);
+  }
+  /* ===== FIN PLEIN ÉCRAN ===== */
+
   /* Décale le bottom-bar quand le bandeau est visible */
   #game.news-open .bottom-bar { margin-bottom: 36px; }
   /* ===== FIN BREAKING NEWS ===== */
@@ -467,6 +488,7 @@
       </div>
       <span id="audio-label">♪ SON</span>
     </button>
+    <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()" title="Plein écran">⛶ PLEIN ÉCRAN</button>
   </div>
   <div class="chat-container">
     <div class="chat-messages" id="chat-messages">
@@ -1041,6 +1063,34 @@ const Audio = (() => {
     }
   };
 })();
+
+function toggleFullscreen() {
+  const btn = document.getElementById('fs-btn');
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    // Passe en plein écran
+    const el = document.documentElement;
+    if (el.requestFullscreen)       el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    if (btn) btn.textContent = '⛶ QUITTER';
+  } else {
+    // Quitte le plein écran
+    if (document.exitFullscreen)       document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    if (btn) btn.textContent = '⛶ PLEIN ÉCRAN';
+  }
+}
+
+// Met à jour le bouton si l'utilisateur quitte avec Échap
+document.addEventListener('fullscreenchange', () => {
+  const btn = document.getElementById('fs-btn');
+  if (!btn) return;
+  btn.textContent = document.fullscreenElement ? '⛶ QUITTER' : '⛶ PLEIN ÉCRAN';
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  const btn = document.getElementById('fs-btn');
+  if (!btn) return;
+  btn.textContent = document.webkitFullscreenElement ? '⛶ QUITTER' : '⛶ PLEIN ÉCRAN';
+});
 
 function toggleAudio() { Audio.toggle(); }
 
