@@ -93,7 +93,7 @@ RÈGLES GÉNÉRALES :
 // ── Fenêtrage de l'historique ──────────────────────────────
 // Garde toujours le 1er message (init) + les N derniers échanges
 // pour préserver le contexte sans exploser les tokens
-const MAX_HISTORY_MESSAGES = 12; // ~6 tours de jeu (1 user + 1 assistant = 1 tour)
+const MAX_HISTORY_MESSAGES = 10; // ~5 tours de jeu
 
 function trimHistory(messages) {
   if (messages.length <= MAX_HISTORY_MESSAGES) return messages;
@@ -136,7 +136,7 @@ export default async function handler(req, res) {
           system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
           generationConfig: {
-            maxOutputTokens: 1200,  // réduit de 2000 → 1200
+            maxOutputTokens: 1600,  // assez pour 4 choix complets
             temperature: 0.7        // réduit de 0.9 → 0.7
           }
         })
