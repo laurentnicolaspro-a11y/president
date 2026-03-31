@@ -201,7 +201,7 @@
   .msg-body ul li::marker { color: var(--accent); }
   .msg-body ol li::marker { color: var(--accent4); font-family: 'Share Tech Mono', monospace; }
   .msg-body strong { color: var(--accent4); font-weight: 700; }
-  .msg-body em     { color: var(--muted); font-style: italic; }
+  .msg-body em      { color: var(--muted); font-style: italic; }
   .msg-body code   {
     background: rgba(66,133,244,0.1);
     padding: 0.1rem 0.35rem;
@@ -474,7 +474,7 @@
   <div class="title-main">PRÉSIDENT<br>LE JEU</div>
   <div class="title-sub">Simulation géopolitique IA</div>
   <span class="beta-badge">BÊTA · GEMINI</span>
-  <p class="title-desc">Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques. Chaque décision a des conséquences réelles.</p>
+  <p class="title-desc">Dirigez un pays à à travers crises économiques, tensions sociales et défis géopolitiques. Chaque décision a des conséquences réelles.</p>
   <div class="powered-badge">
     <div class="g-dots"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div></div>
     Propulsé par <span>Google Gemini</span> — Gratuit pour tous les joueurs
@@ -489,7 +489,6 @@
   </div>
 </div>
 
-<!-- MODAL STATISTIQUES -->
 <div id="stats-modal">
   <div class="stats-box">
     <div class="stats-header">
@@ -633,7 +632,7 @@ window.marked = {
       var hm;
       if ((hm = line.match(/^### (.+)$/))) { flushList(); result.push('<h3>' + applyInline(hm[1]) + '</h3>'); continue; }
       if ((hm = line.match(/^## (.+)$/)))  { flushList(); result.push('<h2>' + applyInline(hm[1]) + '</h2>'); continue; }
-      if ((hm = line.match(/^# (.+)$/)))   { flushList(); result.push('<h1>' + applyInline(hm[1]) + '</h1>'); continue; }
+      if ((hm = line.match(/^# (.+)$/)))   { flushList(); result.push('<h1>' + applyInline(hm[1]) + '<h1>'); continue; }
 
       if (line.match(/^---+$/) || line.match(/^\*\*\*+$/)) {
         flushList(); result.push('<hr>'); continue;
@@ -724,6 +723,11 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function resumeGame() {
+  // ✅ MODIFICATION : Lancer l'audio dès le clic sur Reprendre
+  if (!Audio.isRunning()) {
+    Audio.toggle(); 
+  }
+
   const save = loadSave();
   if (!save || !save.history || save.history.length === 0) { startGame(); return; }
   document.getElementById('loading').classList.add('active');
@@ -756,7 +760,6 @@ function resumeGame() {
         const body = document.createElement('div');
         body.className = 'msg-body';
         body.innerHTML = window.marked.parse(m.content);
-        // ✅ CORRECTION : Stats.record AVANT enrichTables
         setTimeout(() => {
           Stats.record(body, '');
           enrichTables(body);
@@ -772,13 +775,18 @@ function resumeGame() {
 // ===== FIN SAUVEGARDE =====
 
 function startGame() {
+  // ✅ MODIFICATION : Lancer l'audio dès le clic sur Jouer (nécessaire pour l'interaction utilisateur)
+  if (!Audio.isRunning()) {
+    Audio.toggle(); 
+  }
+
   document.getElementById('loading').classList.add('active');
   setTimeout(() => {
     document.getElementById('loading').classList.remove('active');
     document.getElementById('landing').style.display = 'none';
     document.getElementById('game').classList.add('active');
     conversationHistory = [];
-    Stats.reset(); // ✅ Réinitialise les stats à chaque nouvelle partie
+    Stats.reset();
     callAPI("Commence le jeu. Lance l'introduction selon les règles : prends la date actuelle et les événements réels mondiaux pour une introduction immersive, puis demande-moi quel pays je souhaite diriger et en quelle difficulté.", true);
   }, 2000);
 }
@@ -862,7 +870,7 @@ function enrichTables(container) {
         if (!isNaN(n)) {
           if (n <= 3)      { valCell.innerHTML = `<span class="ind-ok">● ${rawVal}</span>`; row.classList.add('row-good'); }
           else if (n <= 6) { valCell.innerHTML = `<span class="ind-warn">▲ ${rawVal} ⚠</span>`; row.classList.add('row-warn'); }
-          else             { valCell.innerHTML = `<span class="ind-crit">🔥 ${rawVal} — CRITIQUE</span>`; row.classList.add('row-crit'); }
+          else              { valCell.innerHTML = `<span class="ind-crit">🔥 ${rawVal} — CRITIQUE</span>`; row.classList.add('row-crit'); }
           if (n >= 8) {
             const banner = document.createElement('div');
             banner.className = 'alert-banner';
@@ -881,7 +889,7 @@ function enrichTables(container) {
         if (!isNaN(n)) {
           if (n <= 5)       { valCell.innerHTML = `<span class="ind-ok">▼ ${rawVal}</span>`; row.classList.add('row-good'); }
           else if (n <= 10) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
-          else              { valCell.innerHTML = `<span class="ind-crit">▲ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
+          else               { valCell.innerHTML = `<span class="ind-crit">▲ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
         }
       }
       else if (label.includes('croissance')) {
@@ -889,7 +897,7 @@ function enrichTables(container) {
         if (!isNaN(n)) {
           if (n > 1.5)      { valCell.innerHTML = `<span class="ind-up">▲ ${rawVal}</span>`; row.classList.add('row-good'); }
           else if (n >= 0)  { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
-          else              { valCell.innerHTML = `<span class="ind-down">▼ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
+          else               { valCell.innerHTML = `<span class="ind-down">▼ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
         }
       }
       else if (label.includes('dette')) {
@@ -897,7 +905,7 @@ function enrichTables(container) {
         if (!isNaN(n)) {
           if (n < 60)       { valCell.innerHTML = `<span class="ind-ok">✔ ${rawVal}</span>`; row.classList.add('row-good'); }
           else if (n < 100) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
-          else              { valCell.innerHTML = `<span class="ind-crit">▲ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
+          else               { valCell.innerHTML = `<span class="ind-crit">▲ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
         }
       }
       else if (label.includes('solde')) {
@@ -909,7 +917,7 @@ function enrichTables(container) {
         if (!isNaN(n)) {
           if (n > 50)      { valCell.innerHTML = `<span class="ind-ok">✔ ${rawVal}</span>`; }
           else if (n > 10) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
-          else             { valCell.innerHTML = `<span class="ind-crit">⚠ ${rawVal}</span>`; row.classList.add('row-crit'); }
+          else              { valCell.innerHTML = `<span class="ind-crit">⚠ ${rawVal}</span>`; row.classList.add('row-crit'); }
         }
       }
     });
@@ -962,13 +970,12 @@ function addMessage(role, content) {
     const cleaned = extractAndShowNews(content);
     body.innerHTML = window.marked.parse(cleaned);
 
-    // ✅ CORRECTION PRINCIPALE : Stats.record EN PREMIER, avant enrichTables
     setTimeout(() => {
       const dateEl = document.getElementById('hud-date');
       const dateLabel = dateEl ? dateEl.textContent : '';
-      Stats.record(body, dateLabel);   // ← 1. Lecture des données brutes
-      enrichTables(body);              // ← 2. Enrichissement visuel
-      detectAudioMode(body);           // ← 3. Détection audio
+      Stats.record(body, dateLabel);
+      enrichTables(body);
+      detectAudioMode(body);
       scrollToBottom(container);
     }, 0);
   } else {
@@ -1051,7 +1058,7 @@ const Audio = (() => {
   }
 
   function fadeIn(el, targetVol, duration) {
-    targetVol = targetVol || 0.55;
+    targetVol = targetVol || 0.40; // ✅ Volume de départ légèrement réduit (plus confortable)
     duration  = duration  || 3000;
     el.volume = 0;
     el.play().catch(function(){});
@@ -1069,7 +1076,7 @@ const Audio = (() => {
     if (!el || current === el) return;
     if (current) fadeOut(current, instant ? 600 : 2500);
     current = el;
-    fadeIn(el, 0.55, instant ? 800 : 3000);
+    fadeIn(el, 0.40, instant ? 800 : 3000);
     mode = newMode;
     updateBtn();
   }
@@ -1115,11 +1122,11 @@ function toggleFullscreen() {
   const btn = document.getElementById('fs-btn');
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
     const el = document.documentElement;
-    if (el.requestFullscreen)       el.requestFullscreen();
+    if (el.requestFullscreen)        el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
     if (btn) btn.textContent = '⛶ QUITTER';
   } else {
-    if (document.exitFullscreen)       document.exitFullscreen();
+    if (document.exitFullscreen)        document.exitFullscreen();
     else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
     if (btn) btn.textContent = '⛶ PLEIN ÉCRAN';
   }
@@ -1178,7 +1185,6 @@ const Stats = (() => {
   };
   const charts = {};
 
-  // ✅ Extraction AVANT enrichissement — lit les td propres
   function extractFromMessage(container) {
     const tables = container.querySelectorAll('table');
     let found = false;
@@ -1187,19 +1193,18 @@ const Stats = (() => {
         const cells = row.querySelectorAll('td');
         if (cells.length < 2) return;
         const label = cells[0].textContent.toLowerCase().trim();
-        // Lit le texte brut de la cellule valeur (pas encore enrichie)
         const raw = cells[1].textContent.trim();
         const m   = raw.match(/-?\d+(\.\d+)?/);
         if (!m) return;
         const val = parseFloat(m[0]);
         if (isNaN(val)) return;
         found = true;
-        if (label.includes('popular'))                              data.popularite.push(val);
-        if (label.includes('tension'))                              data.tensions.push(val);
-        if (label.includes('croissance'))                           data.croissance.push(val);
+        if (label.includes('popular'))                                data.popularite.push(val);
+        if (label.includes('tension'))                                data.tensions.push(val);
+        if (label.includes('croissance'))                             data.croissance.push(val);
         if (label.includes('chômage') || label.includes('chomage')) data.chomage.push(val);
-        if (label.includes('dette'))                                data.dette.push(val);
-        if (label.includes('coffre'))                               data.coffres.push(val);
+        if (label.includes('dette'))                                 data.dette.push(val);
+        if (label.includes('coffre'))                                data.coffres.push(val);
       });
     });
     return found;
@@ -1284,7 +1289,6 @@ const Stats = (() => {
     record(container, turnLabel) {
       const ok = extractFromMessage(container);
       if (ok) {
-        // ✅ N'ajoute un tour que si de vraies données économiques ont été trouvées
         const label = (turnLabel && turnLabel !== '—') ? turnLabel : 'T' + (data.labels.length + 1);
         addTurn(label);
       }
@@ -1310,11 +1314,11 @@ const Stats = (() => {
       document.getElementById('stats-turns').textContent = data.labels.length + ' tour(s) enregistré(s)';
       setTimeout(() => {
         renderChart('popularite', 'popularite', 'Popularité',  '#4285f4', 0,   100);
-        renderChart('tensions',   'tensions',   'Tensions',    '#ff3b5c', 0,   10);
+        renderChart('tensions',    'tensions',    'Tensions',    '#ff3b5c', 0,   10);
         renderChart('croissance', 'croissance', 'Croissance',  '#34a853', -5,  10);
-        renderChart('chomage',    'chomage',    'Chômage',     '#fbbc04', 0,   30);
-        renderChart('dette',      'dette',      'Dette',       '#ea4335', 0,   200);
-        renderChart('coffres',    'coffres',    'Coffres',     '#34a853', null, null);
+        renderChart('chomage',     'chomage',     'Chômage',     '#fbbc04', 0,   30);
+        renderChart('dette',       'dette',       'Dette',       '#ea4335', 0,   200);
+        renderChart('coffres',     'coffres',     'Coffres',     '#34a853', null, null);
         Object.values(charts).forEach(c => c && c.resize());
       }, 50);
     }
