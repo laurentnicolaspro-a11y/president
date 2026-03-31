@@ -1058,7 +1058,7 @@ const Audio = (() => {
   }
 
   function fadeIn(el, targetVol, duration) {
-    targetVol = targetVol || 0.40; // ✅ Volume de départ légèrement réduit (plus confortable)
+    targetVol = targetVol || 0.15; // ✅ Volume de départ légèrement réduit (plus confortable)
     duration  = duration  || 3000;
     el.volume = 0;
     el.play().catch(function(){});
@@ -1076,7 +1076,7 @@ const Audio = (() => {
     if (!el || current === el) return;
     if (current) fadeOut(current, instant ? 600 : 2500);
     current = el;
-    fadeIn(el, 0.40, instant ? 800 : 3000);
+    fadeIn(el, 0.15, instant ? 800 : 3000);
     mode = newMode;
     updateBtn();
   }
