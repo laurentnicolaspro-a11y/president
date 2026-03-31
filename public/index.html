@@ -1225,10 +1225,8 @@ const Stats = (() => {
       : vals.map((_, i) => 'T' + (i + 1));
 
     if (charts[id]) {
-      charts[id].data.labels = labels;
-      charts[id].data.datasets[0].data = vals;
-      charts[id].update('none');
-      return;
+      charts[id].destroy();
+      delete charts[id];
     }
 
     const bgColor = color + '14';
@@ -1309,12 +1307,15 @@ const Stats = (() => {
     open() {
       document.getElementById('stats-modal').classList.add('active');
       document.getElementById('stats-turns').textContent = data.labels.length + ' tour(s) enregistré(s)';
-      renderChart('popularite', 'popularite', 'Popularité',  '#4285f4', 0,   100);
-      renderChart('tensions',   'tensions',   'Tensions',    '#ff3b5c', 0,   10);
-      renderChart('croissance', 'croissance', 'Croissance',  '#34a853', -5,  10);
-      renderChart('chomage',    'chomage',    'Chômage',     '#fbbc04', 0,   30);
-      renderChart('dette',      'dette',      'Dette',       '#ea4335', 0,   200);
-      renderChart('coffres',    'coffres',    'Coffres',     '#34a853', null, null);
+      setTimeout(() => {
+        renderChart('popularite', 'popularite', 'Popularité',  '#4285f4', 0,   100);
+        renderChart('tensions',   'tensions',   'Tensions',    '#ff3b5c', 0,   10);
+        renderChart('croissance', 'croissance', 'Croissance',  '#34a853', -5,  10);
+        renderChart('chomage',    'chomage',    'Chômage',     '#fbbc04', 0,   30);
+        renderChart('dette',      'dette',      'Dette',       '#ea4335', 0,   200);
+        renderChart('coffres',    'coffres',    'Coffres',     '#34a853', null, null);
+        Object.values(charts).forEach(c => c && c.resize());
+      }, 50);
     }
   };
 })();
