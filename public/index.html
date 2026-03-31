@@ -67,6 +67,8 @@
   .play-btn:hover::before{transform:translateX(0);}
   .rules-btn{padding:1rem 2rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
   .rules-btn:hover{border-color:var(--muted);color:var(--text);}
+  .legal-btn{padding:1rem 1.5rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+  .legal-btn:hover{border-color:var(--accent3);color:var(--accent3);box-shadow:0 0 10px rgba(52,168,83,0.2);}
   .resume-btn{padding:1rem 2rem;background:rgba(52,168,83,0.08);border:2px solid var(--accent3);color:var(--accent3);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.12em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);position:relative;overflow:hidden;}
   .resume-btn::before{content:'';position:absolute;inset:0;background:var(--accent3);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
   .resume-btn:hover{color:#fff;box-shadow:0 0 20px rgba(52,168,83,0.4);}
@@ -272,6 +274,11 @@
   .close-rules{margin-top:1.5rem;width:100%;padding:0.7rem;background:none;border:1px solid var(--accent);color:var(--accent);font-family:'Orbitron',monospace;font-size:0.8rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;}
   .close-rules:hover{background:var(--accent);color:#fff;}
 
+  #legal-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:200;align-items:center;justify-content:center;padding:1.5rem;}
+  #legal-modal.active{display:flex;}
+  #legal-modal a{color:var(--accent);text-decoration:none;}
+  #legal-modal a:hover{text-decoration:underline;}
+
   .scanlines{position:fixed;inset:0;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);}
   .corner-deco{position:fixed;width:48px;height:48px;pointer-events:none;z-index:0;opacity:0.2;}
   .corner-deco.tl{top:14px;left:14px;border-top:2px solid var(--accent);border-left:2px solid var(--accent3);}
@@ -466,6 +473,80 @@
   </div>
 </div>
 
+<div id="legal-modal">
+  <div class="rules-box">
+    <h2>📜 MENTIONS LÉGALES — PRÉSIDENT LE JEU</h2>
+
+    <h3>1. ÉDITEUR</h3>
+    <p>
+      <strong>LAURENT Nicolas</strong><br>
+      Seine-Saint-Denis, France<br>
+      Email : <a href="mailto:lechikiponk@gmail.com">lechikiponk@gmail.com</a>
+    </p>
+
+    <h3>2. HÉBERGEMENT</h3>
+    <p>
+      <strong>Vercel Inc.</strong><br>
+      340 S Lemon Ave #4133<br>
+      Walnut, CA 91789, États-Unis<br>
+      Site web : <a href="https://vercel.com" target="_blank">vercel.com</a>
+    </p>
+
+    <h3>3. PROPRIÉTÉ INTELLECTUELLE</h3>
+    <p>
+      Tous les contenus du jeu (design, code, univers) sont des créations originales protégées par le droit d’auteur français, sauf mention contraire.
+    </p>
+    <p>
+      <strong>Scénarios générés par Google Gemini</strong> : Propriété de Google LLC, utilisés conformément à leurs <a href="https://ai.google.dev/terms" target="_blank">Conditions d’Utilisation</a>.
+    </p>
+    <p>
+      <strong>Assets libres de droits</strong> : Polices (Google Fonts), icônes et éléments graphiques utilisés sont soit des créations originales, soit libres de droits.
+    </p>
+
+    <h3>4. DONNÉES PERSONNELLES (RGPD)</h3>
+    <p>
+      ✅ <strong>Aucune collecte de données</strong> : Ce jeu fonctionne en local dans votre navigateur. Les sauvegardes sont stockées <strong>uniquement sur votre appareil</strong> (via <code>localStorage</code>).
+    </p>
+    <p>
+      🔄 Vous pouvez supprimer vos données à tout moment en effaçant l’historique de votre navigateur.
+    </p>
+
+    <h3>5. RESPONSABILITÉS</h3>
+    <p>
+      <strong>Fiction et simulation</strong> : Ce jeu est une œuvre de fiction. Les scénarios générés par l’IA ne reflètent pas la réalité géopolitique ou économique actuelle.
+    </p>
+    <p>
+      L’éditeur décline toute responsabilité en cas d’interprétation erronée des événements simulés ou d’usage non conforme aux présentes mentions.
+    </p>
+
+    <h3>6. LICENCE D’UTILISATION</h3>
+    <p>
+      ✔ <strong>Gratuit et libre d’accès</strong> pour un usage privé et non commercial.
+    </p>
+    <p>
+      ❌ <strong>Interdictions</strong> :
+      <ul>
+        <li>Modifier ou revendre le jeu sans autorisation écrite.</li>
+        <li>Utiliser le jeu à des fins politiques, diffamatoires ou illégales.</li>
+      </ul>
+    </p>
+
+    <h3>7. CONTACT</h3>
+    <p>
+      Pour toute question ou réclamation : <a href="mailto:lechikiponk@gmail.com">lechikiponk@gmail.com</a>
+    </p>
+
+    <h3>8. MISE À JOUR</h3>
+    <p>
+      Ces mentions légales peuvent être modifiées à tout moment. La dernière version sera toujours disponible dans le jeu.
+    </p>
+
+    <button class="close-rules" onclick="document.getElementById('legal-modal').classList.remove('active')">
+      FERMER
+    </button>
+  </div>
+</div>
+
 <div id="landing">
   <div class="globe-container">
     <div class="globe"></div>
@@ -482,6 +563,7 @@
   <div class="btn-row" id="btn-row">
     <button class="play-btn" onclick="startGame()">▶ JOUER</button>
     <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('active')">RÈGLES</button>
+    <button class="legal-btn" onclick="document.getElementById('legal-modal').classList.add('active')">MENTIONS LÉGALES</button>
   </div>
   <div id="save-info" style="margin-top:1rem;display:none;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;" id="save-desc"></div>
@@ -725,7 +807,7 @@ window.addEventListener('DOMContentLoaded', () => {
 function resumeGame() {
   // ✅ MODIFICATION : Lancer l'audio dès le clic sur Reprendre
   if (!Audio.isRunning()) {
-    Audio.toggle(); 
+    Audio.toggle();
   }
 
   const save = loadSave();
@@ -777,7 +859,7 @@ function resumeGame() {
 function startGame() {
   // ✅ MODIFICATION : Lancer l'audio dès le clic sur Jouer (nécessaire pour l'interaction utilisateur)
   if (!Audio.isRunning()) {
-    Audio.toggle(); 
+    Audio.toggle();
   }
 
   document.getElementById('loading').classList.add('active');
