@@ -313,6 +313,70 @@
   @keyframes barBounce { 0%,100%{height:3px} 50%{height:12px} }
   /* ===== FIN BOUTON AUDIO ===== */
 
+  /* ===== BREAKING NEWS BANDEAU ===== */
+  #news-banner {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 500;
+    background: #0d0d0d;
+    border-top: 2px solid var(--accent2);
+    height: 36px;
+    overflow: hidden;
+    flex-direction: row;
+    align-items: center;
+  }
+  #news-banner.active { display: flex; }
+  .news-label {
+    flex-shrink: 0;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 0 0.9rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .news-label::after {
+    content: '▶';
+    margin-left: 0.5rem;
+    font-size: 0.5rem;
+  }
+  .news-track-wrap {
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+  }
+  .news-track {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    white-space: nowrap;
+    animation: newsScroll 28s linear infinite;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: #f0f0f0;
+    letter-spacing: 0.04em;
+  }
+  .news-track:hover { animation-play-state: paused; }
+  .news-sep {
+    color: var(--accent2);
+    margin: 0 1.5rem;
+    font-size: 1rem;
+  }
+  @keyframes newsScroll {
+    0%   { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+  /* Décale le bottom-bar quand le bandeau est visible */
+  #game.news-open .bottom-bar { margin-bottom: 36px; }
+  /* ===== FIN BREAKING NEWS ===== */
+
   @media(max-width:600px){.title-main{font-size:1.8rem;}.hud-center{display:none;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}}
 </style>
 </head>
@@ -421,6 +485,13 @@
       <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
       <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
     </div>
+  </div>
+</div>
+
+<div id="news-banner">
+  <div class="news-label">⚡ BREAKING NEWS</div>
+  <div class="news-track-wrap">
+    <div class="news-track" id="news-track"></div>
   </div>
 </div>
 
@@ -786,6 +857,41 @@ function enrichTables(container) {
 }
 // ===== FIN INDICATEURS =====
 
+// ===== BREAKING NEWS =====
+function extractAndShowNews(text) {
+  const match = text.match(/\[NEWS:\s*(.+?)\]/);
+  if (!match) return text;
+
+  const titles = match[1].split('|').map(t => t.trim()).filter(Boolean);
+  if (!titles.length) return text.replace(match[0], '').trim();
+
+  // Construit le contenu du bandeau
+  const track = document.getElementById('news-track');
+  const banner = document.getElementById('news-banner');
+  if (!track || !banner) return text;
+
+  // Génère les titres avec séparateurs
+  track.innerHTML = titles.map((t, i) =>
+    `<span>${t}</span>${i < titles.length - 1 ? '<span class="news-sep">◆</span>' : ''}`
+  ).join('') + '<span class="news-sep">◆</span>' +
+  titles.map((t, i) =>
+    `<span>${t}</span>${i < titles.length - 1 ? '<span class="news-sep">◆</span>' : ''}`
+  ).join(''); // double passage pour boucle fluide
+
+  // Affiche le bandeau
+  banner.classList.add('active');
+  document.getElementById('game').classList.add('news-open');
+
+  // Relance l'animation pour repartir du début
+  track.style.animation = 'none';
+  track.offsetHeight; // reflow
+  track.style.animation = '';
+
+  // Retire le bloc [NEWS:...] du texte affiché dans le chat
+  return text.replace(match[0], '').trim();
+}
+// ===== FIN BREAKING NEWS =====
+
 function addMessage(role, content) {
   const container = document.getElementById('chat-messages');
   const typing = document.getElementById('typing');
@@ -797,8 +903,8 @@ function addMessage(role, content) {
   const body = document.createElement('div');
   body.className = 'msg-body';
   if (role === 'ai') {
-    body.innerHTML = window.marked.parse(content);
-    // Enrichit les tableaux après rendu + pilote le mode audio
+    const cleaned = extractAndShowNews(content);
+    body.innerHTML = window.marked.parse(cleaned);
     setTimeout(() => { enrichTables(body); detectAudioMode(body); }, 0);
   } else {
     body.textContent = content;
