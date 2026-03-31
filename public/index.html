@@ -778,6 +778,7 @@ function startGame() {
     document.getElementById('landing').style.display = 'none';
     document.getElementById('game').classList.add('active');
     conversationHistory = [];
+    Stats.reset(); // ✅ Réinitialise les stats à chaque nouvelle partie
     callAPI("Commence le jeu. Lance l'introduction selon les règles : prends la date actuelle et les événements réels mondiaux pour une introduction immersive, puis demande-moi quel pays je souhaite diriger et en quelle difficulté.", true);
   }, 2000);
 }
@@ -1283,7 +1284,11 @@ const Stats = (() => {
   return {
     record(container, turnLabel) {
       const ok = extractFromMessage(container);
-      if (ok) addTurn(turnLabel && turnLabel !== '—' ? turnLabel : 'T' + (data.labels.length + 1));
+      if (ok) {
+        // ✅ N'ajoute un tour que si de vraies données économiques ont été trouvées
+        const label = (turnLabel && turnLabel !== '—') ? turnLabel : 'T' + (data.labels.length + 1);
+        addTurn(label);
+      }
       try { localStorage.setItem('president_stats', JSON.stringify(data)); } catch(e){}
     },
 
