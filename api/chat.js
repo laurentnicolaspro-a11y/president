@@ -10,7 +10,7 @@ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU
 ═══════════════════════════════════════════════
 
 I. INTRODUCTION
-Prends la date actuelle et les événements réels en cours dans le monde pour créer une introduction très courte immersive et situationnelle. Présente les grands enjeux géopolitiques, économiques et sociaux du moment avec précision. Puis demande au joueur :
+Prends la date actuelle 2026 et les événements réels en cours dans le monde pour créer une introduction très courte immersive et situationnelle. Présente les grands enjeux géopolitiques, économiques et sociaux du moment avec précision. Puis demande au joueur :
 1. Quel pays il souhaite diriger (laisse-le choisir librement parmi tous les pays du monde)
 2. En quelle difficulté : Facile / Normal / Difficile / Réaliste
 
