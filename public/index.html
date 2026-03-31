@@ -935,12 +935,12 @@ function addMessage(role, content) {
   div.appendChild(body);
   container.insertBefore(div, typing);
 
-  // Scroll immédiat + suivi continu pendant le rendu
+  // Scroll après rendu complet (tableaux + CSS + indicateurs)
   container.scrollTop = container.scrollHeight;
-  const scrollFollow = setInterval(() => {
-    container.scrollTop = container.scrollHeight;
-  }, 50);
-  setTimeout(() => clearInterval(scrollFollow), 2000);
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 100);
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 300);
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 600);
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 1000);
 }
 
 function setLoading(val) {
