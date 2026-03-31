@@ -65,6 +65,8 @@ PHASE 2 : Narration et décisions (après OK du joueur)
 - 3 choix numérotés aux conséquences implicitement différentes
 - Option : "4. Faire un choix personnalisé — décrivez votre action"
 
+IMPORTANT : Sois concis. Limite tes réponses à l'essentiel. Pas de répétition, pas de remplissage.
+
 ═══════════════════════════════════════════════
 
 V. PHASE DE NÉGOCIATION
@@ -88,6 +90,20 @@ RÈGLES GÉNÉRALES :
 - Les décisions ont des conséquences durables dans les tableaux
 - Sois impitoyable dans les crises mais toujours juste et réaliste`;
 
+// ── Fenêtrage de l'historique ──────────────────────────────
+// Garde toujours le 1er message (init) + les N derniers échanges
+// pour préserver le contexte sans exploser les tokens
+const MAX_HISTORY_MESSAGES = 12; // ~6 tours de jeu (1 user + 1 assistant = 1 tour)
+
+function trimHistory(messages) {
+  if (messages.length <= MAX_HISTORY_MESSAGES) return messages;
+  // Toujours garder le tout premier message (mise en place du jeu)
+  const first = messages.slice(0, 2);
+  // + les N derniers messages récents
+  const recent = messages.slice(-(MAX_HISTORY_MESSAGES - 2));
+  return [...first, ...recent];
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -102,7 +118,10 @@ export default async function handler(req, res) {
   const { messages } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
-  const contents = messages.map(m => ({
+  // Applique le fenêtrage avant d'envoyer à Gemini
+  const trimmed = trimHistory(messages);
+
+  const contents = trimmed.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
@@ -116,7 +135,10 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
-          generationConfig: { maxOutputTokens: 2000, temperature: 0.9 }
+          generationConfig: {
+            maxOutputTokens: 1200,  // réduit de 2000 → 1200
+            temperature: 0.7        // réduit de 0.9 → 0.7
+          }
         })
       }
     );
@@ -134,4 +156,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
-
