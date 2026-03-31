@@ -840,279 +840,120 @@ function autoResize(el) {
 }
 
 // ╔══════════════════════════════════════════╗
-// ║        MOTEUR AUDIO — PRÉSIDENT LE JEU  ║
-// ║  3 modes : CALME · TENSION · CRISE      ║
+// ║     MOTEUR AUDIO MP3 — PRÉSIDENT LE JEU ║
 // ╚══════════════════════════════════════════╝
 const Audio = (() => {
-  let ctx = null, masterGain = null;
-  let mode = 'calm'; // 'calm' | 'tension' | 'crisis'
+  const TRACKS = {
+    calm:    '/public/audio/Calm.mp3',
+    tension: '/public/audio/tension.mp3',
+    crisis:  '/public/audio/crisis.mp3'
+  };
+
+  let mode    = 'calm';
   let running = false;
-  let nodes = [];      // tous les noeuds actifs
-  let fadeTimer = null;
+  let current = null;
+  const preloaded = {};
 
-  // ── Utilitaires ──────────────────────────────────────────
-  function getCtx() {
-    if (!ctx) {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(0, ctx.currentTime);
-      masterGain.connect(ctx.destination);
-    }
-    return ctx;
+  function preload() {
+    Object.entries(TRACKS).forEach(([key, src]) => {
+      const a = new window.Audio(src);
+      a.loop   = true;
+      a.volume = 0;
+      preloaded[key] = a;
+    });
+  }
+  preload();
+
+  function fadeOut(el, duration) {
+    if (!el) return;
+    duration = duration || 2000;
+    const step  = 50;
+    const delta = el.volume / (duration / step);
+    const timer = setInterval(() => {
+      el.volume = Math.max(0, el.volume - delta);
+      if (el.volume <= 0) { clearInterval(timer); el.pause(); el.currentTime = 0; el.volume = 0; }
+    }, step);
   }
 
-  function killAll() {
-    nodes.forEach(n => { try { n.stop && n.stop(); } catch(e){} });
-    nodes = [];
+  function fadeIn(el, targetVol, duration) {
+    targetVol = targetVol || 0.55;
+    duration  = duration  || 3000;
+    el.volume = 0;
+    el.play().catch(function(){});
+    const step  = 50;
+    const delta = targetVol / (duration / step);
+    const timer = setInterval(() => {
+      el.volume = Math.min(targetVol, el.volume + delta);
+      if (el.volume >= targetVol) clearInterval(timer);
+    }, step);
   }
 
-  // ── Créateurs de primitives sonores ──────────────────────
-
-  // Drone basse (onde sinusoïdale lente)
-  function makeDrone(freq, gainVal, detune = 0) {
-    const ac = getCtx();
-    const osc = ac.createOscillator();
-    const g   = ac.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    osc.detune.value = detune;
-    g.gain.value = gainVal;
-    osc.connect(g); g.connect(masterGain);
-    osc.start();
-    nodes.push(osc);
-    return { osc, gain: g };
-  }
-
-  // Pad atmosphérique (triangle + filtre passe-bas lent)
-  function makePad(freq, gainVal, filterFreq = 800) {
-    const ac = getCtx();
-    const osc    = ac.createOscillator();
-    const filter = ac.createBiquadFilter();
-    const g      = ac.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = freq;
-    filter.type = 'lowpass';
-    filter.frequency.value = filterFreq;
-    filter.Q.value = 0.8;
-    g.gain.value = gainVal;
-    osc.connect(filter); filter.connect(g); g.connect(masterGain);
-    osc.start();
-    nodes.push(osc);
-    return { osc, filter, gain: g };
-  }
-
-  // Nappe de bruit (tension / atmosphère)
-  function makeNoise(gainVal, filterFreq = 500) {
-    const ac = getCtx();
-    const bufSize = ac.sampleRate * 2;
-    const buffer  = ac.createBuffer(1, bufSize, ac.sampleRate);
-    const data    = buffer.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.15;
-    const src    = ac.createBufferSource();
-    src.buffer   = buffer;
-    src.loop     = true;
-    const filter = ac.createBiquadFilter();
-    filter.type  = 'bandpass';
-    filter.frequency.value = filterFreq;
-    filter.Q.value = 0.4;
-    const g = ac.createGain();
-    g.gain.value = gainVal;
-    src.connect(filter); filter.connect(g); g.connect(masterGain);
-    src.start();
-    nodes.push(src);
-    return { src, filter, gain: g };
-  }
-
-  // Pulsation rythmique lente (cœur qui bat)
-  function makePulse(freq, gainVal, bpm = 40) {
-    const ac = getCtx();
-    const osc = ac.createOscillator();
-    const lfo = ac.createOscillator();
-    const lfoGain = ac.createGain();
-    const g   = ac.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    lfo.type = 'sine';
-    lfo.frequency.value = bpm / 60;
-    lfoGain.gain.value = gainVal * 0.8;
-    g.gain.value = gainVal * 0.2;
-    lfo.connect(lfoGain); lfoGain.connect(g.gain);
-    osc.connect(g); g.connect(masterGain);
-    osc.start(); lfo.start();
-    nodes.push(osc, lfo);
-    return { osc, lfo, gain: g };
-  }
-
-  // Sweep grave montant/descendant (crise)
-  function makeSweep(baseFreq, gainVal) {
-    const ac = getCtx();
-    const osc = ac.createOscillator();
-    const g   = ac.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.value = baseFreq;
-    g.gain.value = gainVal;
-    // LFO fréquence lent
-    const lfo = ac.createOscillator();
-    const lfoG = ac.createGain();
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.07;
-    lfoG.gain.value = baseFreq * 0.4;
-    lfo.connect(lfoG); lfoG.connect(osc.frequency);
-    // Filtre
-    const flt = ac.createBiquadFilter();
-    flt.type = 'lowpass'; flt.frequency.value = 300; flt.Q.value = 3;
-    osc.connect(flt); flt.connect(g); g.connect(masterGain);
-    osc.start(); lfo.start();
-    nodes.push(osc, lfo);
-    return { osc, lfo, filter: flt, gain: g };
-  }
-
-  // ── Layers par mode ──────────────────────────────────────
-
-  function buildCalm() {
-    // Drone grave chaud — Do2
-    makeDrone(65.4, 0.18);
-    // Drone tierce — Mi2
-    makeDrone(82.4, 0.10, -8);
-    // Pad atmosphérique doux
-    makePad(130.8, 0.08, 600);
-    makePad(196,   0.05, 400);
-    // Pulsation très lente (30 bpm)
-    makePulse(32.7, 0.12, 30);
-    // Bruit de fond très léger (salle)
-    makeNoise(0.015, 200);
-  }
-
-  function buildTension() {
-    // Drone grave plus bas et trouble
-    makeDrone(55,  0.22);
-    makeDrone(58.3, 0.10, 12); // légère dissonance
-    // Nappe de tension
-    makeNoise(0.06, 350);
-    // Pad grave inquiet
-    makePad(110, 0.10, 500);
-    // Pulsation accélérée (50 bpm)
-    makePulse(55, 0.18, 50);
-    // Sweep subtil
-    makeSweep(40, 0.07);
-  }
-
-  function buildCrisis() {
-    // Basse très grave et lourde
-    makeDrone(41.2, 0.28);
-    makeDrone(43.6, 0.12, 20); // forte dissonance
-    makeDrone(30,   0.08);     // sub-basse
-    // Nappes de bruit intenses
-    makeNoise(0.12, 180);
-    makeNoise(0.06, 600);
-    // Pulsation rapide (70 bpm) — anxiété
-    makePulse(41.2, 0.25, 70);
-    makePulse(82.4, 0.12, 70);
-    // Sweep agressif
-    makeSweep(50, 0.15);
-    makeSweep(35, 0.10);
-  }
-
-  // ── Transition douce entre modes ─────────────────────────
-  function transitionTo(newMode) {
+  function playMode(newMode, instant) {
     if (!running) return;
-    if (newMode === mode) return;
+    const el = preloaded[newMode];
+    if (!el || current === el) return;
+    if (current) fadeOut(current, instant ? 600 : 2500);
+    current = el;
+    fadeIn(el, 0.55, instant ? 800 : 3000);
     mode = newMode;
-
-    const ac = getCtx();
-    // Fade out master
-    masterGain.gain.cancelScheduledValues(ac.currentTime);
-    masterGain.gain.setValueAtTime(masterGain.gain.value, ac.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0, ac.currentTime + 2.5);
-
-    clearTimeout(fadeTimer);
-    fadeTimer = setTimeout(() => {
-      killAll();
-      if (mode === 'calm')    buildCalm();
-      if (mode === 'tension') buildTension();
-      if (mode === 'crisis')  buildCrisis();
-      // Fade in
-      masterGain.gain.cancelScheduledValues(ac.currentTime);
-      masterGain.gain.setValueAtTime(0, ac.currentTime);
-      masterGain.gain.linearRampToValueAtTime(0.7, ac.currentTime + 3);
-      updateBtn();
-    }, 2600);
+    updateBtn();
   }
 
-  // ── Bouton UI ────────────────────────────────────────────
   function updateBtn() {
     const btn   = document.getElementById('audio-btn');
     const label = document.getElementById('audio-label');
     if (!btn) return;
     btn.className = 'audio-btn';
     if (!running) { label.textContent = '♪ SON'; return; }
-    if (mode === 'calm')    { btn.classList.add('playing'); label.textContent = '♪ CALME'; }
+    if (mode === 'calm')    { btn.classList.add('playing'); label.textContent = '♪ CALME';   }
     if (mode === 'tension') { btn.classList.add('tension'); label.textContent = '♪ TENSION'; }
-    if (mode === 'crisis')  { btn.classList.add('crisis');  label.textContent = '♪ CRISE'; }
+    if (mode === 'crisis')  { btn.classList.add('crisis');  label.textContent = '♪ CRISE';   }
   }
 
-  // ── API publique ─────────────────────────────────────────
   return {
-    toggle() {
-      const ac = getCtx();
-      if (ac.state === 'suspended') ac.resume();
+    toggle: function() {
       if (running) {
-        // Stop
-        masterGain.gain.cancelScheduledValues(ac.currentTime);
-        masterGain.gain.setValueAtTime(masterGain.gain.value, ac.currentTime);
-        masterGain.gain.linearRampToValueAtTime(0, ac.currentTime + 1.5);
-        setTimeout(() => { killAll(); }, 1600);
         running = false;
+        Object.values(preloaded).forEach(function(a){ fadeOut(a, 1200); });
+        current = null;
       } else {
-        // Start
         running = true;
-        killAll();
-        if (mode === 'calm')    buildCalm();
-        if (mode === 'tension') buildTension();
-        if (mode === 'crisis')  buildCrisis();
-        masterGain.gain.cancelScheduledValues(ac.currentTime);
-        masterGain.gain.setValueAtTime(0, ac.currentTime);
-        masterGain.gain.linearRampToValueAtTime(0.7, ac.currentTime + 2);
+        playMode(mode, true);
       }
       updateBtn();
     },
-
-    // Appelé après analyse des tableaux
-    setMode(newMode) { transitionTo(newMode); },
-    isRunning()      { return running; },
-    stop() {
-      if (!running) return;
-      const ac = getCtx();
-      masterGain.gain.linearRampToValueAtTime(0, ac.currentTime + 1.5);
-      setTimeout(() => killAll(), 1600);
-      running = false; updateBtn();
+    setMode: function(newMode) {
+      if (!running || newMode === mode) return;
+      playMode(newMode);
+    },
+    isRunning: function() { return running; },
+    stop: function() {
+      running = false;
+      Object.values(preloaded).forEach(function(a){ fadeOut(a, 1500); });
+      current = null;
+      updateBtn();
     }
   };
 })();
 
 function toggleAudio() { Audio.toggle(); }
 
-// Analyse les tableaux et pilote le mode audio
 function detectAudioMode(container) {
   if (!Audio.isRunning()) return;
   let tensions = -1, popularite = -1, croissance = 0;
-  const rows = container.querySelectorAll('td');
-  // On relit le texte brut des cellules avant enrichissement
   const tables = container.querySelectorAll('table');
-  tables.forEach(table => {
-    table.querySelectorAll('tr').forEach(row => {
+  tables.forEach(function(table) {
+    table.querySelectorAll('tr').forEach(function(row) {
       const cells = row.querySelectorAll('td');
       if (cells.length < 2) return;
       const label = cells[0].textContent.toLowerCase();
       const val   = parseFloat(cells[1].textContent.replace(/[^\d.\-]/g,''));
       if (isNaN(val)) return;
-      if (label.includes('tension'))    tensions    = val;
-      if (label.includes('popular'))    popularite  = val;
-      if (label.includes('croissance')) croissance  = val;
+      if (label.includes('tension'))    tensions   = val;
+      if (label.includes('popular'))    popularite = val;
+      if (label.includes('croissance')) croissance = val;
     });
   });
-
-  // Décision : le pire indicateur l'emporte
   let newMode = 'calm';
   if (tensions >= 7 || popularite < 30 || croissance < -1) newMode = 'crisis';
   else if (tensions >= 5 || popularite < 45 || croissance < 0) newMode = 'tension';
@@ -1127,7 +968,7 @@ function resetGame() {
   document.getElementById('game').classList.remove('active');
   document.getElementById('landing').style.display = '';
   document.getElementById('save-info').style.display = 'none';
-  document.getElementById('chat-messages').innerHTML = `<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  document.getElementById('chat-messages').innerHTML = '<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent = '—';
   document.getElementById('hud-date').textContent = '—';
   document.getElementById('hud-diff').textContent = '—';
