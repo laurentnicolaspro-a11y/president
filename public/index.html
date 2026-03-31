@@ -934,7 +934,13 @@ function addMessage(role, content) {
   div.appendChild(header);
   div.appendChild(body);
   container.insertBefore(div, typing);
+
+  // Scroll immédiat + suivi continu pendant le rendu
   container.scrollTop = container.scrollHeight;
+  const scrollFollow = setInterval(() => {
+    container.scrollTop = container.scrollHeight;
+  }, 50);
+  setTimeout(() => clearInterval(scrollFollow), 2000);
 }
 
 function setLoading(val) {
