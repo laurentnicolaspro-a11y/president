@@ -88,7 +88,17 @@ RÈGLES GÉNÉRALES :
 - Adapte tous les chiffres à la réalité du pays choisi
 - Sois précis et cohérent d'un tour à l'autre
 - Les décisions ont des conséquences durables dans les tableaux
-- Sois impitoyable dans les crises mais toujours juste et réaliste`;
+- Sois impitoyable dans les crises mais toujours juste et réaliste
+
+═══════════════════════════════════════════════
+VII. BREAKING NEWS
+À la fin de chaque Phase 2 UNIQUEMENT, ajoute TOUJOURS cette ligne (et seulement cette ligne) :
+[NEWS: Titre accrocheur 1 | Titre accrocheur 2 | Titre accrocheur 3]
+- Les titres doivent refléter les événements du tour en cours (décisions, crises, réactions)
+- Style journalistique court et percutant, comme un vrai JT
+- Maximum 60 caractères par titre
+- Ne jamais afficher ce bloc en Phase 1
+═══════════════════════════════════════════════`;
 
 // ── Fenêtrage de l'historique ──────────────────────────────
 // Garde toujours le 1er message (init) + les N derniers échanges
