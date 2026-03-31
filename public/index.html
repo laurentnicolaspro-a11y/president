@@ -905,7 +905,7 @@ function addMessage(role, content) {
   if (role === 'ai') {
     const cleaned = extractAndShowNews(content);
     body.innerHTML = window.marked.parse(cleaned);
-    setTimeout(() => { enrichTables(body); detectAudioMode(body); }, 0);
+    setTimeout(() => { detectAudioMode(body); enrichTables(body); }, 0);
   } else {
     body.textContent = content;
   }
@@ -1053,16 +1053,26 @@ function detectAudioMode(container) {
       const cells = row.querySelectorAll('td');
       if (cells.length < 2) return;
       const label = cells[0].textContent.toLowerCase();
-      const val   = parseFloat(cells[1].textContent.replace(/[^\d.\-]/g,''));
+      // Extrait uniquement le premier nombre trouvé (avant les spans d'enrichissement)
+      const rawText = cells[1].textContent;
+      const numMatch = rawText.match(/-?\d+(\.\d+)?/);
+      if (!numMatch) return;
+      const val = parseFloat(numMatch[0]);
       if (isNaN(val)) return;
       if (label.includes('tension'))    tensions   = val;
       if (label.includes('popular'))    popularite = val;
       if (label.includes('croissance')) croissance = val;
     });
   });
+
+  // Log debug (à retirer une fois validé)
+  console.log('Audio detect — tensions:', tensions, '| popularité:', popularite, '| croissance:', croissance);
+
   let newMode = 'calm';
   if (tensions >= 7 || popularite < 30 || croissance < -1) newMode = 'crisis';
   else if (tensions >= 5 || popularite < 45 || croissance < 0) newMode = 'tension';
+
+  console.log('→ Mode audio :', newMode);
   Audio.setMode(newMode);
 }
 // ╚══════════════════════════════════════════╝
