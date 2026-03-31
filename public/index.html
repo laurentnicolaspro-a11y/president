@@ -774,6 +774,11 @@ async function callAPI(initMessage, isInit) {
     addMessage('ai', text);
     updateHUD(text);
     saveGame();
+    // Scroll garanti après tout le rendu
+    setTimeout(() => {
+      const c = document.getElementById('chat-messages');
+      c.scrollTop = c.scrollHeight;
+    }, 800);
 
   } catch (err) {
     addMessage('ai', `⚠ Erreur : ${err.message}\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel (Settings → Environment Variables).`);
