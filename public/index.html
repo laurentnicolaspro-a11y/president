@@ -774,11 +774,7 @@ async function callAPI(initMessage, isInit) {
     addMessage('ai', text);
     updateHUD(text);
     saveGame();
-    // Scroll garanti après tout le rendu
-    setTimeout(() => {
-      const c = document.getElementById('chat-messages');
-      c.scrollTop = c.scrollHeight;
-    }, 800);
+    setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'auto' }); }, 800);
 
   } catch (err) {
     addMessage('ai', `⚠ Erreur : ${err.message}\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel (Settings → Environment Variables).`);
@@ -943,8 +939,7 @@ function addMessage(role, content) {
 }
 
 function scrollToBottom(container) {
-  container = container || document.getElementById('chat-messages');
-  container.scrollTop = container.scrollHeight;
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'auto' });
 }
 
 function setLoading(val) {
@@ -952,7 +947,7 @@ function setLoading(val) {
   document.getElementById('typing').classList.toggle('active', val);
   document.getElementById('send-btn').disabled = val;
   document.getElementById('chat-input').disabled = val;
-  scrollToBottom();
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'auto' });
 }
 
 function updateHUD(text) {
