@@ -528,31 +528,36 @@ window.marked = {
 
 // ===== CHOIX CLIQUABLES =====
 function renderChoices(container) {
-  // Cherche dans les <li> ET les <p> pour les choix numérotés
-  const elements = container.querySelectorAll('li, p');
-  elements.forEach(function(el) {
-    var text = el.textContent.trim();
-    var match = text.match(/^(\d+)\.\s+(.+)$/);
-    if (!match) return;
-    var num = match[1];
-    var label = match[2];
-    var isCustom = label.toLowerCase().includes('personnalis') || num === '4';
-    var btn = document.createElement('button');
-    btn.className = 'choice-btn' + (isCustom ? ' custom' : '');
-    btn.innerHTML = '<strong>' + num + '.</strong> ' + label;
-    btn.onclick = function() {
-      if (isCustom) {
-        openCustomModal();
-      } else {
-        // Désactive tous les boutons du message
-        var allBtns = container.querySelectorAll('.choice-btn');
-        allBtns.forEach(function(b) { b.disabled = true; });
-        btn.disabled = false;
-        btn.classList.add('chosen');
-        sendChoiceMessage(num + '. ' + label);
-      }
-    };
-    el.replaceWith(btn);
+  var ols = container.querySelectorAll('ol');
+  ols.forEach(function(ol) {
+    var items = ol.querySelectorAll('li');
+    var choiceBtns = document.createElement('div');
+    choiceBtns.style.cssText = 'display:flex;flex-direction:column;gap:0.3rem;margin:0.5rem 0;';
+    var hasChoices = false;
+    items.forEach(function(li, idx) {
+      var text = li.textContent.trim();
+      var num = idx + 1;
+      var isCustom = text.toLowerCase().includes('personnalis') || num === 4;
+      var btn = document.createElement('button');
+      btn.className = 'choice-btn' + (isCustom ? ' custom' : '');
+      btn.innerHTML = '<strong>' + num + '.</strong> ' + text;
+      btn.onclick = (function(n, t, b, isC) {
+        return function() {
+          if (isC) {
+            openCustomModal();
+          } else {
+            var allBtns = choiceBtns.querySelectorAll('.choice-btn');
+            allBtns.forEach(function(x) { x.disabled = true; });
+            b.disabled = false;
+            b.classList.add('chosen');
+            sendChoiceMessage(n + '. ' + t);
+          }
+        };
+      })(num, text, btn, isCustom);
+      choiceBtns.appendChild(btn);
+      hasChoices = true;
+    });
+    if (hasChoices) ol.replaceWith(choiceBtns);
   });
 }
 
