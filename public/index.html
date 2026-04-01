@@ -405,6 +405,10 @@
     <div class="chat-messages" id="chat-messages">
       <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
     </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chat-input" placeholder="Entrez votre décision ou message..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">ENVOYER</button>
+    </div>
   </div>
   <div class="bottom-bar">
     <div style="display:flex;align-items:center;gap:1rem;">
