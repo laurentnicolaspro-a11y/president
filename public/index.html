@@ -642,7 +642,6 @@
   </div>
   <div class="btn-row" id="btn-row">
     <button class="play-btn" onclick="startGame()">▶ JOUER</button>
-    <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('active')">RÈGLES</button>
     <button class="legal-btn" onclick="document.getElementById('legal-modal').classList.add('active')">MENTIONS LÉGALES</button>
   </div>
   <div id="save-info" style="margin-top:1rem;display:none;">
@@ -721,7 +720,6 @@
       </div>
       <span id="audio-label">♪ SON</span>
     </button>
-    <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()" title="Plein écran">⛶ PLEIN ÉCRAN</button>
     <button class="stat-btn" onclick="openStats()" title="Statistiques">📊 STATS</button>
     <!-- ✅ BOUTON SIGNALER DANS LE HUD -->
     <button class="report-hud-btn" onclick="openReportModal()" title="Signaler un problème">⚠ SIGNALER</button>
@@ -737,15 +735,17 @@
       <button class="send-btn" id="send-btn" onclick="sendMessage()">ENVOYER</button>
     </div>
   </div>
-  <div class="bottom-bar">
+<div class="bottom-bar">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()" title="Plein écran">⛶ PLEIN ÉCRAN</button>
     <span class="hint">↵ Entrée pour envoyer · Maj+Entrée pour saut de ligne</span>
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
-      <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
-    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
+    <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
   </div>
 </div>
-
+  
 <div id="news-banner">
   <div class="news-label">⚡ BREAKING NEWS</div>
   <div class="news-track-wrap">
