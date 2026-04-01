@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Président le Jeu</title>
+<title>Président le Jeu V2</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
     --bg: #030712;
@@ -28,6 +27,49 @@
     background-image: linear-gradient(rgba(66,133,244,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(66,133,244,0.025) 1px,transparent 1px);
     background-size:40px 40px; pointer-events:none; z-index:0;
   }
+
+  /* Language Toggle */
+  .lang-toggle {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(66, 133, 244, 0.1);
+    border: 1px solid rgba(66, 133, 244, 0.3);
+    border-radius: 20px;
+    padding: 0.2rem;
+    z-index: 10;
+  }
+  .lang-option {
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--muted);
+  }
+  .lang-option.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: var(--glow);
+  }
+  .lang-option:hover:not(.active) {
+    color: var(--text);
+  }
+  .flag-icon {
+    width: 14px;
+    height: 10px;
+    background-size: cover;
+    background-position: center;
+  }
+  .flag-fr { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="1" height="2" fill="%230055A4"/><rect x="1" width="1" height="2" fill="%23FFFFFF"/><rect x="2" width="1" height="2" fill="%23EF4135"/></svg>'); }
+  .flag-en { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23012169"/><path d="M0,0 L3,2 M3,0 L0,2" stroke="%23FFFFFF" stroke-width="0.2"/><path d="M0,0 L3,2 M3,0 L0,2" stroke="%23C8102E" stroke-width="0.1"/></svg>'); }
 
   /* LANDING */
   #landing { position:relative; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; z-index:1; }
@@ -67,17 +109,9 @@
   .play-btn:hover::before{transform:translateX(0);}
   .rules-btn{padding:1rem 2rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
   .rules-btn:hover{border-color:var(--muted);color:var(--text);}
-  .legal-btn{padding:1rem 1.5rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
-  .legal-btn:hover{border-color:var(--accent3);color:var(--accent3);box-shadow:0 0 10px rgba(52,168,83,0.2);}
-  .resume-btn{padding:1rem 2rem;background:rgba(52,168,83,0.08);border:2px solid var(--accent3);color:var(--accent3);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.12em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);position:relative;overflow:hidden;}
-  .resume-btn::before{content:'';position:absolute;inset:0;background:var(--accent3);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
-  .resume-btn:hover{color:#fff;box-shadow:0 0 20px rgba(52,168,83,0.4);}
-  .resume-btn:hover::before{transform:translateX(0);}
-  .save-indicator{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--accent3);letter-spacing:0.1em;margin-top:0.5rem;opacity:0;transition:opacity 0.5s;}
-  .save-indicator.show{opacity:1;}
 
   /* GAME */
-  #game{display:none;position:fixed;inset:0;z-index:1;padding:1rem;flex-direction:column;overflow:hidden;background:var(--bg);}
+  #game{display:none;position:relative;z-index:1;min-height:100vh;padding:1rem;flex-direction:column;}
   #game.active{display:flex;}
 
   .hud{display:flex;align-items:center;justify-content:space-between;padding:0.6rem 1rem;background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);border-radius:4px;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
@@ -92,137 +126,8 @@
   .hud-dot:nth-child(3){background:var(--accent3);}
   .hud-dot:nth-child(4){background:var(--accent4);}
 
-  /* ✅ BOUTON SIGNALER DANS LE HUD */
-  .report-hud-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.68rem;
-    padding: 0.25rem 0.6rem;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.3s;
-    letter-spacing: 0.05em;
-  }
-  .report-hud-btn:hover {
-    border-color: var(--red);
-    color: var(--red);
-    box-shadow: 0 0 8px rgba(255, 59, 92, 0.3);
-  }
-
-  /* Modale de signalement */
-  #report-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(3, 7, 18, 0.96);
-    z-index: 300;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-  }
-  #report-modal.active {
-    display: flex;
-  }
-  .report-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top: 2px solid var(--red);
-    max-width: 500px;
-    width: 100%;
-    padding: 1.8rem;
-    border-radius: 4px;
-  }
-  .report-box h2 {
-    font-family: 'Orbitron', monospace;
-    color: var(--red);
-    font-size: 1rem;
-    letter-spacing: 0.12em;
-    margin-bottom: 1.2rem;
-  }
-  .report-box p {
-    color: var(--muted);
-    margin-bottom: 1rem;
-    font-size: 0.87rem;
-    line-height: 1.6;
-  }
-  .report-box textarea {
-    width: 100%;
-    min-height: 120px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    padding: 0.8rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    resize: vertical;
-  }
-  .report-box .btn-row {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-  }
-  .report-btn-submit {
-    padding: 0.6rem 1.2rem;
-    background: var(--red);
-    border: none;
-    color: white;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
-  }
-  .report-btn-submit:hover {
-    background: #ff1a33;
-    box-shadow: 0 0 10px rgba(255, 59, 92, 0.5);
-  }
-  .report-btn-cancel {
-    padding: 0.6rem 1.2rem;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'Orbitron', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
-  }
-  .report-btn-cancel:hover {
-    border-color: var(--red);
-    color: var(--red);
-  }
-
-  /* Notification de succès */
-  .report-success {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    background: rgba(52, 168, 83, 0.9);
-    color: white;
-    padding: 0.8rem 1.2rem;
-    border-radius: 4px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.8rem;
-    z-index: 400;
-    transform: translateY(20px);
-    opacity: 0;
-    transition: all 0.3s;
-  }
-  .report-success.show {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  .chat-container{flex:1;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;max-width:1000px;width:100%;margin:0 auto;min-height:0;}
-  .chat-messages{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-height:0;}
+  .chat-container{flex:1;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;max-width:1000px;width:100%;margin:0 auto;min-height:68vh;}
+  .chat-messages{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;scroll-behavior:smooth;}
   .chat-messages::-webkit-scrollbar{width:4px;}
   .chat-messages::-webkit-scrollbar-track{background:var(--surface);}
   .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
@@ -238,126 +143,22 @@
   .msg.ai .msg-body{background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--accent);}
   .msg.user .msg-body{background:rgba(234,67,53,0.07);border:1px solid rgba(234,67,53,0.2);border-right:2px solid var(--accent2);}
 
-  .msg-body h1 {
-    font-family: 'Orbitron', monospace;
-    color: var(--accent);
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    margin: 1.2rem 0 0.6rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid rgba(66,133,244,0.25);
-  }
-  .msg-body h2 {
-    font-family: 'Orbitron', monospace;
-    color: var(--accent);
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    margin: 1rem 0 0.5rem;
-  }
-  .msg-body h3 {
-    font-family: 'Rajdhani', sans-serif;
-    color: var(--accent4);
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin: 0.9rem 0 0.4rem;
-  }
-  .msg-body p {
-    margin: 0.55rem 0;
-    line-height: 1.8;
-    color: var(--text);
-  }
-  .msg-body p:first-child { margin-top: 0; }
-  .msg-body p:last-child  { margin-bottom: 0; }
-  .msg-body table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0.9rem 0;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.82rem;
-  }
-  .msg-body th {
-    background: rgba(66,133,244,0.15);
-    color: var(--accent);
-    border: 1px solid rgba(66,133,244,0.25);
-    padding: 0.45rem 0.9rem;
-    text-align: left;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-  .msg-body td {
-    border: 1px solid var(--border);
-    padding: 0.4rem 0.9rem;
-    color: var(--text);
-  }
-  .msg-body tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
-  .msg-body tr:hover td { background: rgba(66,133,244,0.05); transition: background 0.15s; }
-
-  .ind-up   { color: #34a853; font-weight:700; }
-  .ind-down { color: #ff3b5c; font-weight:700; }
-  .ind-warn { color: #fbbc04; font-weight:700; }
-  .ind-crit { color: #ff3b5c; font-weight:700; animation: critPulse 0.8s ease-in-out infinite; }
-  .ind-ok   { color: #34a853; font-weight:700; }
-  @keyframes critPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-
-  .msg-body tr.row-warn td { background: rgba(251,188,4,0.07) !important; border-color: rgba(251,188,4,0.3) !important; }
-  .msg-body tr.row-crit td { background: rgba(255,59,92,0.09) !important; border-color: rgba(255,59,92,0.35) !important; }
-  .msg-body tr.row-good td { background: rgba(52,168,83,0.06) !important; border-color: rgba(52,168,83,0.25) !important; }
-
-  .alert-banner {
-    display:flex; align-items:center; gap:0.6rem;
-    background:rgba(255,59,92,0.1); border:1px solid rgba(255,59,92,0.45);
-    border-left:3px solid #ff3b5c; padding:0.5rem 0.9rem; border-radius:3px;
-    margin:0.4rem 0; font-family:'Share Tech Mono',monospace; font-size:0.78rem;
-    color:#ff3b5c; animation:critPulse 1.2s ease-in-out infinite;
-  }
-  .warn-banner {
-    display:flex; align-items:center; gap:0.6rem;
-    background:rgba(251,188,4,0.08); border:1px solid rgba(251,188,4,0.4);
-    border-left:3px solid #fbbc04; padding:0.5rem 0.9rem; border-radius:3px;
-    margin:0.4rem 0; font-family:'Share Tech Mono',monospace; font-size:0.78rem; color:#fbbc04;
-  }
-  .msg-body ul, .msg-body ol {
-    padding-left: 1.5rem;
-    margin: 0.5rem 0 0.7rem;
-  }
-  .msg-body li {
-    margin: 0.3rem 0;
-    line-height: 1.7;
-    color: var(--text);
-  }
-  .msg-body ul li::marker { color: var(--accent); }
-  .msg-body ol li::marker { color: var(--accent4); font-family: 'Share Tech Mono', monospace; }
-  .msg-body strong { color: var(--accent4); font-weight: 700; }
-  .msg-body em      { color: var(--muted); font-style: italic; }
-  .msg-body code   {
-    background: rgba(66,133,244,0.1);
-    padding: 0.1rem 0.35rem;
-    border-radius: 2px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.85em;
-    color: var(--accent3);
-  }
-  .msg-body hr {
-    border: none;
-    border-top: 1px solid rgba(66,133,244,0.2);
-    margin: 1rem 0;
-  }
-  .msg-body .cta-block {
-    background: rgba(66,133,244,0.06);
-    border: 1px solid rgba(66,133,244,0.25);
-    border-left: 3px solid var(--accent);
-    padding: 0.6rem 1rem;
-    border-radius: 3px;
-    margin: 0.9rem 0 0;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.82rem;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-  }
+  /* Markdown rendered content */
+  .msg-body table{width:100%;border-collapse:collapse;margin:0.8rem 0;font-family:'Share Tech Mono',monospace;font-size:0.82rem;}
+  .msg-body th{background:rgba(66,133,244,0.15);color:var(--accent);border:1px solid var(--border);padding:0.45rem 0.8rem;text-align:left;font-weight:700;letter-spacing:0.05em;}
+  .msg-body td{border:1px solid var(--border);padding:0.4rem 0.8rem;color:var(--text);}
+  .msg-body tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+  .msg-body tr:hover td{background:rgba(66,133,244,0.05);}
+  .msg-body h1,.msg-body h2,.msg-body h3{font-family:'Orbitron',monospace;color:var(--accent);margin:1rem 0 0.5rem;letter-spacing:0.05em;}
+  .msg-body h1{font-size:1.1rem;border-bottom:1px solid var(--border);padding-bottom:0.4rem;}
+  .msg-body h2{font-size:0.95rem;}
+  .msg-body h3{font-size:0.85rem;color:var(--accent4);}
+  .msg-body strong{color:var(--accent4);}
+  .msg-body em{color:var(--muted);}
+  .msg-body ul,.msg-body ol{padding-left:1.4rem;margin:0.4rem 0;}
+  .msg-body li{margin:0.2rem 0;}
+  .msg-body code{background:rgba(66,133,244,0.1);padding:0.1rem 0.35rem;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:0.85em;color:var(--accent3);}
+  .msg-body p{margin:0.4rem 0;}
 
   .typing-indicator{display:none;align-self:flex-start;padding:0.8rem 1.2rem;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:4px;}
   .typing-indicator.active{display:flex;gap:4px;align-items:center;}
@@ -380,6 +181,7 @@
   .reset-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;transition:all 0.2s;}
   .reset-btn:hover{border-color:var(--red);color:var(--red);}
 
+  /* LOADING */
   #loading{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;}
   #loading.active{display:flex;}
   .loading-text{font-family:'Orbitron',monospace;font-size:1rem;color:var(--accent);letter-spacing:0.2em;animation:pulse 1s ease-in-out infinite;}
@@ -388,6 +190,7 @@
   .loading-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--accent4));animation:loadBar 1.8s ease-in-out infinite;}
   @keyframes loadBar{0%{width:0%;margin-left:0%}50%{width:80%;margin-left:0%}100%{width:0%;margin-left:100%}}
 
+  /* RULES MODAL */
   #rules-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:200;align-items:center;justify-content:center;padding:1.5rem;}
   #rules-modal.active{display:flex;}
   .rules-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);max-width:720px;width:100%;max-height:85vh;overflow-y:auto;padding:2rem;border-radius:4px;}
@@ -403,157 +206,12 @@
   .close-rules{margin-top:1.5rem;width:100%;padding:0.7rem;background:none;border:1px solid var(--accent);color:var(--accent);font-family:'Orbitron',monospace;font-size:0.8rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;}
   .close-rules:hover{background:var(--accent);color:#fff;}
 
-  #legal-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:200;align-items:center;justify-content:center;padding:1.5rem;}
-  #legal-modal.active{display:flex;}
-  #legal-modal a{color:var(--accent);text-decoration:none;}
-  #legal-modal a:hover{text-decoration:underline;}
-
   .scanlines{position:fixed;inset:0;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);}
   .corner-deco{position:fixed;width:48px;height:48px;pointer-events:none;z-index:0;opacity:0.2;}
   .corner-deco.tl{top:14px;left:14px;border-top:2px solid var(--accent);border-left:2px solid var(--accent3);}
   .corner-deco.tr{top:14px;right:14px;border-top:2px solid var(--accent2);border-right:2px solid var(--accent);}
   .corner-deco.bl{bottom:14px;left:14px;border-bottom:2px solid var(--accent3);border-left:2px solid var(--accent4);}
   .corner-deco.br{bottom:14px;right:14px;border-bottom:2px solid var(--accent4);border-right:2px solid var(--accent2);}
-
-  .audio-btn {
-    display:flex; align-items:center; gap:5px;
-    background:none; border:1px solid var(--border);
-    color:var(--muted); font-family:'Share Tech Mono',monospace;
-    font-size:0.68rem; padding:0.25rem 0.7rem; cursor:pointer;
-    border-radius:2px; transition:all 0.3s; letter-spacing:0.05em;
-  }
-  .audio-btn:hover { border-color:var(--accent); color:var(--accent); }
-  .audio-btn.playing { border-color:var(--accent3); color:var(--accent3); }
-  .audio-btn.tension { border-color:var(--accent4); color:var(--accent4); }
-  .audio-btn.crisis  { border-color:var(--red); color:var(--red); animation:critPulse 1s ease-in-out infinite; }
-  .audio-bars { display:flex; align-items:flex-end; gap:2px; height:12px; }
-  .audio-bar  { width:3px; background:currentColor; border-radius:1px; }
-  .audio-btn.playing .audio-bar:nth-child(1),
-  .audio-btn.tension .audio-bar:nth-child(1),
-  .audio-btn.crisis  .audio-bar:nth-child(1) { animation:barBounce 0.8s ease-in-out infinite; }
-  .audio-btn.playing .audio-bar:nth-child(2),
-  .audio-btn.tension .audio-bar:nth-child(2),
-  .audio-btn.crisis  .audio-bar:nth-child(2) { animation:barBounce 0.8s ease-in-out infinite 0.15s; }
-  .audio-btn.playing .audio-bar:nth-child(3),
-  .audio-btn.tension .audio-bar:nth-child(3),
-  .audio-btn.crisis  .audio-bar:nth-child(3) { animation:barBounce 0.8s ease-in-out infinite 0.3s; }
-  .audio-btn.tension .audio-bar { animation-duration:0.5s !important; }
-  .audio-btn.crisis  .audio-bar { animation-duration:0.28s !important; }
-  @keyframes barBounce { 0%,100%{height:3px} 50%{height:12px} }
-
-  #news-banner {
-    display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 500;
-    background: #0d0d0d;
-    border-top: 2px solid var(--accent2);
-    height: 36px;
-    overflow: hidden;
-    flex-direction: row;
-    align-items: center;
-  }
-  #news-banner.active { display: flex; }
-  .news-label {
-    flex-shrink: 0;
-    background: var(--accent2);
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    padding: 0 0.9rem;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-  }
-  .news-label::after {
-    content: '▶';
-    margin-left: 0.5rem;
-    font-size: 0.5rem;
-  }
-  .news-track-wrap {
-    flex: 1;
-    overflow: hidden;
-    height: 100%;
-    position: relative;
-  }
-  .news-track {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    white-space: nowrap;
-    animation: newsScroll 28s linear infinite;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.78rem;
-    color: #f0f0f0;
-    letter-spacing: 0.04em;
-  }
-  .news-track:hover { animation-play-state: paused; }
-  .news-sep {
-    color: var(--accent2);
-    margin: 0 1.5rem;
-    font-size: 1rem;
-  }
-  @keyframes newsScroll {
-    0%   { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-
-  .fs-btn {
-    display:flex; align-items:center; gap:4px;
-    background:none; border:1px solid var(--border);
-    color:var(--muted); font-family:'Share Tech Mono',monospace;
-    font-size:0.68rem; padding:0.25rem 0.6rem; cursor:pointer;
-    border-radius:2px; transition:all 0.3s; letter-spacing:0.05em;
-  }
-  .fs-btn:hover { border-color:var(--accent); color:var(--accent); }
-  :fullscreen #game, :-webkit-full-screen #game { padding: 0.5rem; }
-  :fullscreen .hud, :-webkit-full-screen .hud { padding: 0.4rem 0.8rem; }
-  :fullscreen .chat-container, :-webkit-full-screen .chat-container { min-height: calc(100vh - 120px); }
-
-  #stats-modal { display:none; position:fixed; inset:0; background:rgba(3,7,18,0.96); z-index:200; align-items:center; justify-content:center; padding:1.5rem; }
-  #stats-modal.active { display:flex; }
-  .stats-box {
-    background:var(--surface); border:1px solid var(--border); border-top:2px solid var(--accent4);
-    max-width:860px; width:100%; max-height:88vh; overflow-y:auto; padding:1.8rem; border-radius:4px;
-  }
-  .stats-box::-webkit-scrollbar{width:4px;}
-  .stats-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  .stats-header {
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:1.5rem; padding-bottom:0.8rem; border-bottom:1px solid var(--border);
-  }
-  .stats-header h2 { font-family:'Orbitron',monospace; color:var(--accent4); font-size:0.95rem; letter-spacing:0.12em; }
-  .stats-header span { font-family:'Share Tech Mono',monospace; font-size:0.7rem; color:var(--muted); }
-  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
-  @media(max-width:640px){ .stats-grid { grid-template-columns:1fr; } }
-  .chart-card {
-    background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:1rem;
-  }
-  .chart-card h3 {
-    font-family:'Share Tech Mono',monospace; font-size:0.72rem; color:var(--muted);
-    letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.8rem;
-  }
-  .chart-card h3 span { color:var(--accent4); font-size:0.85rem; float:right; }
-  .chart-wrap { position:relative; height:140px; }
-  .no-data { font-family:'Share Tech Mono',monospace; font-size:0.72rem; color:var(--muted); text-align:center; padding:2rem 0; }
-  .close-stats {
-    margin-top:1.5rem; width:100%; padding:0.7rem; background:none;
-    border:1px solid var(--accent4); color:var(--accent4); font-family:'Orbitron',monospace;
-    font-size:0.78rem; letter-spacing:0.1em; cursor:pointer; transition:all 0.3s; border-radius:2px;
-  }
-  .close-stats:hover { background:var(--accent4); color:#000; }
-  .stat-btn {
-    display:flex; align-items:center; gap:4px; background:none;
-    border:1px solid var(--border); color:var(--muted); font-family:'Share Tech Mono',monospace;
-    font-size:0.68rem; padding:0.25rem 0.7rem; cursor:pointer; border-radius:2px;
-    transition:all 0.3s; letter-spacing:0.05em;
-  }
-  .stat-btn:hover { border-color:var(--accent4); color:var(--accent4); }
-
-  #game.news-open .bottom-bar { margin-bottom: 36px; }
 
   @media(max-width:600px){.title-main{font-size:1.8rem;}.hud-center{display:none;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}}
 </style>
@@ -567,162 +225,83 @@
 <div class="corner-deco br"></div>
 
 <div id="loading">
-  <div class="loading-text">INITIALISATION...</div>
+  <div class="loading-text" id="loading-text">INITIALISATION...</div>
   <div class="loading-bar-container"><div class="loading-bar"></div></div>
 </div>
 
 <div id="rules-modal">
   <div class="rules-box">
-    <h2>⚙ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU</h2>
+    <h2 id="rules-title">⚙ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU</h2>
     <h3>I. Introduction</h3>
-    <p>L'IA prend la date actuelle et les événements réels pour créer une introduction immersive. Vous choisissez :</p>
+    <p id="rules-intro">L'IA prend la date actuelle et les événements réels pour créer une introduction immersive. Vous choisissez :</p>
     <ul>
-      <li>Le <strong>pays</strong> à diriger (tous les pays du monde)</li>
-      <li>La <strong>difficulté</strong> : Facile / Normal / Difficile / Réaliste</li>
+      <li id="rules-country">Le <strong>pays</strong> à diriger (tous les pays du monde)</li>
+      <li id="rules-difficulty">La <strong>difficulté</strong> : Facile / Normal / Difficile / Réaliste</li>
     </ul>
-    <p style="margin-top:0.5rem;">⚠ Jeu en bêta — l'IA peut faire des erreurs, n'hésitez pas à la corriger.</p>
+    <p id="rules-warning" style="margin-top:0.5rem;">⚠ Jeu en bêta — l'IA peut faire des erreurs, n'hésitez pas à la corriger.</p>
     <h3>II. Objectif</h3>
-    <p>Survivre jusqu'à la fin de votre mandat. Vous pouvez briguer un second mandat.</p>
-    <div class="rule-block"><p>L'IA s'assure que vous n'y parvenez pas facilement : crises, scandales, mouvements sociaux, pressions internationales…</p></div>
+    <p id="rules-goal">Survivre jusqu'à la fin de votre mandat. Vous pouvez briguer un second mandat.</p>
+    <div class="rule-block"><p id="rules-goal-detail">L'IA s'assure que vous n'y parvenez pas facilement : crises, scandales, mouvements sociaux, pressions internationales…</p></div>
     <h3>III. Configuration</h3>
     <ul>
-      <li><strong>1 tour = 1 mois</strong></li>
-      <li>Tous les <strong>24 mois</strong> : crise mondiale majeure</li>
-      <li>Durée du mandat adaptée au pays choisi</li>
+      <li id="rules-turn"><strong>1 tour = 1 mois</strong></li>
+      <li id="rules-crisis">Tous les <strong>24 mois</strong> : crise mondiale majeure</li>
+      <li id="rules-mandate">Durée du mandat adaptée au pays choisi</li>
     </ul>
     <h3>IV. Affichage — 2 phases</h3>
-    <p><strong>Phase 1</strong> — Tableaux chiffrés : Économie · Ressources · Projets · Gros Titres</p>
-    <div class="rule-block"><p>Se termine par : <strong>[ Tapez OK ou CONTINUER pour passer à la Phase 2 ]</strong></p></div>
-    <p style="margin-top:0.8rem;"><strong>Phase 2</strong> (après OK) — Narration · Conseils ministériels · 3 choix + option personnalisée</p>
+    <p id="rules-phase1"><strong>Phase 1</strong> — Tableaux chiffrés : Économie · Ressources · Projets · Gros Titres</p>
+    <div class="rule-block"><p id="rules-phase1-end">Se termine par : <strong>[ Tapez OK ou CONTINUER pour passer à la Phase 2 ]</strong></p></div>
+    <p style="margin-top:0.8rem;" id="rules-phase2"><strong>Phase 2</strong> (après OK) — Narration · Conseils ministériels · 3 choix + option personnalisée</p>
     <h3>V. Négociation</h3>
-    <p>Convoquer une réunion suspend le temps. L'IA incarne vos interlocuteurs jusqu'à votre signal de reprise.</p>
+    <p id="rules-negotiation">Convoquer une réunion suspend le temps. L'IA incarne vos interlocuteurs jusqu'à votre signal de reprise.</p>
     <h3>VI. Rappel auto</h3>
-    <p>Tous les 2 tours, l'IA se rappelle le règlement en interne (non visible).</p>
-    <button class="close-rules" onclick="document.getElementById('rules-modal').classList.remove('active')">FERMER</button>
-  </div>
-</div>
-
-<div id="legal-modal">
-  <div class="rules-box">
-    <h2>📜 MENTIONS LÉGALES — PRÉSIDENT LE JEU</h2>
-    <h3>1. ÉDITEUR</h3>
-    <p>
-      <strong>LAURENT Nicolas</strong><br>
-      Seine-Saint-Denis, France<br>
-      Email : <a href="mailto:lechikiponk@gmail.com">lechikiponk@gmail.com</a>
-    </p>
-    <h3>2. HÉBERGEMENT</h3>
-    <p>
-      <strong>Vercel Inc.</strong><br>
-      340 S Lemon Ave #4133<br>
-      Walnut, CA 91789, États-Unis<br>
-      Site web : <a href="https://vercel.com" target="_blank">vercel.com</a>
-    </p>
-    <h3>3. PROPRIÉTÉ INTELLECTUELLE</h3>
-    <p>Tous les contenus du jeu (design, code, univers) sont des créations originales protégées par le droit d’auteur français.</p>
-    <p><strong>Scénarios générés par Google Gemini</strong> : Propriété de Google LLC, utilisés conformément à leurs conditions.</p>
-    <h3>4. DONNÉES PERSONNELLES</h3>
-    <p>✅ Aucune collecte de données. Les sauvegardes sont stockées localement sur votre appareil.</p>
-    <button class="close-rules" onclick="document.getElementById('legal-modal').classList.remove('active')">FERMER</button>
+    <p id="rules-reminder">Tous les 2 tours, l'IA se rappelle le règlement en interne (non visible).</p>
+    <button class="close-rules" id="close-rules" onclick="document.getElementById('rules-modal').classList.remove('active')">FERMER</button>
   </div>
 </div>
 
 <div id="landing">
+  <div class="lang-toggle">
+    <div class="lang-option active" data-lang="fr" onclick="setLanguage('fr')">
+      <div class="flag-icon flag-fr"></div>
+      FR
+    </div>
+    <div class="lang-option" data-lang="en" onclick="setLanguage('en')">
+      <div class="flag-icon flag-en"></div>
+      EN
+    </div>
+  </div>
+
   <div class="globe-container">
     <div class="globe"></div>
     <div class="globe-ring"></div>
   </div>
-  <div class="title-main">PRÉSIDENT<br>LE JEU</div>
-  <div class="title-sub">Simulation géopolitique IA</div>
-  <span class="beta-badge">BÊTA · GEMINI</span>
-  <p class="title-desc">Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques.</p>
+  <div class="title-main" id="title-main">PRÉSIDENT<br>LE JEU</div>
+  <div class="title-sub" id="title-sub">Simulation géopolitique IA</div>
+  <span class="beta-badge" id="beta-badge">BÊTA · GEMINI</span>
+  <p class="title-desc" id="title-desc">Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques. Chaque décision a des conséquences réelles.</p>
   <div class="powered-badge">
     <div class="g-dots"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div></div>
-    Propulsé par <span>Google Gemini</span>
+    <span id="powered-text">Propulsé par</span> <span>Google Gemini</span> — <span id="powered-free">Gratuit pour tous les joueurs</span>
   </div>
-  <div class="btn-row" id="btn-row">
-    <button class="play-btn" onclick="startGame()">▶ JOUER</button>
-    <button class="legal-btn" onclick="document.getElementById('legal-modal').classList.add('active')">MENTIONS LÉGALES</button>
-  </div>
-  <div id="save-info" style="margin-top:1rem;display:none;">
-    <div style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;" id="save-desc"></div>
-    <button class="resume-btn" onclick="resumeGame()">↺ REPRENDRE LA PARTIE</button>
-  </div>
-</div>
-
-<!-- ✅ MODALE DE SIGNALEMENT -->
-<div id="report-modal">
-  <div class="report-box">
-    <h2>⚠ SIGNALER UN PROBLÈME</h2>
-    <p>Décrivez le problème rencontré (ex: réponse IA incohérente, bug, suggestion).<br><strong>Merci pour votre aide !</strong></p>
-    <textarea id="report-text" placeholder="Exemple: 'L'IA a généré un pays inexistant: XYZ.' ou 'La popularité ne se met pas à jour.'"></textarea>
-    <div class="btn-row">
-      <button class="report-btn-cancel" onclick="document.getElementById('report-modal').classList.remove('active')">ANNULER</button>
-      <button class="report-btn-submit" onclick="submitReport()">ENVOYER</button>
-    </div>
-  </div>
-</div>
-<div class="report-success" id="report-success">✅ Merci pour votre signalement !</div>
-
-<div id="stats-modal">
-  <div class="stats-box">
-    <div class="stats-header">
-      <h2>📊 TABLEAU DE BORD — ÉVOLUTION</h2>
-      <span id="stats-turns">0 tour(s) enregistré(s)</span>
-    </div>
-    <div class="stats-grid">
-      <div class="chart-card">
-        <h3>Popularité (%) <span id="val-popularite">—</span></h3>
-        <div class="chart-wrap"><canvas id="chart-popularite"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Tensions sociales (/10) <span id="val-tensions">—</span></h3>
-        <div class="chart-wrap"><canvas id="chart-tensions"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Croissance (%) <span id="val-croissance">—</span></h3>
-        <div class="chart-wrap"><canvas id="chart-croissance"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Chômage (%) <span id="val-chomage">—</span></h3>
-        <div class="chart-wrap"><canvas id="chart-chomage"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Dette (% PIB) <span id="val-dette">—</span></h3>
-        <div class="chart-wrap"><canvas id="chart-dette"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Coffres (Mds) <span id="val-coffres">—</span></h3>
-        <div class="chart-wrap"><canvas id="chart-coffres"></canvas></div>
-      </div>
-    </div>
-    <button class="close-stats" onclick="document.getElementById('stats-modal').classList.remove('active')">FERMER</button>
+  <div class="btn-row">
+    <button class="play-btn" onclick="startGame()" id="play-btn">▶ JOUER</button>
+    <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('active')" id="rules-btn">RÈGLES</button>
   </div>
 </div>
 
 <div id="game">
   <div class="hud">
-    <span class="hud-title">▲ PRÉSIDENT LE JEU</span>
+    <span class="hud-title" id="hud-title">▲ PRÉSIDENT LE JEU</span>
     <div class="hud-center">
-      <span>PAYS <b id="hud-country">—</b></span>
-      <span>DATE <b id="hud-date">—</b></span>
-      <span>DIFF. <b id="hud-diff">—</b></span>
+      <span id="hud-country-label">PAYS</span> <b id="hud-country">—</b>
+      <span id="hud-date-label">DATE</span> <b id="hud-date">—</b>
+      <span id="hud-diff-label">DIFF.</span> <b id="hud-diff">—</b>
     </div>
-    <span class="hud-ai">
+    <span class="hud-ai" id="hud-ai">
       <div class="hud-dots"><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div></div>
       GEMINI
     </span>
-    <button class="audio-btn" id="audio-btn" onclick="toggleAudio()" title="Musique d'ambiance">
-      <div class="audio-bars">
-        <div class="audio-bar" style="height:6px"></div>
-        <div class="audio-bar" style="height:10px"></div>
-        <div class="audio-bar" style="height:4px"></div>
-      </div>
-      <span id="audio-label">♪ SON</span>
-    </button>
-    <button class="stat-btn" onclick="openStats()" title="Statistiques">📊 STATS</button>
-    <!-- ✅ BOUTON SIGNALER DANS LE HUD -->
-    <button class="report-hud-btn" onclick="openReportModal()" title="Signaler un problème">⚠ SIGNALER</button>
   </div>
   <div class="chat-container">
     <div class="chat-messages" id="chat-messages">
@@ -735,265 +314,183 @@
       <button class="send-btn" id="send-btn" onclick="sendMessage()">ENVOYER</button>
     </div>
   </div>
-<div class="bottom-bar">
-  <div style="display:flex;align-items:center;gap:1rem;">
-    <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()" title="Plein écran">⛶ PLEIN ÉCRAN</button>
-    <span class="hint">↵ Entrée pour envoyer · Maj+Entrée pour saut de ligne</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:1rem;">
-    <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
-    <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
-  </div>
-</div>
-  
-<div id="news-banner">
-  <div class="news-label">⚡ BREAKING NEWS</div>
-  <div class="news-track-wrap">
-    <div class="news-track" id="news-track"></div>
+  <div class="bottom-bar">
+    <span class="hint" id="hint-text">↵ Entrée pour envoyer · Maj+Entrée pour saut de ligne</span>
+    <button class="reset-btn" onclick="resetGame()" id="reset-btn">✕ ABANDONNER</button>
   </div>
 </div>
 
 <script>
-// ===== PARSER MARKDOWN =====
-window.marked = {
-  parse: function(text) {
-    var escaped = text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-    var lines = escaped.split('\n');
-    var result = [];
-    var inTable = false;
-    var tableHeaderDone = false;
-    var inList = false;
-    var listTag = '';
-
-    function flushList() {
-      if (inList) { result.push('</' + listTag + '>'); inList = false; listTag = ''; }
+window.marked = { parse: function(text) {
+  var html = text
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>');
+  var lines = html.split('\n');
+  var result = [];
+  var inTable = false;
+  var isHeader = true;
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    if (line.match(/^\|(.+)\|$/)) {
+      if (line.match(/^\|[\s\-\|:]+\|$/)) { isHeader = false; continue; }
+      var cells = line.slice(1,-1).split('|').map(function(c){ return c.trim(); });
+      if (!inTable) { result.push('<table>'); inTable = true; isHeader = true; }
+      var tag = isHeader ? 'th' : 'td';
+      result.push('<tr>' + cells.map(function(c){ return '<'+tag+'>'+c+'</'+tag+'>'; }).join('') + '</tr>');
+      isHeader = false;
+    } else {
+      if (inTable) { result.push('</table>'); inTable = false; }
+      result.push(line);
     }
-    function flushTable() {
-      if (inTable) { result.push('</table>'); inTable = false; tableHeaderDone = false; }
-    }
-    function applyInline(t) {
-      return t
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/`(.+?)`/g, '<code>$1</code>');
-    }
+  }
+  if (inTable) result.push('</table>');
+  return result.join('\n');
+}};
 
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i];
+let conversationHistory = [];
+let isLoading = false;
+let currentLanguage = 'fr';
 
-      if (line.match(/^\|[\s\-\|:]+\|$/)) {
-        tableHeaderDone = true;
-        continue;
-      }
-
-      if (line.match(/^\|(.+)\|$/)) {
-        flushList();
-        if (!inTable) { result.push('<table>'); inTable = true; tableHeaderDone = false; }
-        var cells = line.slice(1, -1).split('|').map(function(c){ return applyInline(c.trim()); });
-        var tag = tableHeaderDone ? 'td' : 'th';
-        result.push('<tr>' + cells.map(function(c){ return '<'+tag+'>'+c+'</'+tag+'>'; }).join('') + '</tr>');
-        continue;
-      }
-
-      flushTable();
-
-      if (line.trim() === '') {
-        flushList();
-        result.push('');
-        continue;
-      }
-
-      var hm;
-      if ((hm = line.match(/^### (.+)$/))) { flushList(); result.push('<h3>' + applyInline(hm[1]) + '</h3>'); continue; }
-      if ((hm = line.match(/^## (.+)$/)))  { flushList(); result.push('<h2>' + applyInline(hm[1]) + '</h2>'); continue; }
-      if ((hm = line.match(/^# (.+)$/)))   { flushList(); result.push('<h1>' + applyInline(hm[1]) + '<h1>'); continue; }
-
-      if (line.match(/^---+$/) || line.match(/^\*\*\*+$/)) {
-        flushList(); result.push('<hr>'); continue;
-      }
-
-      var cta = line.match(/^\[(.+)\]$/);
-      if (cta) {
-        flushList();
-        result.push('<div class="cta-block">[ ' + applyInline(cta[1]) + ' ]</div>');
-        continue;
-      }
-
-      var ul = line.match(/^[\-\*] (.+)$/);
-      if (ul) {
-        if (!inList || listTag !== 'ul') { flushList(); result.push('<ul>'); inList = true; listTag = 'ul'; }
-        result.push('<li>' + applyInline(ul[1]) + '</li>');
-        continue;
-      }
-
-      var ol = line.match(/^\d+\. (.+)$/);
-      if (ol) {
-        if (!inList || listTag !== 'ol') { flushList(); result.push('<ol>'); inList = true; listTag = 'ol'; }
-        result.push('<li>' + applyInline(ol[1]) + '</li>');
-        continue;
-      }
-
-      flushList();
-      result.push('<p>' + applyInline(line) + '</p>');
-    }
-
-    flushList();
-    flushTable();
-    return result.join('\n');
+// Dictionnaire pour les traductions
+const translations = {
+  fr: {
+    title: "PRÉSIDENT<br>LE JEU",
+    subtitle: "Simulation géopolitique IA",
+    beta: "BÊTA · GEMINI",
+    desc: "Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques. Chaque décision a des conséquences réelles.",
+    powered: "Propulsé par",
+    poweredFree: "Gratuit pour tous les joueurs",
+    play: "▶ JOUER",
+    rules: "RÈGLES",
+    hudTitle: "▲ PRÉSIDENT LE JEU",
+    hudCountryLabel: "PAYS",
+    hudDateLabel: "DATE",
+    hudDiffLabel: "DIFF.",
+    aiName: "GEMINI",
+    hint: "↵ Entrée pour envoyer · Maj+Entrée pour saut de ligne",
+    reset: "✕ ABANDONNER",
+    loading: "INITIALISATION...",
+    rulesTitle: "⚙ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU",
+    rulesIntro: "L'IA prend la date actuelle et les événements réels pour créer une introduction immersive. Vous choisissez :",
+    rulesCountry: "Le <strong>pays</strong> à diriger (tous les pays du monde)",
+    rulesDifficulty: "La <strong>difficulté</strong> : Facile / Normal / Difficile / Réaliste",
+    rulesWarning: "⚠ Jeu en bêta — l'IA peut faire des erreurs, n'hésitez pas à la corriger.",
+    rulesGoal: "Survivre jusqu'à la fin de votre mandat. Vous pouvez briguer un second mandat.",
+    rulesGoalDetail: "L'IA s'assure que vous n'y parvenez pas facilement : crises, scandales, mouvements sociaux, pressions internationales…",
+    rulesTurn: "<strong>1 tour = 1 mois</strong>",
+    rulesCrisis: "Tous les <strong>24 mois</strong> : crise mondiale majeure",
+    rulesMandate: "Durée du mandat adaptée au pays choisi",
+    rulesPhase1: "<strong>Phase 1</strong> — Tableaux chiffrés : Économie · Ressources · Projets · Gros Titres",
+    rulesPhase1End: "Se termine par : <strong>[ Tapez OK ou CONTINUER pour passer à la Phase 2 ]</strong>",
+    rulesPhase2: "<strong>Phase 2</strong> (après OK) — Narration · Conseils ministériels · 3 choix + option personnalisée",
+    rulesNegotiation: "Convoquer une réunion suspend le temps. L'IA incarne vos interlocuteurs jusqu'à votre signal de reprise.",
+    rulesReminder: "Tous les 2 tours, l'IA se rappelle le règlement en interne (non visible).",
+    close: "FERMER",
+    error: "⚠ Erreur : "
+  },
+  en: {
+    title: "PRESIDENT<br>THE GAME",
+    subtitle: "AI Geopolitical Simulation",
+    beta: "BETA · GEMINI",
+    desc: "Lead a country through economic crises, social tensions, and geopolitical challenges. Every decision has real consequences.",
+    powered: "Powered by",
+    poweredFree: "Free for all players",
+    play: "▶ PLAY",
+    rules: "RULES",
+    hudTitle: "▲ PRESIDENT THE GAME",
+    hudCountryLabel: "COUNTRY",
+    hudDateLabel: "DATE",
+    hudDiffLabel: "DIFF.",
+    aiName: "GEMINI",
+    hint: "↵ Enter to send · Shift+Enter for newline",
+    reset: "✕ QUIT",
+    loading: "INITIALIZING...",
+    rulesTitle: "⚙ FULL RULES — PRESIDENT THE GAME",
+    rulesIntro: "The AI uses the current date and real-world events to create an immersive introduction. You choose:",
+    rulesCountry: "The <strong>country</strong> to lead (all world countries)",
+    rulesDifficulty: "The <strong>difficulty</strong>: Easy / Normal / Hard / Realistic",
+    rulesWarning: "⚠ Beta game — the AI may make mistakes, feel free to correct it.",
+    rulesGoal: "Survive until the end of your term. You can run for a second term.",
+    rulesGoalDetail: "The AI ensures you don't succeed easily: crises, scandals, social movements, international pressures...",
+    rulesTurn: "<strong>1 turn = 1 month</strong>",
+    rulesCrisis: "Every <strong>24 months</strong>: major global crisis",
+    rulesMandate: "Term length adapted to the chosen country",
+    rulesPhase1: "<strong>Phase 1</strong> — Data tables: Economy · Resources · Projects · Headlines",
+    rulesPhase1End: "Ends with: <strong>[ Type OK or CONTINUE to go to Phase 2 ]</strong>",
+    rulesPhase2: "<strong>Phase 2</strong> (after OK) — Narration · Ministerial advice · 3 choices + custom option",
+    rulesNegotiation: "Calling a meeting pauses time. The AI embodies your interlocutors until your signal to resume.",
+    rulesReminder: "Every 2 turns, the AI internally recalls the rules (not visible).",
+    close: "CLOSE",
+    error: "⚠ Error: "
   }
 };
 
-// ===== GESTION DES SIGNALEMENTS =====
-function openReportModal() {
-  document.getElementById('report-modal').classList.add('active');
-  document.getElementById('report-text').value = '';
-  document.getElementById('report-text').focus();
+// Fonction pour changer de langue
+function setLanguage(lang) {
+  currentLanguage = lang;
+  document.querySelectorAll('.lang-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.lang === lang);
+  });
+  updateUILanguage();
 }
 
-function submitReport() {
-  const text = document.getElementById('report-text').value.trim();
-  if (!text) {
-    alert('Veuillez décrire le problème.');
-    return;
-  }
+// Met à jour tout le texte de l'UI
+function updateUILanguage() {
+  const t = translations[currentLanguage];
+  document.getElementById('title-main').innerHTML = t.title;
+  document.getElementById('title-sub').textContent = t.subtitle;
+  document.getElementById('beta-badge').textContent = t.beta;
+  document.getElementById('title-desc').textContent = t.desc;
+  document.getElementById('powered-text').textContent = t.powered;
+  document.getElementById('powered-free').textContent = t.poweredFree;
+  document.getElementById('play-btn').textContent = t.play;
+  document.getElementById('rules-btn').textContent = t.rules;
+  document.getElementById('hud-title').textContent = t.hudTitle;
+  document.getElementById('hud-country-label').textContent = t.hudCountryLabel;
+  document.getElementById('hud-date-label').textContent = t.hudDateLabel;
+  document.getElementById('hud-diff-label').textContent = t.hudDiffLabel;
+  document.getElementById('hud-ai').textContent = t.aiName;
+  document.getElementById('hint-text').textContent = t.hint;
+  document.getElementById('reset-btn').textContent = t.reset;
+  document.getElementById('loading-text').textContent = t.loading;
+  document.getElementById('close-rules').textContent = t.close;
 
-  // Récupérer les infos du jeu
-  const country = document.getElementById('hud-country').textContent;
-  const difficulty = document.getElementById('hud-diff').textContent;
-  const date = document.getElementById('hud-date').textContent;
-
-  // Préparer l'email
-  const subject = encodeURIComponent(`[Signalement] Président le Jeu - ${country !== '—' ? country : 'Non spécifié'}`);
-  const body = encodeURIComponent(
-    `📅 Date dans le jeu: ${date !== '—' ? date : 'Non spécifiée'}\n` +
-    `🌍 Pays: ${country !== '—' ? country : 'Non spécifié'}\n` +
-    `🎮 Difficulté: ${difficulty !== '—' ? difficulty : 'Non spécifiée'}\n` +
-    `💻 Navigateur: ${navigator.userAgent}\n\n` +
-    `⚠ Problème signalé:\n${text}`
-  );
-
-  // Ouvrir le client email
-  window.open(`mailto:lechikiponk@gmail.com?subject=${subject}&body=${body}`, '_blank');
-
-  // Notification de succès
-  document.getElementById('report-modal').classList.remove('active');
-  const successMsg = document.getElementById('report-success');
-  successMsg.classList.add('show');
-  setTimeout(() => successMsg.classList.remove('show'), 3000);
-}
-
-// ===== SAUVEGARDE =====
-let conversationHistory = [];
-let isLoading = false;
-
-function saveGame() {
-  try {
-    localStorage.setItem('president_history', JSON.stringify(conversationHistory));
-    localStorage.setItem('president_hud', JSON.stringify({
-      country: document.getElementById('hud-country').textContent,
-      date:    document.getElementById('hud-date').textContent,
-      diff:    document.getElementById('hud-diff').textContent
-    }));
-    const ind = document.getElementById('save-indicator');
-    if (ind) { ind.classList.add('show'); setTimeout(() => ind.classList.remove('show'), 2000); }
-  } catch(e) { console.warn('Sauvegarde impossible', e); }
-}
-
-function loadSave() {
-  try {
-    const h = localStorage.getItem('president_history');
-    const hud = localStorage.getItem('president_hud');
-    if (!h) return null;
-    return { history: JSON.parse(h), hud: hud ? JSON.parse(hud) : null };
-  } catch(e) { return null; }
-}
-
-function clearSave() {
-  localStorage.removeItem('president_history');
-  localStorage.removeItem('president_hud');
-}
-
-function applyHUD(hud) {
-  if (!hud) return;
-  if (hud.country) document.getElementById('hud-country').textContent = hud.country;
-  if (hud.date)    document.getElementById('hud-date').textContent    = hud.date;
-  if (hud.diff)    document.getElementById('hud-diff').textContent    = hud.diff;
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const save = loadSave();
-  if (save && save.history && save.history.length > 0) {
-    const hud = save.hud || {};
-    const country = hud.country && hud.country !== '—' ? hud.country : '?';
-    const date    = hud.date    && hud.date    !== '—' ? hud.date    : '';
-    const diff    = hud.diff    && hud.diff    !== '—' ? hud.diff    : '';
-    const desc = [country, date, diff].filter(Boolean).join(' · ');
-    document.getElementById('save-desc').textContent = '💾 Sauvegarde trouvée — ' + desc;
-    document.getElementById('save-info').style.display = 'block';
-  }
-  Stats.load();
-});
-
-function resumeGame() {
-  if (!Audio.isRunning()) { Audio.toggle(); }
-  const save = loadSave();
-  if (!save || !save.history || save.history.length === 0) { startGame(); return; }
-  document.getElementById('loading').classList.add('active');
-  setTimeout(() => {
-    document.getElementById('loading').classList.remove('active');
-    document.getElementById('landing').style.display = 'none';
-    document.getElementById('game').classList.add('active');
-    conversationHistory = save.history;
-    applyHUD(save.hud);
-    const container = document.getElementById('chat-messages');
-    const typing = document.getElementById('typing');
-    conversationHistory.forEach(m => {
-      if (m.role === 'user') {
-        const div = document.createElement('div');
-        div.className = 'msg user';
-        const header = document.createElement('div');
-        header.className = 'msg-header';
-        header.textContent = '▶ VOUS';
-        const body = document.createElement('div');
-        body.className = 'msg-body';
-        body.textContent = m.content;
-        div.appendChild(header); div.appendChild(body);
-        container.insertBefore(div, typing);
-      } else if (m.role === 'assistant') {
-        const div = document.createElement('div');
-        div.className = 'msg ai';
-        const header = document.createElement('div');
-        header.className = 'msg-header';
-        header.textContent = '✦ GEMINI · PRÉSIDENT LE JEU';
-        const body = document.createElement('div');
-        body.className = 'msg-body';
-        body.innerHTML = window.marked.parse(m.content);
-setTimeout(() => {
-  enrichTables(body);
-  detectAudioMode(body);
-}, 0);
-        div.appendChild(header); div.appendChild(body);
-        container.insertBefore(div, typing);
-      }
-    });
-    container.scrollTop = container.scrollHeight;
-  }, 1500);
+  // Mise à jour des règles
+  document.getElementById('rules-title').textContent = t.rulesTitle;
+  document.getElementById('rules-intro').textContent = t.rulesIntro;
+  document.getElementById('rules-country').innerHTML = t.rulesCountry;
+  document.getElementById('rules-difficulty').innerHTML = t.rulesDifficulty;
+  document.getElementById('rules-warning').textContent = t.rulesWarning;
+  document.getElementById('rules-goal').textContent = t.rulesGoal;
+  document.getElementById('rules-goal-detail').textContent = t.rulesGoalDetail;
+  document.getElementById('rules-turn').innerHTML = t.rulesTurn;
+  document.getElementById('rules-crisis').innerHTML = t.rulesCrisis;
+  document.getElementById('rules-mandate').textContent = t.rulesMandate;
+  document.getElementById('rules-phase1').innerHTML = t.rulesPhase1;
+  document.getElementById('rules-phase1-end').innerHTML = t.rulesPhase1End;
+  document.getElementById('rules-phase2').innerHTML = t.rulesPhase2;
+  document.getElementById('rules-negotiation').textContent = t.rulesNegotiation;
+  document.getElementById('rules-reminder').textContent = t.rulesReminder;
 }
 
 function startGame() {
-  if (!Audio.isRunning()) { Audio.toggle(); }
   document.getElementById('loading').classList.add('active');
   setTimeout(() => {
     document.getElementById('loading').classList.remove('active');
     document.getElementById('landing').style.display = 'none';
     document.getElementById('game').classList.add('active');
     conversationHistory = [];
-    Stats.reset();
-    callAPI("Commence le jeu. Lance l'introduction selon les règles : prends la date actuelle et les événements réels mondiaux pour une introduction immersive, puis demande-moi quel pays je souhaite diriger et en quelle difficulté.", true);
+    const initMessage = currentLanguage === 'fr'
+      ? "Commence le jeu. Lance l'introduction selon les règles : prends la date actuelle et les événements réels mondiaux pour une introduction immersive, puis demande-moi quel pays je souhaite diriger et en quelle difficulté. [Langue: français]"
+      : "Start the game. Begin the introduction according to the rules: use the current date and real-world events for an immersive introduction, then ask me which country I want to lead and at what difficulty. [Language: English]";
+    callAPI(initMessage, true);
   }, 2000);
 }
 
@@ -1011,100 +508,37 @@ async function sendMessage() {
 
 async function callAPI(initMessage, isInit) {
   setLoading(true);
-  const messages = isInit ? [{ role:'user', content:initMessage }] : conversationHistory;
+  const messages = isInit
+    ? [{ role: 'user', content: initMessage }]
+    : conversationHistory.map(msg => ({ ...msg }));
 
   try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages })
-    });
+    // Simulation de réponse pour démonstration
+    // Remplacez par votre appel API réel
+    const mockResponse = currentLanguage === 'fr'
+      ? { text: "Bienvenue dans PRÉSIDENT LE JEU. Quel pays souhaitez-vous diriger ? (Exemple : France, États-Unis, Allemagne...)" }
+      : { text: "Welcome to PRESIDENT THE GAME. Which country would you like to lead? (Example: France, United States, Germany...)" };
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || `Erreur HTTP ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = mockResponse;
     const text = data.text || '';
 
     if (isInit) {
       conversationHistory = [
-        { role:'user', content:initMessage },
-        { role:'assistant', content:text }
+        { role: 'user', content: initMessage },
+        { role: 'assistant', content: text }
       ];
     } else {
-      conversationHistory.push({ role:'assistant', content:text });
+      conversationHistory.push({ role: 'assistant', content: text });
     }
 
     addMessage('ai', text);
     updateHUD(text);
-    saveGame();
-    setTimeout(() => { const c = document.getElementById('chat-messages'); if(c) c.scrollTop = c.scrollHeight; }, 800);
+
   } catch (err) {
-    addMessage('ai', `⚠ Erreur : ${err.message}\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.`);
+    addMessage('ai', `${translations[currentLanguage].error}${err.message}`);
   }
+
   setLoading(false);
-}
-
-// ===== INDICATEURS DYNAMIQUES =====
-function enrichTables(container) {
-  const tables = container.querySelectorAll('table');
-  tables.forEach(table => {
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (!cells.length) return;
-      const label = cells[0] ? cells[0].textContent.trim().toLowerCase() : '';
-      const valCell = cells[1];
-      if (!valCell) return;
-      const rawVal = valCell.textContent.trim();
-      if (label.includes('popularité') || label.includes('popularite')) {
-        const n = parseFloat(rawVal);
-        if (!isNaN(n)) {
-          if (n >= 55) { valCell.innerHTML = `<span class="ind-ok">▲ ${rawVal}</span>`; row.classList.add('row-good'); }
-          else if (n >= 40) { valCell.innerHTML = `<span class="ind-warn">◆ ${rawVal}</span>`; row.classList.add('row-warn'); }
-          else { valCell.innerHTML = `<span class="ind-crit">▼ ${rawVal} ⚠</span>`; row.classList.add('row-crit'); }
-        }
-      } else if (label.includes('tension')) {
-        const n = parseFloat(rawVal);
-        if (!isNaN(n)) {
-          if (n <= 3) { valCell.innerHTML = `<span class="ind-ok">● ${rawVal}</span>`; row.classList.add('row-good'); }
-          else if (n <= 6) { valCell.innerHTML = `<span class="ind-warn">▲ ${rawVal} ⚠</span>`; row.classList.add('row-warn'); }
-          else { valCell.innerHTML = `<span class="ind-crit">🔥 ${rawVal} — CRITIQUE</span>`; row.classList.add('row-crit'); }
-          if (n >= 8) {
-            const banner = document.createElement('div');
-            banner.className = 'alert-banner';
-            banner.innerHTML = '⚠ ALERTE — Tensions sociales critiques !';
-            table.parentNode.insertBefore(banner, table);
-          } else if (n >= 6) {
-            const banner = document.createElement('div');
-            banner.className = 'warn-banner';
-            banner.innerHTML = '⚡ ATTENTION — Tensions sociales élevées.';
-            table.parentNode.insertBefore(banner, table);
-          }
-        }
-      }
-    });
-  });
-}
-
-// ===== BREAKING NEWS =====
-function extractAndShowNews(text) {
-  const match = text.match(/\[NEWS:\s*(.+?)\]/);
-  if (!match) return text;
-  const titles = match[1].split('|').map(t => t.trim()).filter(Boolean);
-  if (!titles.length) return text.replace(match[0], '').trim();
-  const track = document.getElementById('news-track');
-  const banner = document.getElementById('news-banner');
-  if (!track || !banner) return text;
-  track.innerHTML = titles.map((t, i) => `<span>${t}</span>${i < titles.length - 1 ? '<span class="news-sep">◆</span>' : ''}`).join('') + '<span class="news-sep">◆</span>' + titles.map((t, i) => `<span>${t}</span>${i < titles.length - 1 ? '<span class="news-sep">◆</span>' : ''}`).join('');
-  banner.classList.add('active');
-  document.getElementById('game').classList.add('news-open');
-  track.style.animation = 'none';
-  track.offsetHeight;
-  track.style.animation = '';
-  return text.replace(match[0], '').trim();
 }
 
 function addMessage(role, content) {
@@ -1118,27 +552,14 @@ function addMessage(role, content) {
   const body = document.createElement('div');
   body.className = 'msg-body';
   if (role === 'ai') {
-    const cleaned = extractAndShowNews(content);
-    body.innerHTML = window.marked.parse(cleaned);
-    setTimeout(() => {
-      const dateEl = document.getElementById('hud-date');
-      const dateLabel = dateEl ? dateEl.textContent : '';
-      Stats.record(body, dateLabel);
-      enrichTables(body);
-      detectAudioMode(body);
-      scrollToBottom(container);
-    }, 0);
+    body.innerHTML = window.marked.parse(content);
   } else {
     body.textContent = content;
   }
   div.appendChild(header);
   div.appendChild(body);
   container.insertBefore(div, typing);
-  scrollToBottom(container);
-}
-
-function scrollToBottom(container) {
-  if (container) container.scrollTop = container.scrollHeight;
+  container.scrollTop = container.scrollHeight;
 }
 
 function setLoading(val) {
@@ -1146,18 +567,22 @@ function setLoading(val) {
   document.getElementById('typing').classList.toggle('active', val);
   document.getElementById('send-btn').disabled = val;
   document.getElementById('chat-input').disabled = val;
+  document.getElementById('chat-messages').scrollTop = 99999;
 }
 
 function updateHUD(text) {
-  const dateMatch = text.match(/(?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\s+\d{4}/i);
+  const dateMatch = text.match(/(?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\s+\d{4}/i) ||
+                    text.match(/(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}/i);
   if (dateMatch) document.getElementById('hud-date').textContent = dateMatch[0];
-  const countries = ['France','États-Unis','Allemagne','Royaume-Uni','Chine','Russie','Brésil','Inde','Japon','Canada','Espagne','Italie','Mexique','Australie','Corée du Sud','Argentine','Nigeria','Turquie','Pologne','Ukraine','Suisse','Belgique','Portugal','Pays-Bas'];
+
+  const countries = ['France','États-Unis','Allemagne','Royaume-Uni','Chine','Russie','Brésil','Inde','Japon','Canada','Espagne','Italie','Mexique','Australie','Corée du Sud','Argentine','Nigeria','Turquie','Pologne','Ukraine','Suisse','Belgique','Portugal','Pays-Bas',
+                    'France','United States','Germany','United Kingdom','China','Russia','Brazil','India','Japan','Canada','Spain','Italy','Mexico','Australia','South Korea','Argentina','Nigeria','Turkey','Poland','Ukraine','Switzerland','Belgium','Portugal','Netherlands'];
   for (const c of countries) {
     if (text.includes(c) && document.getElementById('hud-country').textContent === '—') {
       document.getElementById('hud-country').textContent = c; break;
     }
   }
-  const diffMatch = text.match(/\b(Facile|Normal|Difficile|Réaliste)\b/i);
+  const diffMatch = text.match(/\b(Facile|Normal|Difficile|Réaliste|Easy|Normal|Hard|Realistic)\b/i);
   if (diffMatch) document.getElementById('hud-diff').textContent = diffMatch[0];
 }
 
@@ -1170,247 +595,19 @@ function autoResize(el) {
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-// ===== MOTEUR AUDIO =====
-const Audio = (() => {
-  const TRACKS = {
-    calm:    '/public/audio/Calm.mp3',
-    tension: '/public/audio/tension.mp3',
-    crisis:  '/public/audio/crisis.mp3'
-  };
-  let mode = 'calm', running = false, current = null;
-  const preloaded = {};
-  function preload() {
-    Object.entries(TRACKS).forEach(([key, src]) => {
-      const a = new window.Audio(src);
-      a.loop = true; a.volume = 0;
-      preloaded[key] = a;
-    });
-  }
-  preload();
-  function fadeOut(el, duration) {
-    if (!el) return;
-    duration = duration || 2000;
-    const step = 50, delta = el.volume / (duration / step);
-    const timer = setInterval(() => {
-      el.volume = Math.max(0, el.volume - delta);
-      if (el.volume <= 0) { clearInterval(timer); el.pause(); el.currentTime = 0; el.volume = 0; }
-    }, step);
-  }
-  function fadeIn(el, targetVol, duration) {
-    targetVol = targetVol || 0.10; duration = duration || 3000;
-    el.volume = 0; el.play().catch(()=>{});
-    const step = 50, delta = targetVol / (duration / step);
-    const timer = setInterval(() => {
-      el.volume = Math.min(targetVol, el.volume + delta);
-      if (el.volume >= targetVol) clearInterval(timer);
-    }, step);
-  }
-  function playMode(newMode, instant) {
-    if (!running) return;
-    const el = preloaded[newMode];
-    if (!el || current === el) return;
-    if (current) fadeOut(current, instant ? 600 : 2500);
-    current = el; fadeIn(el, 0.10, instant ? 800 : 3000);
-    mode = newMode; updateBtn();
-  }
-  function updateBtn() {
-    const btn = document.getElementById('audio-btn');
-    const label = document.getElementById('audio-label');
-    if (!btn) return; btn.className = 'audio-btn';
-    if (!running) { label.textContent = '♪ SON'; return; }
-    if (mode === 'calm') { btn.classList.add('playing'); label.textContent = '♪ CALME'; }
-    if (mode === 'tension') { btn.classList.add('tension'); label.textContent = '♪ TENSION'; }
-    if (mode === 'crisis') { btn.classList.add('crisis'); label.textContent = '♪ CRISE'; }
-  }
-  return {
-    toggle: function() {
-      if (running) {
-        running = false;
-        Object.values(preloaded).forEach(a => fadeOut(a, 1200));
-        current = null;
-      } else {
-        running = true; playMode(mode, true);
-      }
-      updateBtn();
-    },
-    setMode: function(newMode) { if (!running || newMode === mode) return; playMode(newMode); },
-    isRunning: function() { return running; },
-    stop: function() {
-      running = false;
-      Object.values(preloaded).forEach(a => fadeOut(a, 1500));
-      current = null; updateBtn();
-    }
-  };
-})();
-
-function toggleFullscreen() {
-  const btn = document.getElementById('fs-btn');
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    const el = document.documentElement;
-    if (el.requestFullscreen) el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    if (btn) btn.textContent = '⛶ QUITTER';
-  } else {
-    if (document.exitFullscreen) document.exitFullscreen();
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    if (btn) btn.textContent = '⛶ PLEIN ÉCRAN';
-  }
-}
-
-document.addEventListener('fullscreenchange', () => {
-  const btn = document.getElementById('fs-btn');
-  if (!btn) return;
-  btn.textContent = document.fullscreenElement ? '⛶ QUITTER' : '⛶ PLEIN ÉCRAN';
-});
-document.addEventListener('webkitfullscreenchange', () => {
-  const btn = document.getElementById('fs-btn');
-  if (!btn) return;
-  btn.textContent = document.webkitFullscreenElement ? '⛶ QUITTER' : '⛶ PLEIN ÉCRAN';
-});
-
-function toggleAudio() { Audio.toggle(); }
-
-function detectAudioMode(container) {
-  if (!Audio.isRunning()) return;
-  let tensions = -1, popularite = -1, croissance = 0;
-  const tables = container.querySelectorAll('table');
-  tables.forEach(table => {
-    table.querySelectorAll('tr').forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length < 2) return;
-      const label = cells[0].textContent.toLowerCase();
-      const rawText = cells[1].textContent;
-      const numMatch = rawText.match(/-?\d+(\.\d+)?/);
-      if (!numMatch) return;
-      const val = parseFloat(numMatch[0]);
-      if (isNaN(val)) return;
-      if (label.includes('tension')) tensions = val;
-      if (label.includes('popular')) popularite = val;
-      if (label.includes('croissance')) croissance = val;
-    });
-  });
-  let newMode = 'calm';
-  if (tensions >= 7 || popularite < 30 || croissance < -1) newMode = 'crisis';
-  else if (tensions >= 5 || popularite < 45 || croissance < 0) newMode = 'tension';
-  Audio.setMode(newMode);
-}
-
-// ===== MOTEUR STATISTIQUES =====
-const Stats = (() => {
-  const data = { labels: [], popularite: [], tensions: [], croissance: [], chomage: [], dette: [], coffres: [] };
-  const charts = {};
-  function extractFromMessage(container) {
-    const tables = container.querySelectorAll('table');
-    let found = false;
-    tables.forEach(table => {
-      table.querySelectorAll('tr').forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 2) return;
-        const label = cells[0].textContent.toLowerCase().trim();
-        const raw = cells[1].textContent.trim();
-        const m = raw.match(/-?\d+(\.\d+)?/);
-        if (!m) return;
-        const val = parseFloat(m[0]);
-        if (isNaN(val)) return;
-        found = true;
-        if (label.includes('popular')) data.popularite.push(val);
-        if (label.includes('tension')) data.tensions.push(val);
-        if (label.includes('croissance')) data.croissance.push(val);
-        if (label.includes('chômage') || label.includes('chomage')) data.chomage.push(val);
-        if (label.includes('dette')) data.dette.push(val);
-        if (label.includes('coffre')) data.coffres.push(val);
-      });
-    });
-    return found;
-  }
-  function addTurn(label) { data.labels.push(label); }
-  function renderChart(id, key, label, color, min, max) {
-    const canvas = document.getElementById('chart-' + id);
-    if (!canvas) return;
-    const vals = data[key];
-    if (!vals || !vals.length) {
-      canvas.parentNode.innerHTML = '<div class="no-data">Pas encore de données</div>';
-      return;
-    }
-    const valEl = document.getElementById('val-' + id);
-    if (valEl) valEl.textContent = vals[vals.length - 1];
-    const labels = data.labels.length >= vals.length ? data.labels.slice(-vals.length) : vals.map((_, i) => 'T' + (i + 1));
-    if (charts[id]) { charts[id].destroy(); delete charts[id]; }
-    const bgColor = color + '14';
-    charts[id] = new Chart(canvas, {
-      type: 'line', data: { labels, datasets: [{
-        label, data: vals, borderColor: color, backgroundColor: bgColor,
-        borderWidth: 2, pointRadius: 3, pointBackgroundColor: color, tension: 0.4, fill: true
-      }]},
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
-        plugins: { legend: { display: false }, tooltip: {
-          backgroundColor: '#161b22', borderColor: color, borderWidth: 1,
-          titleColor: color, bodyColor: '#e6edf3',
-          titleFont: { family: 'Share Tech Mono' }, bodyFont: { family: 'Share Tech Mono' }
-        }},
-        scales: {
-          x: { ticks: { color: '#7d8590', font: { family: 'Share Tech Mono', size: 9 }, maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.04)' }},
-          y: {
-            min: min !== null && min !== undefined ? min : undefined,
-            max: max !== null && max !== undefined ? max : undefined,
-            ticks: { color: '#7d8590', font: { family: 'Share Tech Mono', size: 9 }, maxTicksLimit: 5 },
-            grid: { color: 'rgba(255,255,255,0.06)' }
-          }
-        }
-      }
-    });
-  }
-  return {
-    record(container, turnLabel) {
-      const ok = extractFromMessage(container);
-      if (ok) {
-        const label = (turnLabel && turnLabel !== '—') ? turnLabel : 'T' + (data.labels.length + 1);
-        addTurn(label);
-      }
-      try { localStorage.setItem('president_stats', JSON.stringify(data)); } catch(e) {}
-    },
-    load() {
-      try { const saved = localStorage.getItem('president_stats');
-        if (saved) Object.assign(data, JSON.parse(saved));
-      } catch(e) {}
-    },
-    reset() {
-      Object.keys(data).forEach(k => data[k] = []);
-      Object.values(charts).forEach(c => c.destroy());
-      Object.keys(charts).forEach(k => delete charts[k]);
-      try { localStorage.removeItem('president_stats'); } catch(e) {}
-    },
-    open() {
-      document.getElementById('stats-modal').classList.add('active');
-      document.getElementById('stats-turns').textContent = data.labels.length + ' tour(s) enregistré(s)';
-      setTimeout(() => {
-        renderChart('popularite', 'popularite', 'Popularité', '#4285f4', 0, 100);
-        renderChart('tensions', 'tensions', 'Tensions', '#ff3b5c', 0, 10);
-        renderChart('croissance', 'croissance', 'Croissance', '#34a853', -5, 10);
-        renderChart('chomage', 'chomage', 'Chômage', '#fbbc04', 0, 30);
-        renderChart('dette', 'dette', 'Dette', '#ea4335', 0, 200);
-        renderChart('coffres', 'coffres', 'Coffres', '#34a853', null, null);
-        Object.values(charts).forEach(c => c && c.resize());
-      }, 50);
-    }
-  };
-})();
-
-function openStats() { Stats.open(); }
-
 function resetGame() {
-  if (!confirm('Abandonner la partie ?')) return;
-  Audio.stop(); Stats.reset(); clearSave();
+  if (!confirm(currentLanguage === 'fr' ? 'Abandonner la partie en cours ?' : 'Quit the current game?')) return;
   document.getElementById('game').classList.remove('active');
   document.getElementById('landing').style.display = '';
-  document.getElementById('save-info').style.display = 'none';
-  document.getElementById('chat-messages').innerHTML = '<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  document.getElementById('chat-messages').innerHTML = `<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
   document.getElementById('hud-country').textContent = '—';
   document.getElementById('hud-date').textContent = '—';
   document.getElementById('hud-diff').textContent = '—';
   conversationHistory = [];
 }
+
+// Initialisation
+updateUILanguage();
 </script>
 </body>
 </html>
