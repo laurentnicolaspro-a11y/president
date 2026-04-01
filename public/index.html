@@ -159,34 +159,84 @@
   .msg-body hr { border:none; border-top:1px solid rgba(66,133,244,0.2); margin:1rem 0; }
   .msg-body .cta-block { background:rgba(66,133,244,0.06); border:1px solid rgba(66,133,244,0.25); border-left:3px solid var(--accent); padding:0.6rem 1rem; border-radius:3px; margin:0.9rem 0 0; font-family:'Share Tech Mono',monospace; font-size:0.82rem; color:var(--accent); letter-spacing:0.04em; }
 
-  /* ===== CHOIX CLIQUABLES ===== */
-  .choice-btn {
-    display:block; width:100%; text-align:left;
-    background:rgba(66,133,244,0.06); border:1px solid rgba(66,133,244,0.25);
-    border-left:3px solid var(--accent); color:var(--text);
-    font-family:'Rajdhani',sans-serif; font-size:0.93rem;
-    padding:0.65rem 1rem; margin:0.3rem 0; cursor:pointer;
-    border-radius:3px; transition:all 0.2s; line-height:1.5;
-  }
-  .choice-btn:hover { background:rgba(66,133,244,0.15); border-color:var(--accent); color:#fff; transform:translateX(4px); }
-  .choice-btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
-  .choice-btn.chosen { border-color:var(--accent3); background:rgba(52,168,83,0.1); opacity:1 !important; }
-  .choice-btn.custom { border-left-color:var(--accent4); background:rgba(251,188,4,0.05); }
-  .choice-btn.custom:hover { background:rgba(251,188,4,0.12); border-color:var(--accent4); color:#fff; }
+  // ===== CHOIX CLIQUABLES =====
+function renderChoices(container) {
+  var ols = container.querySelectorAll('ol');
+  ols.forEach(function(ol) {
+    var items = ol.querySelectorAll('li');
+    var choiceBtns = document.createElement('div');
+    choiceBtns.style.cssText = 'display:flex;flex-direction:column;gap:0.3rem;margin:0.5rem 0;';
+    var hasChoices = false;
+    items.forEach(function(li, idx) {
+      var text = li.textContent.trim();
+      var num = idx + 1;
+      var isCustom = text.toLowerCase().includes('personnalis') || num === 4;
+      var btn = document.createElement('button');
+      btn.className = 'choice-btn' + (isCustom ? ' custom' : '');
+      btn.innerHTML = '<strong>' + num + '.</strong> ' + text;
+      btn.onclick = (function(n, t, b, isC) {
+        return function() {
+          if (isC) {
+            openCustomModal();
+          } else {
+            var allBtns = choiceBtns.querySelectorAll('.choice-btn');
+            allBtns.forEach(function(x) { x.disabled = true; });
+            b.disabled = false;
+            b.classList.add('chosen');
+            sendChoiceMessage(n + '. ' + t);
+          }
+        };
+      })(num, text, btn, isCustom);
+      choiceBtns.appendChild(btn);
+      hasChoices = true;
+    });
+    if (hasChoices) ol.replaceWith(choiceBtns);
+  });
+}
 
-  #custom-modal { display:none; position:fixed; inset:0; background:rgba(3,7,18,0.96); z-index:300; align-items:center; justify-content:center; padding:1.5rem; }
-  #custom-modal.active { display:flex; }
-  .custom-box { background:var(--surface); border:1px solid var(--border); border-top:2px solid var(--accent4); max-width:560px; width:100%; padding:1.8rem; border-radius:4px; }
-  .custom-box h2 { font-family:'Orbitron',monospace; color:var(--accent4); font-size:0.95rem; letter-spacing:0.1em; margin-bottom:0.5rem; }
-  .custom-box p { font-family:'Share Tech Mono',monospace; font-size:0.72rem; color:var(--muted); margin-bottom:1rem; }
-  .custom-box textarea { width:100%; min-height:110px; background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:'Rajdhani',sans-serif; font-size:1rem; padding:0.8rem; border-radius:4px; margin-bottom:1rem; resize:vertical; outline:none; }
-  .custom-box textarea:focus { border-color:var(--accent4); }
-  .custom-box .btn-row { display:flex; gap:0.8rem; justify-content:flex-end; }
-  .custom-confirm { padding:0.6rem 1.4rem; background:var(--accent4); border:none; color:#000; font-family:'Orbitron',monospace; font-size:0.75rem; font-weight:700; letter-spacing:0.1em; cursor:pointer; border-radius:4px; transition:all 0.2s; }
-  .custom-confirm:hover { background:#ffd040; }
-  .custom-cancel { padding:0.6rem 1.2rem; background:transparent; border:1px solid var(--border); color:var(--muted); font-family:'Orbitron',monospace; font-size:0.75rem; letter-spacing:0.1em; cursor:pointer; border-radius:4px; transition:all 0.2s; }
-  .custom-cancel:hover { border-color:var(--red); color:var(--red); }
-  /* ===== FIN CHOIX ===== */
+function renderCtaButtons(container) {
+  var ctas = container.querySelectorAll('.cta-block');
+  ctas.forEach(function(cta) {
+    var btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.style.cssText = 'margin-top:1rem;background:rgba(66,133,244,0.1);border-color:var(--accent);color:var(--accent);font-family:Orbitron,monospace;font-size:0.8rem;letter-spacing:0.1em;';
+    btn.innerHTML = '▶ CONTINUER VERS LA PHASE 2';
+    btn.onclick = function() {
+      btn.disabled = true;
+      btn.textContent = '✓ Passage en Phase 2...';
+      sendChoiceMessage('OK');
+    };
+    cta.replaceWith(btn);
+  });
+}
+
+function renderDifficultyButtons(container) {
+  if (container.querySelectorAll('.choice-btn').length > 0) return;
+  var paras = container.querySelectorAll('p');
+  paras.forEach(function(p) {
+    var t = p.textContent;
+    if (t.includes('Facile') && t.includes('Normal') && t.includes('Difficile')) {
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.5rem 0;';
+      ['Facile','Normal','Difficile','Réaliste'].forEach(function(level) {
+        var btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.style.cssText = 'width:auto;padding:0.5rem 1.2rem;';
+        if (level === 'Difficile') btn.style.cssText += 'border-left-color:var(--accent4);color:var(--accent4);';
+        if (level === 'Réaliste')  btn.style.cssText += 'border-left-color:var(--red);color:var(--red);';
+        btn.textContent = level;
+        btn.onclick = function() {
+          wrap.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
+          btn.classList.add('chosen'); btn.disabled = false;
+          sendChoiceMessage(level);
+        };
+        wrap.appendChild(btn);
+      });
+      p.replaceWith(wrap);
+    }
+  });
+}
+// ===== FIN CHOIX =====
 
   .typing-indicator{display:none;align-self:flex-start;padding:0.8rem 1.2rem;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:4px;}
   .typing-indicator.active{display:flex;gap:4px;align-items:center;}
