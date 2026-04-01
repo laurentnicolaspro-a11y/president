@@ -180,15 +180,6 @@
   .typing-dot{width:6px;height:6px;border-radius:50%;animation:typingBounce 1.2s ease-in-out infinite;}
   .typing-dot:nth-child(1){background:var(--accent);}.typing-dot:nth-child(2){background:var(--accent2);animation-delay:0.2s;}.typing-dot:nth-child(3){background:var(--accent3);animation-delay:0.4s;}
   @keyframes typingBounce{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-6px);opacity:1;}}
-  .chat-input-area{border-top:1px solid var(--border);padding:0.9rem 1rem;display:flex;gap:0.7rem;align-items:flex-end;background:var(--surface);}
-  .chat-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;padding:0.65rem 1rem;border-radius:4px;outline:none;resize:none;min-height:42px;max-height:120px;line-height:1.5;transition:border-color 0.3s;}
-  .chat-input:focus{border-color:var(--accent);}.chat-input::placeholder{color:var(--muted);}
-  .send-btn{padding:0.65rem 1.3rem;background:var(--accent);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;border-radius:4px;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);white-space:nowrap;}
-  .send-btn:hover{background:#5a9cf8;box-shadow:var(--glow);}.send-btn:disabled{opacity:0.4;cursor:not-allowed;}
-  .bottom-bar{display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem;max-width:1000px;width:100%;margin-left:auto;margin-right:auto;padding:0 0.2rem;}
-  .hint{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--muted);}
-  .reset-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;transition:all 0.2s;}
-  .reset-btn:hover{border-color:var(--red);color:var(--red);}
 
   #loading{display:none;position:fixed;inset:0;background:var(--bg);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;}
   #loading.active{display:flex;}
@@ -405,20 +396,6 @@
     <div class="chat-messages" id="chat-messages">
       <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
     </div>
-    <div class="chat-input-area">
-      <textarea class="chat-input" id="chat-input" placeholder="Entrez votre décision ou message..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="send-btn" onclick="sendMessage()">ENVOYER</button>
-    </div>
-  </div>
-  <div class="bottom-bar">
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()">⛶ PLEIN ÉCRAN</button>
-      <span class="hint">↵ Entrée pour envoyer · Maj+Entrée pour saut de ligne</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
-      <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
-    </div>
   </div>
 </div>
 
@@ -632,14 +609,6 @@ function startGame() {
   },2000);
 }
 
-async function sendMessage() {
-  if(isLoading)return;
-  var input=document.getElementById('chat-input');var text=input.value.trim();if(!text)return;
-  input.value='';autoResize(input);
-  addMessage('user',text);conversationHistory.push({role:'user',content:text});
-  await callAPI(null,false);
-}
-
 async function callAPI(initMessage,isInit) {
   setLoading(true);
   var messages=isInit?[{role:'user',content:initMessage}]:conversationHistory;
@@ -714,8 +683,6 @@ function scrollToBottom(c){if(c)c.scrollTop=c.scrollHeight;}
 function setLoading(val){
   isLoading=val;
   document.getElementById('typing').classList.toggle('active',val);
-  document.getElementById('send-btn').disabled=val;
-  document.getElementById('chat-input').disabled=val;
 }
 
 function updateHUD(text){
@@ -725,8 +692,6 @@ function updateHUD(text){
   for(var i=0;i<countries.length;i++){if(text.includes(countries[i])&&document.getElementById('hud-country').textContent==='—'){document.getElementById('hud-country').textContent=countries[i];break;}}
   var dm2=text.match(/\b(Facile|Normal|Difficile|Réaliste)\b/i);if(dm2)document.getElementById('hud-diff').textContent=dm2[0];
 }
-function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
 
 // ===== INDICATEURS DYNAMIQUES =====
 function enrichTables(container){
