@@ -519,12 +519,10 @@ window.marked = {
 
 // ===== CHOIX CLIQUABLES PHASE 2 =====
 function renderChoices(container) {
-  // En négociation : supprimer les <ol> sans les transformer en boutons
-  if (gamePhase === 'negotiation') {
-    container.querySelectorAll('ol').forEach(function(ol) { ol.remove(); });
-    return;
+  // Ne jamais transformer les <ol> en boutons sauf si on est en phase 'playing'
+  if (gamePhase !== 'playing') {
+    return; // En init, waiting_country, negotiation : on laisse le texte tel quel
   }
-
   container.querySelectorAll('ol').forEach(function(ol) {
     var items = ol.querySelectorAll('li');
     var wrap = document.createElement('div');
@@ -559,15 +557,18 @@ function renderChoices(container) {
 // ╚══════════════════════════════════════════════════╝
 
 function isNegotiationMessage(text) {
-  return /phase de n[ée]gociation|n[ée]gociation (en cours|engag[ée]|ouverte)|interlocuteur|vous parle|prend la parole|r[ée]pond|s'exprime|ministre|ambassad|pr[ée]sident|chef d'[ée]tat|syndicat|d[ée]l[ée]gu[ée]|repr[ée]sentant|porte-parole/i.test(text)
-    && !/phase 2|phase 1|tableau|indicateur|popularit[ée]/i.test(text);
+  // Exige des marqueurs TRÈS explicites de négociation/dialogue en cours
+  // On cherche des formulations qui indiquent qu'un personnage prend directement la parole ou fait une proposition concrète
+  var hasStrongNegoSignal = /\[N[ÉE]GOCIATION\]|\[PROPOSITION\]|vous (propose|soumet|demande|exige|offre)\s*:/i.test(text)
+    || /prend la parole\s*:|s'adresse à vous\s*:|vous dit\s*:|déclare\s*:|annonce\s*:/i.test(text)
+    || /proposition (concrète|formelle|officielle)|offre (formelle|officielle)|accord (proposé|soumis)/i.test(text);
+  return hasStrongNegoSignal;
 }
 
 function injectNegoPanel(container, typing) {
   const old = document.querySelector('.nego-panel');
   if (old) old.remove();
 
-  // ✅ FIX : construction DOM sans innerHTML pour éviter les bugs d'apostrophes
   const panel = document.createElement('div');
   panel.className = 'nego-panel msg-actions';
 
@@ -576,28 +577,28 @@ function injectNegoPanel(container, typing) {
   title.textContent = '🤝 RÉPONDRE À LA PROPOSITION';
   panel.appendChild(title);
 
-  function makeNegoBtn(cls, label, action) {
-    const btn = document.createElement('button');
+  // Définition des boutons : [classe, label, texte envoyé, estCustom]
+  const btns = [
+    ['accept',       '✅ Accepter la proposition',              "✅ J'accepte la proposition.",                              false],
+    ['refuse',       '❌ Refuser la proposition',               "❌ Je refuse la proposition.",                              false],
+    ['change',       "🔄 Changer d'interlocuteur / sujet",      "Je souhaite changer d'interlocuteur ou aborder un autre sujet.", false],
+    ['custom-nego',  '✏ Faire une proposition personnalisée',   null,                                                        true],
+    ['end-nego',     '🚪 Terminer la négociation',              'Je mets fin à la réunion. Reprenons le jeu.',               false],
+  ];
+
+  btns.forEach(function(def) {
+    var cls = def[0], label = def[1], msg = def[2], isCustom = def[3];
+    var btn = document.createElement('button');
     btn.className = 'nego-btn ' + cls;
     btn.textContent = label;
-    btn.addEventListener('click', function() { action(btn); });
+    btn.addEventListener('click', function() {
+      if (isCustom) {
+        openCustomModalFor('nego', btn);
+      } else {
+        sendNegoChoice(btn, msg);
+      }
+    });
     panel.appendChild(btn);
-  }
-
-  makeNegoBtn('accept', '✅ Accepter la proposition', function(btn) {
-    sendNegoChoice(btn, "J'accepte la proposition.");
-  });
-  makeNegoBtn('refuse', '❌ Refuser la proposition', function(btn) {
-    sendNegoChoice(btn, "Je refuse la proposition.");
-  });
-  makeNegoBtn('change', "🔄 Changer d'interlocuteur / sujet", function(btn) {
-    sendNegoChoice(btn, "Je souhaite changer d'interlocuteur ou aborder un autre sujet.");
-  });
-  makeNegoBtn('custom-nego', '✏ Faire une proposition personnalisée', function(btn) {
-    openCustomModalFor('nego', btn);
-  });
-  makeNegoBtn('end-nego', '🚪 Terminer la négociation', function(btn) {
-    sendNegoChoice(btn, 'Je mets fin à la réunion. Reprenons le jeu.');
   });
 
   container.insertBefore(panel, typing);
@@ -610,13 +611,12 @@ function injectNegoPanel(container, typing) {
 function sendNegoChoice(btn, text) {
   const panel = btn.closest('.nego-panel');
   if (panel) {
-    panel.querySelectorAll('button').forEach(b => b.disabled = true);
+    panel.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
     btn.style.opacity = '1';
     btn.style.borderColor = 'var(--accent3)';
     btn.style.color = 'var(--accent3)';
   }
-
-  if (text.includes('Reprenons le jeu') || text.includes('mets fin')) {
+  if (text && (text.includes('Reprenons le jeu') || text.includes('mets fin'))) {
     document.getElementById('nego-badge').classList.remove('active');
     gamePhase = 'playing';
   }
@@ -776,9 +776,10 @@ function injectActionButtons(text, bodyEl) {
     return;
   }
 
-  // Panneau de négociation
+  // Panneau de négociation — injecté EN PREMIER, avant renderChoices
   if (gamePhase === 'playing' && isNegotiationMessage(text)) {
     injectNegoPanel(container, typing);
+    // gamePhase est maintenant 'negotiation' → renderChoices supprimera les <ol>
   }
 }
 
@@ -808,9 +809,9 @@ function addMessage(role,content){
       Stats.record(body,dateLabel);
       enrichTables(body);
       detectAudioMode(body);
-      // injectActionButtons EN PREMIER → met gamePhase à 'negotiation' si besoin
+      // injectActionButtons EN PREMIER → met à jour gamePhase si négociation
       injectActionButtons(content, body);
-      // renderChoices EN DERNIER → supprime les <ol> si on est en négociation
+      // renderChoices EN DERNIER → si gamePhase==='negotiation', supprime les <ol>
       renderChoices(body);
       scrollToBottom(container);
     },0);
