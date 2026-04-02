@@ -62,6 +62,10 @@
   .report-hud-btn{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.6rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}
   .report-hud-btn:hover{border-color:var(--red);color:var(--red);}
 
+  /* Indicateur négociation dans HUD */
+  .nego-badge{display:none;align-items:center;gap:5px;font-size:0.68rem;padding:0.2rem 0.7rem;border-radius:2px;font-family:'Share Tech Mono',monospace;background:rgba(251,188,4,0.12);color:var(--accent4);border:1px solid rgba(251,188,4,0.4);animation:critPulse 1.5s ease-in-out infinite;letter-spacing:0.06em;}
+  .nego-badge.active{display:flex;}
+
   .chat-container{flex:1;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;max-width:1000px;width:100%;margin:0 auto;min-height:0;}
   .chat-messages{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-height:0;}
   .chat-messages::-webkit-scrollbar{width:4px;}.chat-messages::-webkit-scrollbar-track{background:var(--surface);}.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
@@ -96,7 +100,7 @@
   .msg-body hr{border:none;border-top:1px solid rgba(66,133,244,0.2);margin:1rem 0;}
   .msg-body .cta-block{background:rgba(66,133,244,0.06);border:1px solid rgba(66,133,244,0.25);border-left:3px solid var(--accent);padding:0.6rem 1rem;border-radius:3px;margin:0.9rem 0 0;font-family:'Share Tech Mono',monospace;font-size:0.82rem;color:var(--accent);letter-spacing:0.04em;}
 
-  /* ===== CHOIX CLIQUABLES ===== */
+  /* ===== CHOIX CLIQUABLES (Phase 2) ===== */
   .choice-btn{display:block;width:100%;text-align:left;background:rgba(66,133,244,0.06);border:1px solid rgba(66,133,244,0.25);border-left:3px solid var(--accent);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:0.93rem;padding:0.65rem 1rem;margin:0.3rem 0;cursor:pointer;border-radius:3px;transition:all 0.2s;line-height:1.5;}
   .choice-btn:hover{background:rgba(66,133,244,0.15);border-color:var(--accent);color:#fff;transform:translateX(4px);}
   .choice-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
@@ -104,7 +108,23 @@
   .choice-btn.custom{border-left-color:var(--accent4);background:rgba(251,188,4,0.05);}
   .choice-btn.custom:hover{background:rgba(251,188,4,0.12);border-color:var(--accent4);color:#fff;}
 
-  /* ===== BOUTON CHOISIR MON PAYS ===== */
+  /* ===== BOUTONS NÉGOCIATION ===== */
+  .nego-panel{background:rgba(251,188,4,0.04);border:1px solid rgba(251,188,4,0.3);border-left:3px solid var(--accent4);border-radius:4px;padding:0.9rem 1rem;margin-top:0.5rem;animation:msgIn 0.3s ease-out;}
+  .nego-panel-title{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent4);letter-spacing:0.1em;margin-bottom:0.7rem;text-transform:uppercase;}
+  .nego-btn{display:block;width:100%;text-align:left;font-family:'Rajdhani',sans-serif;font-size:0.9rem;padding:0.55rem 0.9rem;margin:0.25rem 0;cursor:pointer;border-radius:3px;transition:all 0.2s;line-height:1.5;border:1px solid;}
+  .nego-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .nego-btn.accept{background:rgba(52,168,83,0.08);border-color:rgba(52,168,83,0.4);color:var(--accent3);}
+  .nego-btn.accept:hover:not(:disabled){background:rgba(52,168,83,0.2);border-color:var(--accent3);color:#fff;}
+  .nego-btn.refuse{background:rgba(255,59,92,0.08);border-color:rgba(255,59,92,0.4);color:var(--red);}
+  .nego-btn.refuse:hover:not(:disabled){background:rgba(255,59,92,0.18);border-color:var(--red);color:#fff;}
+  .nego-btn.change{background:rgba(66,133,244,0.07);border-color:rgba(66,133,244,0.3);color:var(--accent);}
+  .nego-btn.change:hover:not(:disabled){background:rgba(66,133,244,0.16);border-color:var(--accent);color:#fff;}
+  .nego-btn.custom-nego{background:rgba(251,188,4,0.06);border-color:rgba(251,188,4,0.35);color:var(--accent4);}
+  .nego-btn.custom-nego:hover:not(:disabled){background:rgba(251,188,4,0.15);border-color:var(--accent4);color:#fff;}
+  .nego-btn.end-nego{background:rgba(125,133,144,0.08);border-color:rgba(125,133,144,0.3);color:var(--muted);}
+  .nego-btn.end-nego:hover:not(:disabled){background:rgba(125,133,144,0.18);border-color:var(--muted);color:var(--text);}
+
+  /* ===== BOUTON CHOISIR PAYS ===== */
   .country-picker-btn{display:inline-flex;align-items:center;gap:8px;margin-top:0.8rem;padding:0.75rem 1.8rem;background:transparent;border:2px solid var(--accent3);color:var(--accent3);font-family:'Orbitron',monospace;font-size:0.82rem;font-weight:700;letter-spacing:0.12em;cursor:pointer;border-radius:4px;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);position:relative;overflow:hidden;animation:pulseGreen 2s ease-in-out infinite;}
   .country-picker-btn::before{content:'';position:absolute;inset:0;background:var(--accent3);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
   .country-picker-btn:hover{color:#fff;box-shadow:0 0 22px rgba(52,168,83,0.5);}.country-picker-btn:hover::before{transform:translateX(0);}
@@ -116,7 +136,6 @@
   .continue-btn:hover{color:#fff;box-shadow:var(--glow);}.continue-btn:hover::before{transform:translateX(0);}
   @keyframes pulseBlue{0%,100%{box-shadow:0 0 0 0 rgba(66,133,244,0);}50%{box-shadow:0 0 16px 4px rgba(66,133,244,0.4);}}
 
-  /* Wrapper boutons d'action dans le chat */
   .msg-actions{align-self:flex-start;display:flex;flex-direction:column;align-items:flex-start;gap:0.4rem;animation:msgIn 0.35s ease-out;}
 
   /* ===== MODALE CHOIX PAYS ===== */
@@ -146,7 +165,7 @@
   .country-confirm-btn:hover{background:#2d9e47;box-shadow:0 0 20px rgba(52,168,83,0.4);}
   .country-confirm-btn:disabled{opacity:0.35;cursor:not-allowed;}
 
-  /* Modale choix personnalisé */
+  /* ===== MODALE PROPOSITION PERSONNALISÉE ===== */
   #custom-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #custom-modal.active{display:flex;}
   .custom-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:560px;width:100%;padding:1.8rem;border-radius:4px;}
@@ -204,8 +223,8 @@
 
   .scanlines{position:fixed;inset:0;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);}
   .corner-deco{position:fixed;width:48px;height:48px;pointer-events:none;z-index:0;opacity:0.2;}
-  .corner-deco.tl{top:14px;left:14px;border-top:2px solid var(--accent);border-left:2px solid var(--accent3);} .corner-deco.tr{top:14px;right:14px;border-top:2px solid var(--accent2);border-right:2px solid var(--accent);}
-  .corner-deco.bl{bottom:14px;left:14px;border-bottom:2px solid var(--accent3);border-left:2px solid var(--accent4);} .corner-deco.br{bottom:14px;right:14px;border-bottom:2px solid var(--accent4);border-right:2px solid var(--accent2);}
+  .corner-deco.tl{top:14px;left:14px;border-top:2px solid var(--accent);border-left:2px solid var(--accent3);}.corner-deco.tr{top:14px;right:14px;border-top:2px solid var(--accent2);border-right:2px solid var(--accent);}
+  .corner-deco.bl{bottom:14px;left:14px;border-bottom:2px solid var(--accent3);border-left:2px solid var(--accent4);}.corner-deco.br{bottom:14px;right:14px;border-bottom:2px solid var(--accent4);border-right:2px solid var(--accent2);}
 
   .audio-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.7rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}
   .audio-btn:hover{border-color:var(--accent);color:var(--accent);}.audio-btn.playing{border-color:var(--accent3);color:var(--accent3);}.audio-btn.tension{border-color:var(--accent4);color:var(--accent4);}.audio-btn.crisis{border-color:var(--red);color:var(--red);animation:critPulse 1s ease-in-out infinite;}
@@ -239,6 +258,10 @@
   .close-stats{margin-top:1.5rem;width:100%;padding:0.7rem;background:none;border:1px solid var(--accent4);color:var(--accent4);font-family:'Orbitron',monospace;font-size:0.78rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;border-radius:2px;}.close-stats:hover{background:var(--accent4);color:#000;}
   .stat-btn{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.7rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}.stat-btn:hover{border-color:var(--accent4);color:var(--accent4);}
   #game.news-open .bottom-bar{margin-bottom:36px;}
+  .bottom-bar{display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem;max-width:1000px;width:100%;margin-left:auto;margin-right:auto;padding:0 0.2rem;}
+  .hint{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--muted);}
+  .reset-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;transition:all 0.2s;}
+  .reset-btn:hover{border-color:var(--red);color:var(--red);}
   @media(max-width:600px){.title-main{font-size:1.8rem;}.hud-center{display:none;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}.diff-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
@@ -253,22 +276,19 @@
   <div class="rules-box">
     <h2>⚙ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU</h2>
     <h3>I. Introduction</h3>
-    <p>L'IA prend la date actuelle et les événements réels pour créer une introduction immersive. Vous choisissez :</p>
+    <p>L'IA prend la date actuelle et les événements réels pour créer une introduction immersive.</p>
     <ul><li>Le <strong>pays</strong> à diriger (tous les pays du monde)</li><li>La <strong>difficulté</strong> : Facile / Normal / Difficile / Réaliste</li></ul>
     <p style="margin-top:0.5rem;">⚠ Jeu en bêta — l'IA peut faire des erreurs, n'hésitez pas à la corriger.</p>
     <h3>II. Objectif</h3>
     <p>Survivre jusqu'à la fin de votre mandat. Vous pouvez briguer un second mandat.</p>
-    <div class="rule-block"><p>L'IA s'assure que vous n'y parvenez pas facilement : crises, scandales, mouvements sociaux, pressions internationales…</p></div>
+    <div class="rule-block"><p>L'IA crée des obstacles crédibles : crises, scandales, mouvements sociaux…</p></div>
     <h3>III. Configuration</h3>
-    <ul><li><strong>1 tour = 1 mois</strong></li><li>Tous les <strong>24 mois</strong> : crise mondiale majeure</li><li>Durée du mandat adaptée au pays choisi</li></ul>
-    <h3>IV. Affichage — 2 phases</h3>
-    <p><strong>Phase 1</strong> — Tableaux chiffrés : Économie · Ressources · Projets</p>
-    <div class="rule-block"><p>Un bouton <strong>▶▶ CONTINUER → PHASE 2</strong> apparaît automatiquement.</p></div>
-    <p style="margin-top:0.8rem;"><strong>Phase 2</strong> — Narration · Conseils ministériels · 3 choix cliquables + option personnalisée</p>
+    <ul><li><strong>1 tour = 1 mois</strong></li><li>Tous les <strong>24 mois</strong> : crise mondiale majeure</li></ul>
+    <h3>IV. Phases</h3>
+    <p><strong>Phase 1</strong> — Tableaux chiffrés → bouton <strong>▶▶ CONTINUER</strong></p>
+    <p><strong>Phase 2</strong> — Narration · 3 choix cliquables + option personnalisée</p>
     <h3>V. Négociation</h3>
-    <p>Convoquer une réunion suspend le temps. L'IA incarne vos interlocuteurs jusqu'à votre signal de reprise.</p>
-    <h3>VI. Rappel auto</h3>
-    <p>Tous les 2 tours, l'IA se rappelle le règlement en interne (non visible).</p>
+    <p>Quand l'IA fait une proposition, <strong>4 boutons apparaissent</strong> : Accepter · Refuser · Changer d'interlocuteur · Proposition personnalisée. La négociation se termine sur votre signal.</p>
     <button class="close-rules" onclick="document.getElementById('rules-modal').classList.remove('active')">FERMER</button>
   </div>
 </div>
@@ -281,10 +301,10 @@
     <h3>2. HÉBERGEMENT</h3>
     <p><strong>Vercel Inc.</strong> — <a href="https://vercel.com" target="_blank">vercel.com</a></p>
     <h3>3. PROPRIÉTÉ INTELLECTUELLE</h3>
-    <p>Tous les contenus du jeu (design, code, univers) sont des créations originales protégées par le droit d'auteur français.</p>
-    <p><strong>Scénarios générés par Google Gemini</strong> : Propriété de Google LLC, utilisés conformément à leurs conditions.</p>
+    <p>Tous les contenus du jeu (design, code, univers) sont des créations originales.</p>
+    <p><strong>Scénarios générés par Google Gemini</strong> : Propriété de Google LLC.</p>
     <h3>4. DONNÉES PERSONNELLES</h3>
-    <p>✅ Aucune collecte de données. Les sauvegardes sont stockées localement sur votre appareil.</p>
+    <p>✅ Aucune collecte. Sauvegardes stockées localement.</p>
     <button class="close-rules" onclick="document.getElementById('legal-modal').classList.remove('active')">FERMER</button>
   </div>
 </div>
@@ -299,8 +319,9 @@
     <div class="g-dots"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div></div>
     Propulsé par <span>Google Gemini</span>
   </div>
-  <div class="btn-row" id="btn-row">
+  <div class="btn-row">
     <button class="play-btn" onclick="startGame()">▶ JOUER</button>
+    <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('active')">RÈGLES</button>
     <button class="legal-btn" onclick="document.getElementById('legal-modal').classList.add('active')">MENTIONS LÉGALES</button>
   </div>
   <div id="save-info" style="margin-top:1rem;display:none;">
@@ -333,6 +354,19 @@
   </div>
 </div>
 
+<!-- MODALE PROPOSITION PERSONNALISÉE (Phase 2 + Négociation) -->
+<div id="custom-modal">
+  <div class="custom-box">
+    <h2 id="custom-modal-title">✏ VOTRE ACTION PERSONNALISÉE</h2>
+    <p id="custom-modal-desc">Décrivez votre décision en détail · Entrée pour confirmer</p>
+    <textarea id="custom-input" placeholder="Ex: Je convoque une réunion d'urgence avec les syndicats..."></textarea>
+    <div class="btn-row">
+      <button class="custom-cancel" onclick="closeCustomModal()">ANNULER</button>
+      <button class="custom-confirm" onclick="submitCustomChoice()">CONFIRMER</button>
+    </div>
+  </div>
+</div>
+
 <div id="report-modal">
   <div class="report-box">
     <h2>⚠ SIGNALER UN PROBLÈME</h2>
@@ -345,18 +379,6 @@
   </div>
 </div>
 <div class="report-success" id="report-success">✅ Merci pour votre signalement !</div>
-
-<div id="custom-modal">
-  <div class="custom-box">
-    <h2>✏ VOTRE ACTION PERSONNALISÉE</h2>
-    <p>Décrivez votre décision en détail · Entrée pour confirmer</p>
-    <textarea id="custom-input" placeholder="Ex: Je convoque une réunion d'urgence avec les syndicats..."></textarea>
-    <div class="btn-row">
-      <button class="custom-cancel" onclick="closeCustomModal()">ANNULER</button>
-      <button class="custom-confirm" onclick="submitCustomChoice()">CONFIRMER</button>
-    </div>
-  </div>
-</div>
 
 <div id="stats-modal">
   <div class="stats-box">
@@ -385,6 +407,8 @@
       <span>DIFF. <b id="hud-diff">—</b></span>
     </div>
     <span class="hud-ai"><div class="hud-dots"><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div></div>GEMINI</span>
+    <!-- Badge négociation en cours -->
+    <span class="nego-badge" id="nego-badge">🤝 NÉGOCIATION EN COURS</span>
     <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">
       <div class="audio-bars"><div class="audio-bar" style="height:6px"></div><div class="audio-bar" style="height:10px"></div><div class="audio-bar" style="height:4px"></div></div>
       <span id="audio-label">♪ SON</span>
@@ -395,6 +419,16 @@
   <div class="chat-container">
     <div class="chat-messages" id="chat-messages">
       <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()">⛶ PLEIN ÉCRAN</button>
+      <span class="hint">↵ Entrée · Maj+Entrée saut de ligne</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
+      <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
     </div>
   </div>
 </div>
@@ -408,42 +442,33 @@
 // ===== LISTE DE PAYS =====
 const COUNTRIES = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagne','Angola','Arabie Saoudite','Argentine','Arménie','Australie','Autriche','Azerbaïdjan','Bangladesh','Belgique','Biélorussie','Bolivie','Bosnie-Herzégovine','Brésil','Bulgarie','Cambodge','Cameroun','Canada','Chili','Chine','Colombie','Congo','Corée du Nord','Corée du Sud','Costa Rica','Côte d\'Ivoire','Croatie','Cuba','Danemark','Égypte','Émirats Arabes Unis','Équateur','Espagne','Estonie','Éthiopie','Finlande','France','Géorgie','Ghana','Grèce','Guatemala','Honduras','Hongrie','Inde','Indonésie','Irak','Iran','Irlande','Islande','Israël','Italie','Jamaïque','Japon','Jordanie','Kazakhstan','Kenya','Koweït','Laos','Lettonie','Liban','Libye','Lituanie','Luxembourg','Macédoine du Nord','Malaisie','Mali','Maroc','Mexique','Moldavie','Mongolie','Mozambique','Myanmar','Namibie','Népal','Nicaragua','Niger','Nigeria','Norvège','Nouvelle-Zélande','Oman','Ouganda','Ouzbékistan','Pakistan','Panama','Paraguay','Pays-Bas','Pérou','Philippines','Pologne','Portugal','Qatar','République Tchèque','Roumanie','Royaume-Uni','Russie','Rwanda','Sénégal','Serbie','Singapour','Slovaquie','Slovénie','Somalie','Soudan','Suède','Suisse','Syrie','Taïwan','Tanzanie','Thaïlande','Tunisie','Turquie','Ukraine','Uruguay','Venezuela','Vietnam','Yémen','Zimbabwe','États-Unis'].sort();
 
+// ===== ÉTAT GLOBAL =====
 let selectedDiff = 'Facile';
-let gamePhase = 'init'; // 'init' | 'waiting_country' | 'playing'
+let gamePhase = 'init'; // 'init' | 'waiting_country' | 'playing' | 'negotiation'
+let customModalCallback = null; // callback pour savoir si on est en négociation ou Phase 2
 
+// ===== SÉLECTEUR DE PAYS =====
 function filterCountries(query) {
   const box = document.getElementById('country-suggestions');
   if (!query || query.length < 2) { box.classList.remove('show'); return; }
-  const q = query.toLowerCase();
-  const matches = COUNTRIES.filter(c => c.toLowerCase().includes(q)).slice(0, 8);
+  const matches = COUNTRIES.filter(c => c.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
   if (!matches.length) { box.classList.remove('show'); return; }
-  box.innerHTML = matches.map(c => `<div class="country-suggestion-item" onclick="pickCountry('${c.replace(/'/g,"\\'")}'">${c}</div>`).join('');
+  box.innerHTML = matches.map(c => `<div class="country-suggestion-item" onclick="pickCountry('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
   box.classList.add('show');
 }
-
 function pickCountry(name) {
   document.getElementById('country-input').value = name;
   document.getElementById('country-suggestions').classList.remove('show');
   document.getElementById('country-confirm-btn').disabled = false;
 }
-
 function handleCountryKey(e) {
   const val = document.getElementById('country-input').value.trim();
   document.getElementById('country-confirm-btn').disabled = !val;
   if (e.key === 'Enter' && val) { e.preventDefault(); document.getElementById('country-suggestions').classList.remove('show'); confirmCountry(); }
   if (e.key === 'Escape') document.getElementById('country-suggestions').classList.remove('show');
 }
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.country-input-wrap')) document.getElementById('country-suggestions').classList.remove('show');
-});
-
-function selectDiff(btn) {
-  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedDiff = btn.dataset.diff;
-}
-
+document.addEventListener('click', e => { if (!e.target.closest('.country-input-wrap')) document.getElementById('country-suggestions').classList.remove('show'); });
+function selectDiff(btn) { document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedDiff = btn.dataset.diff; }
 function openCountryModal() {
   document.getElementById('country-input').value = '';
   document.getElementById('country-suggestions').classList.remove('show');
@@ -451,17 +476,14 @@ function openCountryModal() {
   document.getElementById('country-modal').classList.add('active');
   setTimeout(() => document.getElementById('country-input').focus(), 100);
 }
-
 function confirmCountry() {
   const country = document.getElementById('country-input').value.trim();
   if (!country) return;
   document.getElementById('country-modal').classList.remove('active');
   document.getElementById('hud-country').textContent = country;
   document.getElementById('hud-diff').textContent = selectedDiff;
-  // Retire le bouton "Choisir mon pays"
   const pickerAction = document.querySelector('.country-picker-btn');
   if (pickerAction) pickerAction.closest('.msg-actions').remove();
-  // Envoie le choix à l'IA
   const msg = `Je souhaite diriger ${country} en difficulté ${selectedDiff}.`;
   addMessage('user', msg);
   conversationHistory.push({ role: 'user', content: msg });
@@ -472,32 +494,32 @@ function confirmCountry() {
 // ===== PARSER MARKDOWN =====
 window.marked = {
   parse: function(text) {
-    var escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    var lines=escaped.split('\n'),result=[],inTable=false,tableHeaderDone=false,inList=false,listTag='';
-    function flushList(){if(inList){result.push('</'+listTag+'>');inList=false;listTag='';}}
-    function flushTable(){if(inTable){result.push('</table>');inTable=false;tableHeaderDone=false;}}
-    function applyInline(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>');}
+    var esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var lines=esc.split('\n'),res=[],inT=false,thDone=false,inL=false,lTag='';
+    function fL(){if(inL){res.push('</'+lTag+'>');inL=false;lTag='';}}
+    function fT(){if(inT){res.push('</table>');inT=false;thDone=false;}}
+    function iL(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>');}
     for(var i=0;i<lines.length;i++){
-      var line=lines[i];
-      if(line.match(/^\|[\s\-\|:]+\|$/)){tableHeaderDone=true;continue;}
-      if(line.match(/^\|(.+)\|$/)){flushList();if(!inTable){result.push('<table>');inTable=true;tableHeaderDone=false;}var cells=line.slice(1,-1).split('|').map(function(c){return applyInline(c.trim());});var tag=tableHeaderDone?'td':'th';result.push('<tr>'+cells.map(function(c){return'<'+tag+'>'+c+'</'+tag+'>';}).join('')+'</tr>');continue;}
-      flushTable();
-      if(line.trim()===''){flushList();result.push('');continue;}
+      var l=lines[i];
+      if(l.match(/^\|[\s\-\|:]+\|$/)){thDone=true;continue;}
+      if(l.match(/^\|(.+)\|$/)){fL();if(!inT){res.push('<table>');inT=true;thDone=false;}var cs=l.slice(1,-1).split('|').map(function(c){return iL(c.trim());});var tg=thDone?'td':'th';res.push('<tr>'+cs.map(function(c){return'<'+tg+'>'+c+'</'+tg+'>';}).join('')+'</tr>');continue;}
+      fT();
+      if(l.trim()===''){fL();res.push('');continue;}
       var hm;
-      if((hm=line.match(/^### (.+)$/))){flushList();result.push('<h3>'+applyInline(hm[1])+'</h3>');continue;}
-      if((hm=line.match(/^## (.+)$/))){flushList();result.push('<h2>'+applyInline(hm[1])+'</h2>');continue;}
-      if((hm=line.match(/^# (.+)$/))){flushList();result.push('<h1>'+applyInline(hm[1])+'</h1>');continue;}
-      if(line.match(/^---+$/)||line.match(/^\*\*\*+$/)){flushList();result.push('<hr>');continue;}
-      var cta=line.match(/^\[(.+)\]$/);if(cta){flushList();result.push('<div class="cta-block">[ '+applyInline(cta[1])+' ]</div>');continue;}
-      var ul=line.match(/^[\-\*] (.+)$/);if(ul){if(!inList||listTag!=='ul'){flushList();result.push('<ul>');inList=true;listTag='ul';}result.push('<li>'+applyInline(ul[1])+'</li>');continue;}
-      var ol=line.match(/^\d+\. (.+)$/);if(ol){if(!inList||listTag!=='ol'){flushList();result.push('<ol>');inList=true;listTag='ol';}result.push('<li>'+applyInline(ol[1])+'</li>');continue;}
-      flushList();result.push('<p>'+applyInline(line)+'</p>');
+      if((hm=l.match(/^### (.+)$/))){fL();res.push('<h3>'+iL(hm[1])+'</h3>');continue;}
+      if((hm=l.match(/^## (.+)$/))){fL();res.push('<h2>'+iL(hm[1])+'</h2>');continue;}
+      if((hm=l.match(/^# (.+)$/))){fL();res.push('<h1>'+iL(hm[1])+'</h1>');continue;}
+      if(l.match(/^---+$/)||l.match(/^\*\*\*+$/)){fL();res.push('<hr>');continue;}
+      var cta=l.match(/^\[(.+)\]$/);if(cta){fL();res.push('<div class="cta-block">[ '+iL(cta[1])+' ]</div>');continue;}
+      var ul=l.match(/^[\-\*] (.+)$/);if(ul){if(!inL||lTag!=='ul'){fL();res.push('<ul>');inL=true;lTag='ul';}res.push('<li>'+iL(ul[1])+'</li>');continue;}
+      var ol=l.match(/^\d+\. (.+)$/);if(ol){if(!inL||lTag!=='ol'){fL();res.push('<ol>');inL=true;lTag='ol';}res.push('<li>'+iL(ol[1])+'</li>');continue;}
+      fL();res.push('<p>'+iL(l)+'</p>');
     }
-    flushList();flushTable();return result.join('\n');
+    fL();fT();return res.join('\n');
   }
 };
 
-// ===== CHOIX CLIQUABLES =====
+// ===== CHOIX CLIQUABLES PHASE 2 =====
 function renderChoices(container) {
   container.querySelectorAll('ol').forEach(function(ol) {
     var items = ol.querySelectorAll('li');
@@ -513,8 +535,9 @@ function renderChoices(container) {
       btn.innerHTML = '<strong>' + num + '.</strong> ' + text;
       btn.onclick = (function(n, t, b, isC) {
         return function() {
-          if (isC) { openCustomModal(); }
-          else {
+          if (isC) {
+            openCustomModalFor('phase2', null);
+          } else {
             wrap.querySelectorAll('.choice-btn').forEach(function(x){x.disabled=true;});
             b.disabled=false; b.classList.add('chosen');
             sendChoiceMessage(n + '. ' + t);
@@ -527,21 +550,110 @@ function renderChoices(container) {
   });
 }
 
-function openCustomModal() { document.getElementById('custom-input').value=''; document.getElementById('custom-modal').classList.add('active'); setTimeout(function(){document.getElementById('custom-input').focus();},100); }
-function closeCustomModal() { document.getElementById('custom-modal').classList.remove('active'); }
-function submitCustomChoice() { var t=document.getElementById('custom-input').value.trim(); if(!t)return; closeCustomModal(); sendChoiceMessage(t); }
-async function sendChoiceMessage(text) { if(isLoading)return; addMessage('user',text); conversationHistory.push({role:'user',content:text}); await callAPI(null,false); }
-document.addEventListener('DOMContentLoaded',function(){ var ci=document.getElementById('custom-input'); if(ci)ci.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitCustomChoice();}}); });
+// ╔══════════════════════════════════════════════════╗
+// ║         SYSTÈME DE NÉGOCIATION                  ║
+// ╚══════════════════════════════════════════════════╝
+
+// Détecte si un message de l'IA est une phase de négociation
+function isNegotiationMessage(text) {
+  return /phase de n[ée]gociation|n[ée]gociation (en cours|engag|ouverte)|interlocuteur|vous parle|prend la parole|r[ée]pond|s'exprime|ministre|ambassad|pr[ée]sident|chef d'[ée]tat|syndicat|d[ée]l[ée]gu[ée]|repr[ée]sentant|porte-parole/i.test(text)
+    && !/phase 2|phase 1|tableau|indicateur|popularit[ée]/i.test(text);
+}
+
+// Injecte le panneau de négociation dans le chat
+function injectNegoPanel(container, typing) {
+  // Retire un panneau existant
+  const old = document.querySelector('.nego-panel');
+  if (old) old.remove();
+
+  const panel = document.createElement('div');
+  panel.className = 'nego-panel msg-actions';
+  panel.innerHTML = `
+    <div class="nego-panel-title">🤝 RÉPONDRE À LA PROPOSITION</div>
+    <button class="nego-btn accept" onclick="sendNegoChoice(this, '✅ J\'accepte la proposition.')">✅ Accepter la proposition</button>
+    <button class="nego-btn refuse" onclick="sendNegoChoice(this, '❌ Je refuse la proposition.')">❌ Refuser la proposition</button>
+    <button class="nego-btn change" onclick="sendNegoChoice(this, 'Je souhaite changer d\'interlocuteur ou aborder un autre sujet.')">🔄 Changer d'interlocuteur / sujet</button>
+    <button class="nego-btn custom-nego" onclick="openCustomModalFor('nego', this)">✏ Faire une proposition personnalisée</button>
+    <button class="nego-btn end-nego" onclick="sendNegoChoice(this, 'Je mets fin à la réunion. Reprenons le jeu.')">🚪 Terminer la négociation</button>
+  `;
+  container.insertBefore(panel, typing);
+  container.scrollTop = container.scrollHeight;
+
+  // Active l'indicateur dans le HUD
+  document.getElementById('nego-badge').classList.add('active');
+  gamePhase = 'negotiation';
+}
+
+function sendNegoChoice(btn, text) {
+  // Désactive tous les boutons du panneau
+  const panel = btn.closest('.nego-panel');
+  if (panel) { panel.querySelectorAll('button').forEach(b => b.disabled = true); btn.style.opacity = '1'; btn.style.borderColor = 'var(--accent3)'; btn.style.color = 'var(--accent3)'; }
+
+  // Si c'est la fin de la négociation, désactive le badge HUD
+  if (text.includes('Reprenons le jeu') || text.includes('mets fin')) {
+    document.getElementById('nego-badge').classList.remove('active');
+    gamePhase = 'playing';
+  }
+  sendChoiceMessage(text);
+}
+
+// ===== MODALE PROPOSITION PERSONNALISÉE (partagée Phase 2 + Négociation) =====
+function openCustomModalFor(context, btn) {
+  const title = context === 'nego'
+    ? '✏ PROPOSITION PERSONNALISÉE'
+    : '✏ VOTRE ACTION PERSONNALISÉE';
+  const desc = context === 'nego'
+    ? 'Formulez votre proposition en détail · Entrée pour confirmer'
+    : 'Décrivez votre décision en détail · Entrée pour confirmer';
+  const ph = context === 'nego'
+    ? 'Ex: Je propose un accord sur les salaires en échange d\'une levée des blocages...'
+    : 'Ex: Je convoque une réunion d\'urgence avec les syndicats...';
+
+  document.getElementById('custom-modal-title').textContent = title;
+  document.getElementById('custom-modal-desc').textContent = desc;
+  document.getElementById('custom-input').placeholder = ph;
+  document.getElementById('custom-input').value = '';
+
+  // Stocke le contexte pour submitCustomChoice
+  customModalCallback = context;
+  if (btn) { customModalCallback = { context, btn }; }
+
+  document.getElementById('custom-modal').classList.add('active');
+  setTimeout(() => document.getElementById('custom-input').focus(), 100);
+}
+
+function closeCustomModal() {
+  document.getElementById('custom-modal').classList.remove('active');
+  customModalCallback = null;
+}
+
+function submitCustomChoice() {
+  const text = document.getElementById('custom-input').value.trim();
+  if (!text) return;
+  closeCustomModal();
+
+  // Si c'est une proposition en négociation, utilise sendNegoChoice
+  if (customModalCallback && typeof customModalCallback === 'object' && customModalCallback.context === 'nego') {
+    sendNegoChoice(customModalCallback.btn || document.createElement('button'), text);
+  } else {
+    sendChoiceMessage(text);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const ci = document.getElementById('custom-input');
+  if (ci) ci.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitCustomChoice(); } });
+});
 
 // ===== SIGNALEMENT =====
-function openReportModal() { document.getElementById('report-modal').classList.add('active'); document.getElementById('report-text').value=''; document.getElementById('report-text').focus(); }
+function openReportModal() { document.getElementById('report-modal').classList.add('active'); document.getElementById('report-text').value = ''; document.getElementById('report-text').focus(); }
 function submitReport() {
   var text=document.getElementById('report-text').value.trim();
   if(!text){alert('Veuillez décrire le problème.');return;}
   var country=document.getElementById('hud-country').textContent;
   var diff=document.getElementById('hud-diff').textContent;
   var date=document.getElementById('hud-date').textContent;
-  var subj=encodeURIComponent('[Signalement] Président le Jeu - '+(country!=='—'?country:'Non spécifié'));
+  var subj=encodeURIComponent('[Signalement] Président le Jeu - '+(country!=='—'?country:'?'));
   var body=encodeURIComponent('Pays: '+country+'\nDifficulté: '+diff+'\nDate: '+date+'\nNavigateur: '+navigator.userAgent+'\n\nProblème:\n'+text);
   window.open('mailto:lechikiponk@gmail.com?subject='+subj+'&body='+body,'_blank');
   document.getElementById('report-modal').classList.remove('active');
@@ -549,14 +661,13 @@ function submitReport() {
 }
 
 // ===== SAUVEGARDE =====
-let conversationHistory=[], isLoading=false;
-
+let conversationHistory = [], isLoading = false;
 function saveGame() {
   try {
     localStorage.setItem('president_history',JSON.stringify(conversationHistory));
     localStorage.setItem('president_hud',JSON.stringify({country:document.getElementById('hud-country').textContent,date:document.getElementById('hud-date').textContent,diff:document.getElementById('hud-diff').textContent}));
-    var ind=document.getElementById('save-indicator'); if(ind){ind.classList.add('show');setTimeout(function(){ind.classList.remove('show');},2000);}
-  } catch(e){}
+    var ind=document.getElementById('save-indicator');if(ind){ind.classList.add('show');setTimeout(function(){ind.classList.remove('show');},2000);}
+  }catch(e){}
 }
 function loadSave(){try{var h=localStorage.getItem('president_history');var hud=localStorage.getItem('president_hud');if(!h)return null;return{history:JSON.parse(h),hud:hud?JSON.parse(hud):null};}catch(e){return null;}}
 function clearSave(){localStorage.removeItem('president_history');localStorage.removeItem('president_hud');}
@@ -584,12 +695,11 @@ function resumeGame() {
     document.getElementById('loading').classList.remove('active');
     document.getElementById('landing').style.display='none';
     document.getElementById('game').classList.add('active');
-    conversationHistory=save.history; applyHUD(save.hud);
-    gamePhase='playing';
+    conversationHistory=save.history; applyHUD(save.hud); gamePhase='playing';
     var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
     conversationHistory.forEach(function(m){
       if(m.role==='user'){var div=document.createElement('div');div.className='msg user';var h=document.createElement('div');h.className='msg-header';h.textContent='▶ VOUS';var b=document.createElement('div');b.className='msg-body';b.textContent=m.content;div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
-      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){enrichTables(b);detectAudioMode(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
+      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){Stats.record(b,'');enrichTables(b);detectAudioMode(b);renderChoices(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
     });
     container.scrollTop=container.scrollHeight;
   },1500);
@@ -602,10 +712,8 @@ function startGame() {
     document.getElementById('loading').classList.remove('active');
     document.getElementById('landing').style.display='none';
     document.getElementById('game').classList.add('active');
-    conversationHistory=[];Stats.reset();
-    gamePhase='init';
-    // ★ L'IA fait l'intro puis s'arrête — le joueur choisit son pays via la modale
-    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté.", true);
+    conversationHistory=[];Stats.reset();gamePhase='init';
+    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle 2026 et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté.",true);
   },2000);
 }
 
@@ -620,45 +728,55 @@ async function callAPI(initMessage,isInit) {
     else{conversationHistory.push({role:'assistant',content:text});}
     addMessage('ai',text);updateHUD(text);saveGame();
     setTimeout(function(){var c=document.getElementById('chat-messages');if(c)c.scrollTop=c.scrollHeight;},800);
-  } catch(err){addMessage('ai','⚠ Erreur : '+err.message+'\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.');}
+  }catch(err){addMessage('ai','⚠ Erreur : '+err.message+'\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.');}
   setLoading(false);
 }
 
 // ===== INJECTION BOUTONS DANS LE CHAT =====
-function injectActionButtons(text) {
+function injectActionButtons(text, bodyEl) {
   var container=document.getElementById('chat-messages');
   var typing=document.getElementById('typing');
 
-  // — Bouton "Choisir mon pays" après l'intro initiale
-  if(gamePhase==='init'){
-    gamePhase='waiting_country';
+  // Bouton "Choisir mon pays" après l'intro
+  if (gamePhase === 'init') {
+    gamePhase = 'waiting_country';
     var div=document.createElement('div');div.className='msg-actions';
     div.innerHTML='<button class="country-picker-btn" onclick="openCountryModal()">🌍 Choisir mon pays et ma difficulté</button>';
     container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
     return;
   }
 
-  // — Bouton "CONTINUER → PHASE 2" à la fin d'une Phase 1
+  // Bouton "CONTINUER → PHASE 2"
   var isPhase1End = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
     || /tapez\s+(ok|continuer)/i.test(text)
-    || /pour passer à la phase 2/i.test(text)
-    || /cliquez sur continuer/i.test(text);
+    || /pour passer à la phase 2/i.test(text);
 
-  if(isPhase1End){
-    // Retire un éventuel bouton continuer précédent
-    var existing=document.querySelector('.continue-btn');
-    if(existing)existing.closest('.msg-actions').remove();
+  if (isPhase1End && gamePhase === 'playing') {
+    var existing=document.querySelector('.continue-btn');if(existing)existing.closest('.msg-actions').remove();
     var div=document.createElement('div');div.className='msg-actions';
     div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">▶▶ CONTINUER → PHASE 2</button>';
     container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
+    return;
+  }
+
+  // ✅ Panneau de négociation
+  if (gamePhase === 'playing' && isNegotiationMessage(text)) {
+    injectNegoPanel(container, typing);
   }
 }
 
 function continueToPhase2(btn) {
   btn.closest('.msg-actions').remove();
-  var msg='OK';
-  addMessage('user',msg);conversationHistory.push({role:'user',content:msg});
+  addMessage('user','OK');
+  conversationHistory.push({role:'user',content:'OK'});
   callAPI(null,false);
+}
+
+async function sendChoiceMessage(text) {
+  if(isLoading)return;
+  addMessage('user',text);
+  conversationHistory.push({role:'user',content:text});
+  await callAPI(null,false);
 }
 
 function addMessage(role,content){
@@ -671,19 +789,15 @@ function addMessage(role,content){
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
       Stats.record(body,dateLabel);enrichTables(body);detectAudioMode(body);renderChoices(body);
-      injectActionButtons(content); // ← injection des boutons
+      injectActionButtons(content,body);
       scrollToBottom(container);
     },0);
-  } else {body.textContent=content;}
+  }else{body.textContent=content;}
   div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing);scrollToBottom(container);
 }
 
 function scrollToBottom(c){if(c)c.scrollTop=c.scrollHeight;}
-
-function setLoading(val){
-  isLoading=val;
-  document.getElementById('typing').classList.toggle('active',val);
-}
+function setLoading(val){isLoading=val;document.getElementById('typing').classList.toggle('active',val);}
 
 function updateHUD(text){
   var dm=text.match(/(?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\s+\d{4}/i);
@@ -733,13 +847,7 @@ function toggleFullscreen(){var btn=document.getElementById('fs-btn');if(!docume
 document.addEventListener('fullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.fullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
 document.addEventListener('webkitfullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.webkitFullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
 function toggleAudio(){Audio.toggle();}
-
-function detectAudioMode(container){
-  if(!Audio.isRunning())return;var tensions=-1,popularite=-1,croissance=0;
-  container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase();var m=cells[1].textContent.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;if(label.includes('tension'))tensions=val;if(label.includes('popular'))popularite=val;if(label.includes('croissance'))croissance=val;});});
-  var nm='calm';if(tensions>=7||popularite<30||croissance<-1)nm='crisis';else if(tensions>=5||popularite<45||croissance<0)nm='tension';
-  Audio.setMode(nm);
-}
+function detectAudioMode(container){if(!Audio.isRunning())return;var tensions=-1,popularite=-1,croissance=0;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase();var m=cells[1].textContent.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;if(label.includes('tension'))tensions=val;if(label.includes('popular'))popularite=val;if(label.includes('croissance'))croissance=val;});});var nm='calm';if(tensions>=7||popularite<30||croissance<-1)nm='crisis';else if(tensions>=5||popularite<45||croissance<0)nm='tension';Audio.setMode(nm);}
 
 // ===== STATISTIQUES =====
 const Stats=(()=>{
@@ -758,7 +866,8 @@ function openStats(){Stats.open();}
 function resetGame(){
   if(!confirm('Abandonner la partie ?'))return;
   Audio.stop();Stats.reset();clearSave();gamePhase='init';
-  document.getElementById('game').classList.remove('acative');document.getElementById('landing').style.display='';
+  document.getElementById('nego-badge').classList.remove('active');
+  document.getElementById('game').classList.remove('active');document.getElementById('landing').style.display='';
   document.getElementById('save-info').style.display='none';
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
