@@ -261,6 +261,8 @@
   .hint{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--muted);}
   .reset-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;transition:all 0.2s;}
   .reset-btn:hover{border-color:var(--red);color:var(--red);}
+  .retry-btn{background:none;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.62rem;padding:0.15rem 0.4rem;cursor:pointer;opacity:0.4;transition:opacity 0.2s;letter-spacing:0.05em;}
+  .retry-btn:hover{opacity:1;color:var(--accent);}
   @media(max-width:600px){.title-main{font-size:1.8rem;}.hud-center{display:none;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}.diff-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
@@ -804,6 +806,13 @@ function addMessage(role,content){
   var body=document.createElement('div');body.className='msg-body';
   if(role==='ai'){
     var cleaned=extractAndShowNews(content);body.innerHTML=window.marked.parse(cleaned);
+    // Petit bouton discret pour relancer si bug
+    var retryBtn=document.createElement('button');
+    retryBtn.className='retry-btn';
+    retryBtn.textContent='↺ relancer';
+    retryBtn.title='Relancer si la discussion est bloquée';
+    retryBtn.onclick=function(){ relancerDiscussion(); };
+    body.appendChild(retryBtn);
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
       Stats.record(body,dateLabel);
@@ -886,6 +895,15 @@ const Stats=(()=>{
 })();
 
 function openStats(){Stats.open();}
+function relancerDiscussion() {
+  if (isLoading) return;
+  if (gamePhase === 'init' || gamePhase === 'waiting_country') return;
+  var msg = "Continue.";
+  addMessage('user', msg);
+  conversationHistory.push({ role: 'user', content: msg });
+  callAPI(null, false);
+}
+
 function resetGame(){
   if(!confirm('Abandonner la partie ?'))return;
   Audio.stop();Stats.reset();clearSave();gamePhase='init';
