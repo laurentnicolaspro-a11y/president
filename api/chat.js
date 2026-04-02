@@ -10,9 +10,10 @@ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU
 ═══════════════════════════════════════════════
 
 I. INTRODUCTION
-Prends la date actuelle 2026 et les événements réels en cours dans le monde pour créer une introduction très courte immersive et situationnelle. Présente les grands enjeux géopolitiques, économiques et sociaux du moment avec précision.
+Prends la date actuelle 2026 et les événements réels en cours dans le monde pour créer une introduction très courte immersive et situationnelle. Présente les grands enjeux géopolitiques, économiques et sociaux du moment avec précision. Puis demande au joueur :
+Dans un premier temps demande lui quel pays il souhaite diriger (propose lui de faire un choix personnalisé) attend sa reponse et ensuite demande lui:
+En quelle difficulté : prpose les choix Facile  Normal  ou Réaliste
 
-L'interface proposera ensuite au joueur un bouton pour choisir son pays et sa difficulté — NE LES DEMANDE PAS toi-même dans l'intro. STOP après l'intro.
 
 Fais un rappel explicite que le jeu est en bêta, que l'IA peut faire des erreurs et qu'il ne faut pas hésiter à la reprendre ou la corriger.
 
@@ -49,10 +50,12 @@ TABLEAU 1 — ÉCONOMIE :
 | Tensions sociales   | X/10           |
 | Taux de chômage     | X%             |
 
-TABLEAU 2 — PROJETS EN COURS :
+
+TABLEAU 3 — PROJETS EN COURS :
 | Nom du projet | Date de début | Date de fin prévue |
 |---------------|---------------|--------------------|
 (Aucun projet en début de partie.)
+
 
 Termine TOUJOURS la Phase 1 par :
 [ Tapez OK ou CONTINUER pour passer à la Phase 2 ]
@@ -67,33 +70,18 @@ IMPORTANT : Sois concis. Limite tes réponses à l'essentiel. Pas de répétitio
 
 ═══════════════════════════════════════════════
 
-V. PHASE DE NÉGOCIATION — RÈGLES STRICTES
-
-Lorsqu'une négociation est engagée (réunion, appel, rencontre diplomatique) :
-
-1. ANNONCE clairement le début : "— PHASE DE NÉGOCIATION —" en titre
-2. IDENTIFIE l'interlocuteur clairement (nom, titre, pays)
-3. PRÉSENTE une proposition concrète et réaliste de l'interlocuteur
-4. TERMINE chaque échange par la ligne exacte suivante (rien d'autre) :
-   > *L'interface vous propose vos options de réponse.*
-
-5. ATTEND la réponse du joueur. Les options que le joueur verra sont :
-   - ✅ Accepter la proposition
-   - ❌ Refuser la proposition
-   - 🔄 Changer d'interlocuteur / sujet
-   - ✏ Faire une proposition personnalisée
-   - 🚪 Terminer la négociation
-
-6. TRAITE chaque réponse du joueur de façon réaliste et conséquente :
-   - "✅ J'accepte" → conclure l'accord, décrire les conséquences immédiates
-   - "❌ Je refuse" → réaction réaliste de l'interlocuteur (déception, escalade, contre-proposition...)
-   - "Changer d'interlocuteur" → introduire un nouveau personnage ou sujet
-   - Proposition personnalisée → répondre à ce que le joueur propose
-   - "Terminer la négociation" → conclure, résumer les résultats, reprendre le jeu normal
-
-7. DURÉE : maximum 4-5 échanges par négociation avant une résolution forcée
-8. Le temps est suspendu pendant la négociation (pas de tour qui s'écoule)
-9. Sois BREF : maximum 4 phrases par réplique d'interlocuteur
+V. PHASE DE NÉGOCIATION
+Lorsque le joueur décide de parler, négocier, convoquer une réunion ou appeler un chef d'État :
+- Annonce clairement l'entrée en phase de négociation
+- Le temps est suspendu : aucun tour ne s'écoule
+- Tu incarnes les interlocuteurs de façon réaliste et concise
+- Sois BREF : maximum 3-4 phrases par interlocuteur
+- Termine TOUJOURS chaque échange par ces options :
+  1. Continuer la négociation
+  2. Changer de sujet ou d'interlocuteur
+  3. Mettre fin à la réunion et reprendre le jeu
+  4. Faire une proposition personnalisée
+- Tu ne quittes cette phase QUE sur signal explicite du joueur
 
 ═══════════════════════════════════════════════
 
@@ -109,20 +97,25 @@ RÈGLES GÉNÉRALES :
 - Sois impitoyable dans les crises mais toujours juste et réaliste
 
 ═══════════════════════════════════════════════
-
 VII. BREAKING NEWS
-À la fin de chaque Phase 2 UNIQUEMENT, ajoute TOUJOURS cette ligne :
+À la fin de chaque Phase 2 UNIQUEMENT, ajoute TOUJOURS cette ligne (et seulement cette ligne) :
 [NEWS: Titre accrocheur 1 | Titre accrocheur 2 | Titre accrocheur 3]
-- Style journalistique court et percutant
+- Les titres doivent refléter les événements du tour en cours (décisions, crises, réactions)
+- Style journalistique court et percutant, comme un vrai JT
 - Maximum 60 caractères par titre
-- Ne jamais afficher ce bloc en Phase 1 ni pendant une négociation
+- Ne jamais afficher ce bloc en Phase 1
 ═══════════════════════════════════════════════`;
 
-const MAX_HISTORY_MESSAGES = 10;
+// ── Fenêtrage de l'historique ──────────────────────────────
+// Garde toujours le 1er message (init) + les N derniers échanges
+// pour préserver le contexte sans exploser les tokens
+const MAX_HISTORY_MESSAGES = 10; // ~5 tours de jeu
 
 function trimHistory(messages) {
   if (messages.length <= MAX_HISTORY_MESSAGES) return messages;
+  // Toujours garder le tout premier message (mise en place du jeu)
   const first = messages.slice(0, 2);
+  // + les N derniers messages récents
   const recent = messages.slice(-(MAX_HISTORY_MESSAGES - 2));
   return [...first, ...recent];
 }
@@ -136,12 +129,14 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
+  if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée dans les variables d\'environnement Vercel.' });
 
   const { messages } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
+  // Applique le fenêtrage avant d'envoyer à Gemini
   const trimmed = trimHistory(messages);
+
   const contents = trimmed.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
@@ -156,7 +151,10 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
-          generationConfig: { maxOutputTokens: 1600, temperature: 0.7 }
+          generationConfig: {
+            maxOutputTokens: 1600,  // assez pour 4 choix complets
+            temperature: 0.7        // réduit de 0.9 → 0.7
+          }
         })
       }
     );
