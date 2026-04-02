@@ -861,15 +861,16 @@ function enrichTables(container){
 
 // ===== BREAKING NEWS =====
 function extractAndShowNews(text){
-  // Supprimer la balise [ OK ] du texte affiché (le bouton CONTINUER est injecté par l'interface)
-  text = text.replace(/\[\s*(?:tapez\s+ok|ok|continuer)[^\]]*\]/gi, '').trim();
-  var match=text.match(/\[NEWS:\s*(.+?)\]/);if(!match)return text;
+  var match=text.match(/\[NEWS:\s*(.+?)\]/);if(!match){
+    // Supprimer la balise [ OK ] du texte affiché uniquement (la détection pour le bouton se fait sur le texte original)
+    return text.replace(/\[\s*(?:tapez\s+ok|ok|continuer)[^\]]*\]/gi,'').trim();
+  }
   var titles=match[1].split('|').map(function(t){return t.trim();}).filter(Boolean);if(!titles.length)return text.replace(match[0],'').trim();
   var track=document.getElementById('news-track');var banner=document.getElementById('news-banner');if(!track||!banner)return text;
   track.innerHTML=titles.map(function(t,i){return'<span>'+t+'</span>'+(i<titles.length-1?'<span class="news-sep">◆</span>':'');}).join('')+'<span class="news-sep">◆</span>'+titles.map(function(t,i){return'<span>'+t+'</span>'+(i<titles.length-1?'<span class="news-sep">◆</span>':'');}).join('');
   banner.classList.add('active');document.getElementById('game').classList.add('news-open');
   track.style.animation='none';track.offsetHeight;track.style.animation='';
-  return text.replace(match[0],'').trim();
+  return text.replace(match[0],'').replace(/\[\s*(?:tapez\s+ok|ok|continuer)[^\]]*\]/gi,'').trim();
 }
 
 // ===== AUDIO =====
