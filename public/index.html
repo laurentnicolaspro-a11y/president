@@ -518,9 +518,12 @@ window.marked = {
 };
 
 // ===== CHOIX CLIQUABLES PHASE 2 =====
-// ⚠️ FIX : on ne rend les choix QUE si on n'est PAS en négociation
 function renderChoices(container) {
-  if (gamePhase === 'negotiation') return; // ← BLOQUE les choix numérotés en négociation
+  // En négociation : supprimer les <ol> sans les transformer en boutons
+  if (gamePhase === 'negotiation') {
+    container.querySelectorAll('ol').forEach(function(ol) { ol.remove(); });
+    return;
+  }
 
   container.querySelectorAll('ol').forEach(function(ol) {
     var items = ol.querySelectorAll('li');
@@ -564,16 +567,39 @@ function injectNegoPanel(container, typing) {
   const old = document.querySelector('.nego-panel');
   if (old) old.remove();
 
+  // ✅ FIX : construction DOM sans innerHTML pour éviter les bugs d'apostrophes
   const panel = document.createElement('div');
   panel.className = 'nego-panel msg-actions';
-  panel.innerHTML = `
-    <div class="nego-panel-title">🤝 RÉPONDRE À LA PROPOSITION</div>
-    <button class="nego-btn accept" onclick="sendNegoChoice(this, '✅ J\'accepte la proposition.')">✅ Accepter la proposition</button>
-    <button class="nego-btn refuse" onclick="sendNegoChoice(this, '❌ Je refuse la proposition.')">❌ Refuser la proposition</button>
-    <button class="nego-btn change" onclick="sendNegoChoice(this, 'Je souhaite changer d\'interlocuteur ou aborder un autre sujet.')">🔄 Changer d'interlocuteur / sujet</button>
-    <button class="nego-btn custom-nego" onclick="openCustomModalFor('nego', this)">✏ Faire une proposition personnalisée</button>
-    <button class="nego-btn end-nego" onclick="sendNegoChoice(this, 'Je mets fin à la réunion. Reprenons le jeu.')">🚪 Terminer la négociation</button>
-  `;
+
+  const title = document.createElement('div');
+  title.className = 'nego-panel-title';
+  title.textContent = '🤝 RÉPONDRE À LA PROPOSITION';
+  panel.appendChild(title);
+
+  function makeNegoBtn(cls, label, action) {
+    const btn = document.createElement('button');
+    btn.className = 'nego-btn ' + cls;
+    btn.textContent = label;
+    btn.addEventListener('click', function() { action(btn); });
+    panel.appendChild(btn);
+  }
+
+  makeNegoBtn('accept', '✅ Accepter la proposition', function(btn) {
+    sendNegoChoice(btn, "J'accepte la proposition.");
+  });
+  makeNegoBtn('refuse', '❌ Refuser la proposition', function(btn) {
+    sendNegoChoice(btn, "Je refuse la proposition.");
+  });
+  makeNegoBtn('change', "🔄 Changer d'interlocuteur / sujet", function(btn) {
+    sendNegoChoice(btn, "Je souhaite changer d'interlocuteur ou aborder un autre sujet.");
+  });
+  makeNegoBtn('custom-nego', '✏ Faire une proposition personnalisée', function(btn) {
+    openCustomModalFor('nego', btn);
+  });
+  makeNegoBtn('end-nego', '🚪 Terminer la négociation', function(btn) {
+    sendNegoChoice(btn, 'Je mets fin à la réunion. Reprenons le jeu.');
+  });
+
   container.insertBefore(panel, typing);
   container.scrollTop = container.scrollHeight;
 
@@ -601,7 +627,7 @@ function sendNegoChoice(btn, text) {
 function openCustomModalFor(context, btn) {
   const title = context === 'nego' ? '✏ PROPOSITION PERSONNALISÉE' : '✏ VOTRE ACTION PERSONNALISÉE';
   const desc = context === 'nego' ? 'Formulez votre proposition en détail · Entrée pour confirmer' : 'Décrivez votre décision en détail · Entrée pour confirmer';
-  const ph = context === 'nego' ? 'Ex: Je propose un accord sur les salaires en échange d\'une levée des blocages...' : 'Ex: Je convoque une réunion d\'urgence avec les syndicats...';
+  const ph = context === 'nego' ? "Ex: Je propose un accord sur les salaires en échange d'une levée des blocages..." : "Ex: Je convoque une réunion d'urgence avec les syndicats...";
 
   document.getElementById('custom-modal-title').textContent = title;
   document.getElementById('custom-modal-desc').textContent = desc;
@@ -750,10 +776,9 @@ function injectActionButtons(text, bodyEl) {
     return;
   }
 
-  // ✅ Panneau de négociation — DOIT être injecté AVANT renderChoices
+  // Panneau de négociation
   if (gamePhase === 'playing' && isNegotiationMessage(text)) {
     injectNegoPanel(container, typing);
-    // gamePhase est maintenant 'negotiation', renderChoices sera bloqué
   }
 }
 
@@ -783,9 +808,9 @@ function addMessage(role,content){
       Stats.record(body,dateLabel);
       enrichTables(body);
       detectAudioMode(body);
-      // ⚠️ FIX : injectActionButtons EN PREMIER pour mettre à jour gamePhase
+      // injectActionButtons EN PREMIER → met gamePhase à 'negotiation' si besoin
       injectActionButtons(content, body);
-      // renderChoices EN DERNIER : si gamePhase === 'negotiation', il ne fait rien
+      // renderChoices EN DERNIER → supprime les <ol> si on est en négociation
       renderChoices(body);
       scrollToBottom(container);
     },0);
