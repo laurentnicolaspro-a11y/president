@@ -62,7 +62,6 @@
   .report-hud-btn{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.6rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}
   .report-hud-btn:hover{border-color:var(--red);color:var(--red);}
 
-  /* Indicateur négociation dans HUD */
   .nego-badge{display:none;align-items:center;gap:5px;font-size:0.68rem;padding:0.2rem 0.7rem;border-radius:2px;font-family:'Share Tech Mono',monospace;background:rgba(251,188,4,0.12);color:var(--accent4);border:1px solid rgba(251,188,4,0.4);animation:critPulse 1.5s ease-in-out infinite;letter-spacing:0.06em;}
   .nego-badge.active{display:flex;}
 
@@ -407,7 +406,6 @@
       <span>DIFF. <b id="hud-diff">—</b></span>
     </div>
     <span class="hud-ai"><div class="hud-dots"><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div></div>GEMINI</span>
-    <!-- Badge négociation en cours -->
     <span class="nego-badge" id="nego-badge">🤝 NÉGOCIATION EN COURS</span>
     <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">
       <div class="audio-bars"><div class="audio-bar" style="height:6px"></div><div class="audio-bar" style="height:10px"></div><div class="audio-bar" style="height:4px"></div></div>
@@ -445,7 +443,7 @@ const COUNTRIES = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagn
 // ===== ÉTAT GLOBAL =====
 let selectedDiff = 'Facile';
 let gamePhase = 'init'; // 'init' | 'waiting_country' | 'playing' | 'negotiation'
-let customModalCallback = null; // callback pour savoir si on est en négociation ou Phase 2
+let customModalCallback = null;
 
 // ===== SÉLECTEUR DE PAYS =====
 function filterCountries(query) {
@@ -520,7 +518,10 @@ window.marked = {
 };
 
 // ===== CHOIX CLIQUABLES PHASE 2 =====
+// ⚠️ FIX : on ne rend les choix QUE si on n'est PAS en négociation
 function renderChoices(container) {
+  if (gamePhase === 'negotiation') return; // ← BLOQUE les choix numérotés en négociation
+
   container.querySelectorAll('ol').forEach(function(ol) {
     var items = ol.querySelectorAll('li');
     var wrap = document.createElement('div');
@@ -554,15 +555,12 @@ function renderChoices(container) {
 // ║         SYSTÈME DE NÉGOCIATION                  ║
 // ╚══════════════════════════════════════════════════╝
 
-// Détecte si un message de l'IA est une phase de négociation
 function isNegotiationMessage(text) {
-  return /phase de n[ée]gociation|n[ée]gociation (en cours|engag|ouverte)|interlocuteur|vous parle|prend la parole|r[ée]pond|s'exprime|ministre|ambassad|pr[ée]sident|chef d'[ée]tat|syndicat|d[ée]l[ée]gu[ée]|repr[ée]sentant|porte-parole/i.test(text)
+  return /phase de n[ée]gociation|n[ée]gociation (en cours|engag[ée]|ouverte)|interlocuteur|vous parle|prend la parole|r[ée]pond|s'exprime|ministre|ambassad|pr[ée]sident|chef d'[ée]tat|syndicat|d[ée]l[ée]gu[ée]|repr[ée]sentant|porte-parole/i.test(text)
     && !/phase 2|phase 1|tableau|indicateur|popularit[ée]/i.test(text);
 }
 
-// Injecte le panneau de négociation dans le chat
 function injectNegoPanel(container, typing) {
-  // Retire un panneau existant
   const old = document.querySelector('.nego-panel');
   if (old) old.remove();
 
@@ -579,17 +577,19 @@ function injectNegoPanel(container, typing) {
   container.insertBefore(panel, typing);
   container.scrollTop = container.scrollHeight;
 
-  // Active l'indicateur dans le HUD
   document.getElementById('nego-badge').classList.add('active');
   gamePhase = 'negotiation';
 }
 
 function sendNegoChoice(btn, text) {
-  // Désactive tous les boutons du panneau
   const panel = btn.closest('.nego-panel');
-  if (panel) { panel.querySelectorAll('button').forEach(b => b.disabled = true); btn.style.opacity = '1'; btn.style.borderColor = 'var(--accent3)'; btn.style.color = 'var(--accent3)'; }
+  if (panel) {
+    panel.querySelectorAll('button').forEach(b => b.disabled = true);
+    btn.style.opacity = '1';
+    btn.style.borderColor = 'var(--accent3)';
+    btn.style.color = 'var(--accent3)';
+  }
 
-  // Si c'est la fin de la négociation, désactive le badge HUD
   if (text.includes('Reprenons le jeu') || text.includes('mets fin')) {
     document.getElementById('nego-badge').classList.remove('active');
     gamePhase = 'playing';
@@ -597,26 +597,18 @@ function sendNegoChoice(btn, text) {
   sendChoiceMessage(text);
 }
 
-// ===== MODALE PROPOSITION PERSONNALISÉE (partagée Phase 2 + Négociation) =====
+// ===== MODALE PROPOSITION PERSONNALISÉE =====
 function openCustomModalFor(context, btn) {
-  const title = context === 'nego'
-    ? '✏ PROPOSITION PERSONNALISÉE'
-    : '✏ VOTRE ACTION PERSONNALISÉE';
-  const desc = context === 'nego'
-    ? 'Formulez votre proposition en détail · Entrée pour confirmer'
-    : 'Décrivez votre décision en détail · Entrée pour confirmer';
-  const ph = context === 'nego'
-    ? 'Ex: Je propose un accord sur les salaires en échange d\'une levée des blocages...'
-    : 'Ex: Je convoque une réunion d\'urgence avec les syndicats...';
+  const title = context === 'nego' ? '✏ PROPOSITION PERSONNALISÉE' : '✏ VOTRE ACTION PERSONNALISÉE';
+  const desc = context === 'nego' ? 'Formulez votre proposition en détail · Entrée pour confirmer' : 'Décrivez votre décision en détail · Entrée pour confirmer';
+  const ph = context === 'nego' ? 'Ex: Je propose un accord sur les salaires en échange d\'une levée des blocages...' : 'Ex: Je convoque une réunion d\'urgence avec les syndicats...';
 
   document.getElementById('custom-modal-title').textContent = title;
   document.getElementById('custom-modal-desc').textContent = desc;
   document.getElementById('custom-input').placeholder = ph;
   document.getElementById('custom-input').value = '';
 
-  // Stocke le contexte pour submitCustomChoice
-  customModalCallback = context;
-  if (btn) { customModalCallback = { context, btn }; }
+  customModalCallback = btn ? { context, btn } : context;
 
   document.getElementById('custom-modal').classList.add('active');
   setTimeout(() => document.getElementById('custom-input').focus(), 100);
@@ -632,7 +624,6 @@ function submitCustomChoice() {
   if (!text) return;
   closeCustomModal();
 
-  // Si c'est une proposition en négociation, utilise sendNegoChoice
   if (customModalCallback && typeof customModalCallback === 'object' && customModalCallback.context === 'nego') {
     sendNegoChoice(customModalCallback.btn || document.createElement('button'), text);
   } else {
@@ -759,9 +750,10 @@ function injectActionButtons(text, bodyEl) {
     return;
   }
 
-  // ✅ Panneau de négociation
+  // ✅ Panneau de négociation — DOIT être injecté AVANT renderChoices
   if (gamePhase === 'playing' && isNegotiationMessage(text)) {
     injectNegoPanel(container, typing);
+    // gamePhase est maintenant 'negotiation', renderChoices sera bloqué
   }
 }
 
@@ -788,8 +780,13 @@ function addMessage(role,content){
     var cleaned=extractAndShowNews(content);body.innerHTML=window.marked.parse(cleaned);
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
-      Stats.record(body,dateLabel);enrichTables(body);detectAudioMode(body);renderChoices(body);
-      injectActionButtons(content,body);
+      Stats.record(body,dateLabel);
+      enrichTables(body);
+      detectAudioMode(body);
+      // ⚠️ FIX : injectActionButtons EN PREMIER pour mettre à jour gamePhase
+      injectActionButtons(content, body);
+      // renderChoices EN DERNIER : si gamePhase === 'negotiation', il ne fait rien
+      renderChoices(body);
       scrollToBottom(container);
     },0);
   }else{body.textContent=content;}
