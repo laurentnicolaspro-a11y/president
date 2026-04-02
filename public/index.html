@@ -898,7 +898,7 @@ function openStats(){Stats.open();}
 function relancerDiscussion() {
   if (isLoading) return;
   if (gamePhase === 'init' || gamePhase === 'waiting_country') return;
-  var msg = "Continue.";
+  var msg = "La discussion semble bloquée ou bugée. Reprends exactement là où on en était et continue le jeu normalement.";
   addMessage('user', msg);
   conversationHistory.push({ role: 'user', content: msg });
   callAPI(null, false);
