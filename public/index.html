@@ -773,9 +773,14 @@ function injectActionButtons(text, bodyEl) {
   }
 
   // Bouton "CONTINUER → PHASE 2"
-  var isPhase1End = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
+  // Détection fiable : la Phase 1 contient toujours un tableau avec "Coffres" ou "Popularité"
+  // On ne dépend plus d'une phrase de l'IA qui peut varier
+  var hasPhase1Table = /coffres|popularit[ée]|taux de ch[oô]mage/i.test(text)
+    && /<table|^\|.+\|/im.test(text.replace(/\[NEWS:[^\]]*\]/,''));
+  var hasOKSignal = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
     || /tapez\s+(ok|continuer)/i.test(text)
     || /pour passer à la phase 2/i.test(text);
+  var isPhase1End = hasPhase1Table || hasOKSignal;
 
   if (isPhase1End && gamePhase === 'playing') {
     var existing=document.querySelector('.continue-btn');if(existing)existing.closest('.msg-actions').remove();
