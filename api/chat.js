@@ -33,7 +33,7 @@ Affiche le mois et l'année en titre.
 | Projet en cours | Début | Fin prévue |
 |-----------------|-------|------------|
 
-Termine TOUJOURS la Phase 1 par : [ Tapez OK ou CONTINUER pour passer à la Phase 2 ]
+Termine TOUJOURS la Phase 1 par cette balise exacte sur sa propre ligne : [ OK ]
 
 PHASE 2 — Narration et décisions (après OK du joueur)
 - Situation détaillée, réaliste et complexe
