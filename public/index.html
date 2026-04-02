@@ -62,7 +62,6 @@
   .report-hud-btn{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.6rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}
   .report-hud-btn:hover{border-color:var(--red);color:var(--red);}
 
-  /* Indicateur négociation dans HUD */
   .nego-badge{display:none;align-items:center;gap:5px;font-size:0.68rem;padding:0.2rem 0.7rem;border-radius:2px;font-family:'Share Tech Mono',monospace;background:rgba(251,188,4,0.12);color:var(--accent4);border:1px solid rgba(251,188,4,0.4);animation:critPulse 1.5s ease-in-out infinite;letter-spacing:0.06em;}
   .nego-badge.active{display:flex;}
 
@@ -124,13 +123,11 @@
   .nego-btn.end-nego{background:rgba(125,133,144,0.08);border-color:rgba(125,133,144,0.3);color:var(--muted);}
   .nego-btn.end-nego:hover:not(:disabled){background:rgba(125,133,144,0.18);border-color:var(--muted);color:var(--text);}
 
-  /* ===== BOUTON CHOISIR PAYS ===== */
   .country-picker-btn{display:inline-flex;align-items:center;gap:8px;margin-top:0.8rem;padding:0.75rem 1.8rem;background:transparent;border:2px solid var(--accent3);color:var(--accent3);font-family:'Orbitron',monospace;font-size:0.82rem;font-weight:700;letter-spacing:0.12em;cursor:pointer;border-radius:4px;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);position:relative;overflow:hidden;animation:pulseGreen 2s ease-in-out infinite;}
   .country-picker-btn::before{content:'';position:absolute;inset:0;background:var(--accent3);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
   .country-picker-btn:hover{color:#fff;box-shadow:0 0 22px rgba(52,168,83,0.5);}.country-picker-btn:hover::before{transform:translateX(0);}
   @keyframes pulseGreen{0%,100%{box-shadow:0 0 0 0 rgba(52,168,83,0);}50%{box-shadow:0 0 14px 4px rgba(52,168,83,0.35);}}
 
-  /* ===== BOUTON CONTINUER PHASE 2 ===== */
   .continue-btn{display:inline-flex;align-items:center;gap:8px;margin-top:0.8rem;padding:0.75rem 2rem;background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:0.15em;cursor:pointer;border-radius:4px;transition:all 0.3s;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);position:relative;overflow:hidden;animation:pulseBlue 1.5s ease-in-out infinite;}
   .continue-btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
   .continue-btn:hover{color:#fff;box-shadow:var(--glow);}.continue-btn:hover::before{transform:translateX(0);}
@@ -138,7 +135,6 @@
 
   .msg-actions{align-self:flex-start;display:flex;flex-direction:column;align-items:flex-start;gap:0.4rem;animation:msgIn 0.35s ease-out;}
 
-  /* ===== MODALE CHOIX PAYS ===== */
   #country-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:350;align-items:center;justify-content:center;padding:1.5rem;}
   #country-modal.active{display:flex;}
   .country-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent3);max-width:520px;width:100%;padding:2rem;border-radius:4px;animation:modalIn 0.3s ease-out;}
@@ -159,13 +155,10 @@
   .diff-btn{padding:0.55rem 0.4rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:0.04em;cursor:pointer;border-radius:3px;transition:all 0.2s;text-align:center;}
   .diff-btn:hover{border-color:var(--accent);color:var(--accent);}
   .diff-btn.selected{border-color:var(--accent3);color:var(--accent3);background:rgba(52,168,83,0.1);}
-  .diff-btn[data-diff="Difficile"].selected{border-color:var(--accent4);color:var(--accent4);background:rgba(251,188,4,0.1);}
-  .diff-btn[data-diff="Réaliste"].selected{border-color:var(--red);color:var(--red);background:rgba(255,59,92,0.08);}
   .country-confirm-btn{width:100%;padding:0.8rem;background:var(--accent3);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:0.12em;cursor:pointer;border-radius:4px;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
   .country-confirm-btn:hover{background:#2d9e47;box-shadow:0 0 20px rgba(52,168,83,0.4);}
   .country-confirm-btn:disabled{opacity:0.35;cursor:not-allowed;}
 
-  /* ===== MODALE PROPOSITION PERSONNALISÉE ===== */
   #custom-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #custom-modal.active{display:flex;}
   .custom-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:560px;width:100%;padding:1.8rem;border-radius:4px;}
@@ -179,7 +172,6 @@
   .custom-cancel{padding:0.6rem 1.2rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;border-radius:4px;transition:all 0.2s;}
   .custom-cancel:hover{border-color:var(--red);color:var(--red);}
 
-  /* Modales système */
   #report-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #report-modal.active{display:flex;}
   .report-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);max-width:500px;width:100%;padding:1.8rem;border-radius:4px;}
@@ -218,6 +210,7 @@
   .rules-box .rule-block{background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--accent);padding:0.8rem 1rem;border-radius:3px;margin:0.6rem 0;}.rules-box .rule-block p{margin:0;}
   .close-rules{margin-top:1.5rem;width:100%;padding:0.7rem;background:none;border:1px solid var(--accent);color:var(--accent);font-family:'Orbitron',monospace;font-size:0.8rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;}
   .close-rules:hover{background:var(--accent);color:#fff;}
+
   #legal-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:200;align-items:center;justify-content:center;padding:1.5rem;}
   #legal-modal.active{display:flex;} #legal-modal a{color:var(--accent);text-decoration:none;} #legal-modal a:hover{text-decoration:underline;}
 
@@ -229,103 +222,35 @@
   .audio-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.7rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}
   .audio-btn:hover{border-color:var(--accent);color:var(--accent);}.audio-btn.playing{border-color:var(--accent3);color:var(--accent3);}.audio-btn.tension{border-color:var(--accent4);color:var(--accent4);}.audio-btn.crisis{border-color:var(--red);color:var(--red);animation:critPulse 1s ease-in-out infinite;}
   .audio-bars{display:flex;align-items:flex-end;gap:2px;height:12px;}.audio-bar{width:3px;background:currentColor;border-radius:1px;}
-  .audio-btn.playing .audio-bar:nth-child(1),.audio-btn.tension .audio-bar:nth-child(1),.audio-btn.crisis .audio-bar:nth-child(1){animation:barBounce 0.8s ease-in-out infinite;}
-  .audio-btn.playing .audio-bar:nth-child(2),.audio-btn.tension .audio-bar:nth-child(2),.audio-btn.crisis .audio-bar:nth-child(2){animation:barBounce 0.8s ease-in-out infinite 0.15s;}
-  .audio-btn.playing .audio-bar:nth-child(3),.audio-btn.tension .audio-bar:nth-child(3),.audio-btn.crisis .audio-bar:nth-child(3){animation:barBounce 0.8s ease-in-out infinite 0.3s;}
-  .audio-btn.tension .audio-bar{animation-duration:0.5s!important;}.audio-btn.crisis .audio-bar{animation-duration:0.28s!important;}
   @keyframes barBounce{0%,100%{height:3px}50%{height:12px}}
   #news-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:#0d0d0d;border-top:2px solid var(--accent2);height:36px;overflow:hidden;flex-direction:row;align-items:center;}
   #news-banner.active{display:flex;}
   .news-label{flex-shrink:0;background:var(--accent2);color:#fff;font-family:'Orbitron',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;padding:0 0.9rem;height:100%;display:flex;align-items:center;white-space:nowrap;}
-  .news-label::after{content:'▶';margin-left:0.5rem;font-size:0.5rem;}
   .news-track-wrap{flex:1;overflow:hidden;height:100%;position:relative;}
   .news-track{display:flex;align-items:center;height:100%;white-space:nowrap;animation:newsScroll 28s linear infinite;font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#f0f0f0;letter-spacing:0.04em;}
-  .news-track:hover{animation-play-state:paused;}.news-sep{color:var(--accent2);margin:0 1.5rem;font-size:1rem;}
   @keyframes newsScroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
   .fs-btn{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.6rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}
-  .fs-btn:hover{border-color:var(--accent);color:var(--accent);}
-  :fullscreen #game,:-webkit-full-screen #game{padding:0.5rem;}:fullscreen .hud,:-webkit-full-screen .hud{padding:0.4rem 0.8rem;}
   #stats-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:200;align-items:center;justify-content:center;padding:1.5rem;}
   #stats-modal.active{display:flex;}
   .stats-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:860px;width:100%;max-height:88vh;overflow-y:auto;padding:1.8rem;border-radius:4px;}
-  .stats-box::-webkit-scrollbar{width:4px;}.stats-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  .stats-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:0.8rem;border-bottom:1px solid var(--border);}
-  .stats-header h2{font-family:'Orbitron',monospace;color:var(--accent4);font-size:0.95rem;letter-spacing:0.12em;}.stats-header span{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--muted);}
-  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}@media(max-width:640px){.stats-grid{grid-template-columns:1fr;}}
   .chart-card{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1rem;}
-  .chart-card h3{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.8rem;}.chart-card h3 span{color:var(--accent4);font-size:0.85rem;float:right;}
-  .chart-wrap{position:relative;height:140px;}.no-data{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:2rem 0;}
-  .close-stats{margin-top:1.5rem;width:100%;padding:0.7rem;background:none;border:1px solid var(--accent4);color:var(--accent4);font-family:'Orbitron',monospace;font-size:0.78rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;border-radius:2px;}.close-stats:hover{background:var(--accent4);color:#000;}
-  .stat-btn{display:flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.25rem 0.7rem;cursor:pointer;border-radius:2px;transition:all 0.3s;letter-spacing:0.05em;}.stat-btn:hover{border-color:var(--accent4);color:var(--accent4);}
-  #game.news-open .bottom-bar{margin-bottom:36px;}
+  .chart-wrap{position:relative;height:140px;}
   .bottom-bar{display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem;max-width:1000px;width:100%;margin-left:auto;margin-right:auto;padding:0 0.2rem;}
-  .hint{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--muted);}
-  .reset-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;transition:all 0.2s;}
-  .reset-btn:hover{border-color:var(--red);color:var(--red);}
-  @media(max-width:600px){.title-main{font-size:1.8rem;}.hud-center{display:none;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}.diff-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
 <div class="scanlines"></div>
 <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
-<div class="corner-deco bl"></div><div class="corner-deco br"></div>
-
 <div id="loading"><div class="loading-text">INITIALISATION...</div><div class="loading-bar-container"><div class="loading-bar"></div></div></div>
-
-<div id="rules-modal">
-  <div class="rules-box">
-    <h2>⚙ RÈGLEMENT COMPLET — PRÉSIDENT LE JEU</h2>
-    <h3>I. Introduction</h3>
-    <p>L'IA prend la date actuelle et les événements réels pour créer une introduction immersive.</p>
-    <ul><li>Le <strong>pays</strong> à diriger (tous les pays du monde)</li><li>La <strong>difficulté</strong> : Facile / Normal / Difficile / Réaliste</li></ul>
-    <p style="margin-top:0.5rem;">⚠ Jeu en bêta — l'IA peut faire des erreurs, n'hésitez pas à la corriger.</p>
-    <h3>II. Objectif</h3>
-    <p>Survivre jusqu'à la fin de votre mandat. Vous pouvez briguer un second mandat.</p>
-    <div class="rule-block"><p>L'IA crée des obstacles crédibles : crises, scandales, mouvements sociaux…</p></div>
-    <h3>III. Configuration</h3>
-    <ul><li><strong>1 tour = 1 mois</strong></li><li>Tous les <strong>24 mois</strong> : crise mondiale majeure</li></ul>
-    <h3>IV. Phases</h3>
-    <p><strong>Phase 1</strong> — Tableaux chiffrés → bouton <strong>▶▶ CONTINUER</strong></p>
-    <p><strong>Phase 2</strong> — Narration · 3 choix cliquables + option personnalisée</p>
-    <h3>V. Négociation</h3>
-    <p>Quand l'IA fait une proposition, <strong>4 boutons apparaissent</strong> : Accepter · Refuser · Changer d'interlocuteur · Proposition personnalisée. La négociation se termine sur votre signal.</p>
-    <button class="close-rules" onclick="document.getElementById('rules-modal').classList.remove('active')">FERMER</button>
-  </div>
-</div>
-
-<div id="legal-modal">
-  <div class="rules-box">
-    <h2>📜 MENTIONS LÉGALES — PRÉSIDENT LE JEU</h2>
-    <h3>1. ÉDITEUR</h3>
-    <p><strong>LAURENT Nicolas</strong><br>Seine-Saint-Denis, France<br>Email : <a href="mailto:lechikiponk@gmail.com">lechikiponk@gmail.com</a></p>
-    <h3>2. HÉBERGEMENT</h3>
-    <p><strong>Vercel Inc.</strong> — <a href="https://vercel.com" target="_blank">vercel.com</a></p>
-    <h3>3. PROPRIÉTÉ INTELLECTUELLE</h3>
-    <p>Tous les contenus du jeu (design, code, univers) sont des créations originales.</p>
-    <p><strong>Scénarios générés par Google Gemini</strong> : Propriété de Google LLC.</p>
-    <h3>4. DONNÉES PERSONNELLES</h3>
-    <p>✅ Aucune collecte. Sauvegardes stockées localement.</p>
-    <button class="close-rules" onclick="document.getElementById('legal-modal').classList.remove('active')">FERMER</button>
-  </div>
-</div>
 
 <div id="landing">
   <div class="globe-container"><div class="globe"></div><div class="globe-ring"></div></div>
   <div class="title-main">PRÉSIDENT<br>LE JEU</div>
-  <div class="title-sub">Simulation géopolitique IA</div>
-  <span class="beta-badge">BÊTA · GEMINI</span>
-  <p class="title-desc">Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques.</p>
-  <div class="powered-badge">
-    <div class="g-dots"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div></div>
-    Propulsé par <span>Google Gemini</span>
-  </div>
   <div class="btn-row">
     <button class="play-btn" onclick="startGame()">▶ JOUER</button>
     <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('active')">RÈGLES</button>
-    <button class="legal-btn" onclick="document.getElementById('legal-modal').classList.add('active')">MENTIONS LÉGALES</button>
   </div>
   <div id="save-info" style="margin-top:1rem;display:none;">
-    <div style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;" id="save-desc"></div>
     <button class="resume-btn" onclick="resumeGame()">↺ REPRENDRE LA PARTIE</button>
   </div>
 </div>
@@ -333,66 +258,14 @@
 <div id="country-modal">
   <div class="country-box">
     <h2>🌍 CHOISISSEZ VOTRE PAYS</h2>
-    <p>Saisissez le pays que vous souhaitez diriger et choisissez votre niveau de difficulté.</p>
-    <div class="country-input-wrap">
-      <label>PAYS À DIRIGER</label>
-      <input type="text" id="country-input" placeholder="Ex : France, Japon, Brésil..." autocomplete="off"
-        oninput="filterCountries(this.value)" onkeydown="handleCountryKey(event)" />
-      <div class="country-suggestions" id="country-suggestions"></div>
-    </div>
-    <span class="diff-label">DIFFICULTÉ</span>
+    <input type="text" id="country-input" placeholder="Ex : France, Japon..." oninput="filterCountries(this.value)" />
+    <div class="country-suggestions" id="country-suggestions"></div>
     <div class="diff-grid">
       <button class="diff-btn selected" data-diff="Facile" onclick="selectDiff(this)">😊 Facile</button>
       <button class="diff-btn" data-diff="Normal" onclick="selectDiff(this)">⚖️ Normal</button>
       <button class="diff-btn" data-diff="Difficile" onclick="selectDiff(this)">🔥 Difficile</button>
-      <button class="diff-btn" data-diff="Réaliste" onclick="selectDiff(this)">💀 Réaliste</button>
     </div>
-    <button class="country-confirm-btn" id="country-confirm-btn" onclick="confirmCountry()" disabled>
-      ▶ CONFIRMER ET COMMENCER
-    </button>
-  </div>
-</div>
-
-<div id="custom-modal">
-  <div class="custom-box">
-    <h2 id="custom-modal-title">✏ VOTRE ACTION PERSONNALISÉE</h2>
-    <p id="custom-modal-desc">Décrivez votre décision en détail · Entrée pour confirmer</p>
-    <textarea id="custom-input" placeholder="Ex: Je convoque une réunion d'urgence avec les syndicats..."></textarea>
-    <div class="btn-row">
-      <button class="custom-cancel" onclick="closeCustomModal()">ANNULER</button>
-      <button class="custom-confirm" onclick="submitCustomChoice()">CONFIRMER</button>
-    </div>
-  </div>
-</div>
-
-<div id="report-modal">
-  <div class="report-box">
-    <h2>⚠ SIGNALER UN PROBLÈME</h2>
-    <p>Décrivez le problème rencontré.<br><strong>Merci pour votre aide !</strong></p>
-    <textarea id="report-text" placeholder="Exemple: 'L'IA a généré un pays inexistant.'"></textarea>
-    <div class="btn-row">
-      <button class="report-btn-cancel" onclick="document.getElementById('report-modal').classList.remove('active')">ANNULER</button>
-      <button class="report-btn-submit" onclick="submitReport()">ENVOYER</button>
-    </div>
-  </div>
-</div>
-<div class="report-success" id="report-success">✅ Merci pour votre signalement !</div>
-
-<div id="stats-modal">
-  <div class="stats-box">
-    <div class="stats-header">
-      <h2>📊 TABLEAU DE BORD — ÉVOLUTION</h2>
-      <span id="stats-turns">0 tour(s) enregistré(s)</span>
-    </div>
-    <div class="stats-grid">
-      <div class="chart-card"><h3>Popularité (%) <span id="val-popularite">—</span></h3><div class="chart-wrap"><canvas id="chart-popularite"></canvas></div></div>
-      <div class="chart-card"><h3>Tensions (/10) <span id="val-tensions">—</span></h3><div class="chart-wrap"><canvas id="chart-tensions"></canvas></div></div>
-      <div class="chart-card"><h3>Croissance (%) <span id="val-croissance">—</span></h3><div class="chart-wrap"><canvas id="chart-croissance"></canvas></div></div>
-      <div class="chart-card"><h3>Chômage (%) <span id="val-chomage">—</span></h3><div class="chart-wrap"><canvas id="chart-chomage"></canvas></div></div>
-      <div class="chart-card"><h3>Dette (% PIB) <span id="val-dette">—</span></h3><div class="chart-wrap"><canvas id="chart-dette"></canvas></div></div>
-      <div class="chart-card"><h3>Coffres (Mds) <span id="val-coffres">—</span></h3><div class="chart-wrap"><canvas id="chart-coffres"></canvas></div></div>
-    </div>
-    <button class="close-stats" onclick="document.getElementById('stats-modal').classList.remove('active')">FERMER</button>
+    <button class="country-confirm-btn" id="country-confirm-btn" onclick="confirmCountry()" disabled>▶ CONFIRMER</button>
   </div>
 </div>
 
@@ -402,31 +275,19 @@
     <div class="hud-center">
       <span>PAYS <b id="hud-country">—</b></span>
       <span>DATE <b id="hud-date">—</b></span>
-      <span>DIFF. <b id="hud-diff">—</b></span>
     </div>
-    <span class="hud-ai"><div class="hud-dots"><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div></div>GEMINI</span>
     <span class="nego-badge" id="nego-badge">🤝 NÉGOCIATION EN COURS</span>
-    <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">
-      <div class="audio-bars"><div class="audio-bar" style="height:6px"></div><div class="audio-bar" style="height:10px"></div><div class="audio-bar" style="height:4px"></div></div>
-      <span id="audio-label">♪ SON</span>
-    </button>
-    <button class="stat-btn" onclick="openStats()">📊 STATS</button>
-    <button class="report-hud-btn" onclick="openReportModal()">⚠ SIGNALER</button>
+    <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">♪ SON</button>
+    <button onclick="openStats()">📊 STATS</button>
   </div>
   <div class="chat-container">
     <div class="chat-messages" id="chat-messages">
-      <div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+      <div class="typing-indicator" id="typing">...</div>
     </div>
   </div>
   <div class="bottom-bar">
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()">⛶ PLEIN ÉCRAN</button>
-      <span class="hint">↵ Entrée · Maj+Entrée saut de ligne</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
-      <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
-    </div>
+    <button class="fs-btn" onclick="toggleFullscreen()">⛶ PLEIN ÉCRAN</button>
+    <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
   </div>
 </div>
 
@@ -436,447 +297,139 @@
 </div>
 
 <script>
-// ===== LISTE DE PAYS =====
-const COUNTRIES = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagne','Angola','Arabie Saoudite','Argentine','Arménie','Australie','Autriche','Azerbaïdjan','Bangladesh','Belgique','Biélorussie','Bolivie','Bosnie-Herzégovine','Brésil','Bulgarie','Cambodge','Cameroun','Canada','Chili','Chine','Colombie','Congo','Corée du Nord','Corée du Sud','Costa Rica','Côte d\'Ivoire','Croatie','Cuba','Danemark','Égypte','Émirats Arabes Unis','Équateur','Espagne','Estonie','Éthiopie','Finlande','France','Géorgie','Ghana','Grèce','Guatemala','Honduras','Hongrie','Inde','Indonésie','Irak','Iran','Irlande','Islande','Israël','Italie','Jamaïque','Japon','Jordanie','Kazakhstan','Kenya','Koweït','Laos','Lettonie','Liban','Libye','Lituanie','Luxembourg','Macédoine du Nord','Malaisie','Mali','Maroc','Mexique','Moldavie','Mongolie','Mozambique','Myanmar','Namibie','Népal','Nicaragua','Niger','Nigeria','Norvège','Nouvelle-Zélande','Oman','Ouganda','Ouzbékistan','Pakistan','Panama','Paraguay','Pays-Bas','Pérou','Philippines','Pologne','Portugal','Qatar','République Tchèque','Roumanie','Royaume-Uni','Russie','Rwanda','Sénégal','Serbie','Singapour','Slovaquie','Slovénie','Somalie','Soudan','Suède','Suisse','Syrie','Taïwan','Tanzanie','Thaïlande','Tunisie','Turquie','Ukraine','Uruguay','Venezuela','Vietnam','Yémen','Zimbabwe','États-Unis'].sort();
+// --- LOGIQUE GLOBALE ---
+const COUNTRIES = ['France','États-Unis','Allemagne','Japon','Brésil','Russie','Chine','Royaume-Uni','Inde','Canada','Italie','Espagne','Australie','Suisse'];
+let conversationHistory = [], gamePhase = 'init', selectedDiff = 'Facile', isLoading = false;
 
-// ===== ÉTAT GLOBAL =====
-let selectedDiff = 'Facile';
-let gamePhase = 'init'; // 'init' | 'waiting_country' | 'playing' | 'negotiation'
-let customModalCallback = null; // callback pour savoir si on est en négociation ou Phase 2
-
-// ===== SÉLECTEUR DE PAYS =====
-function filterCountries(query) {
-  const box = document.getElementById('country-suggestions');
-  if (!query || query.length < 2) { box.classList.remove('show'); return; }
-  const matches = COUNTRIES.filter(c => c.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
-  if (!matches.length) { box.classList.remove('show'); return; }
-  box.innerHTML = matches.map(c => `<div class="country-suggestion-item" onclick="pickCountry('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
-  box.classList.add('show');
-}
-function pickCountry(name) {
-  document.getElementById('country-input').value = name;
-  document.getElementById('country-suggestions').classList.remove('show');
-  document.getElementById('country-confirm-btn').disabled = false;
-}
-function handleCountryKey(e) {
-  const val = document.getElementById('country-input').value.trim();
-  document.getElementById('country-confirm-btn').disabled = !val;
-  if (e.key === 'Enter' && val) { e.preventDefault(); document.getElementById('country-suggestions').classList.remove('show'); confirmCountry(); }
-  if (e.key === 'Escape') document.getElementById('country-suggestions').classList.remove('show');
-}
-document.addEventListener('click', e => { if (!e.target.closest('.country-input-wrap')) document.getElementById('country-suggestions').classList.remove('show'); });
-function selectDiff(btn) { document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedDiff = btn.dataset.diff; }
-function openCountryModal() {
-  document.getElementById('country-input').value = '';
-  document.getElementById('country-suggestions').classList.remove('show');
-  document.getElementById('country-confirm-btn').disabled = true;
-  document.getElementById('country-modal').classList.add('active');
-  setTimeout(() => document.getElementById('country-input').focus(), 100);
-}
-function confirmCountry() {
-  const country = document.getElementById('country-input').value.trim();
-  if (!country) return;
-  document.getElementById('country-modal').classList.remove('active');
-  document.getElementById('hud-country').textContent = country;
-  document.getElementById('hud-diff').textContent = selectedDiff;
-  const pickerAction = document.querySelector('.country-picker-btn');
-  if (pickerAction) pickerAction.closest('.msg-actions').remove();
-  const msg = `Je souhaite diriger ${country} en difficulté ${selectedDiff}.`;
-  addMessage('user', msg);
-  conversationHistory.push({ role: 'user', content: msg });
-  gamePhase = 'playing';
-  callAPI(null, false);
-}
-
-// ===== PARSER MARKDOWN =====
-window.marked = {
-  parse: function(text) {
-    var esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    var lines=esc.split('\n'),res=[],inT=false,thDone=false,inL=false,lTag='';
-    function fL(){if(inL){res.push('</'+lTag+'>');inL=false;lTag='';}}
-    function fT(){if(inT){res.push('</table>');inT=false;thDone=false;}}
-    function iL(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>');}
-    for(var i=0;i<lines.length;i++){
-      var l=lines[i];
-      if(l.match(/^\|[\s\-\|:]+\|$/)){thDone=true;continue;}
-      if(l.match(/^\|(.+)\|$/)){fL();if(!inT){res.push('<table>');inT=true;thDone=false;}var cs=l.slice(1,-1).split('|').map(function(c){return iL(c.trim());});var tg=thDone?'td':'th';res.push('<tr>'+cs.map(function(c){return'<'+tg+'>'+c+'</'+tg+'>';}).join('')+'</tr>');continue;}
-      fT();
-      if(l.trim()===''){fL();res.push('');continue;}
-      var hm;
-      if((hm=l.match(/^### (.+)$/))){fL();res.push('<h3>'+iL(hm[1])+'</h3>');continue;}
-      if((hm=l.match(/^## (.+)$/))){fL();res.push('<h2>'+iL(hm[1])+'</h2>');continue;}
-      if((hm=l.match(/^# (.+)$/))){fL();res.push('<h1>'+iL(hm[1])+'</h1>');continue;}
-      if(l.match(/^---+$/)||l.match(/^\*\*\*+$/)){fL();res.push('<hr>');continue;}
-      var cta=l.match(/^\[(.+)\]$/);if(cta){fL();res.push('<div class="cta-block">[ '+iL(cta[1])+' ]</div>');continue;}
-      var ul=l.match(/^[\-\*] (.+)$/);if(ul){if(!inL||lTag!=='ul'){fL();res.push('<ul>');inL=true;lTag='ul';}res.push('<li>'+iL(ul[1])+'</li>');continue;}
-      var ol=l.match(/^\d+\. (.+)$/);if(ol){if(!inL||lTag!=='ol'){fL();res.push('<ol>');inL=true;lTag='ol';}res.push('<li>'+iL(ol[1])+'</li>');continue;}
-      fL();res.push('<p>'+iL(l)+'</p>');
-    }
-    fL();fT();return res.join('\n');
-  }
-};
-
-// ===== CHOIX CLIQUABLES PHASE 2 =====
-function renderChoices(container) {
-  // BLOQUAGE NÉGOCIATION : Si on est en négo, on ne veut pas transformer les listes en boutons bleus
-  if (gamePhase === 'negotiation') return;
-
-  container.querySelectorAll('ol').forEach(function(ol) {
-    var items = ol.querySelectorAll('li');
-    var wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;gap:0.3rem;margin:0.5rem 0;';
-    var hasChoices = false;
-    items.forEach(function(li, idx) {
-      var text = li.textContent.trim();
-      var num = idx + 1;
-      var isCustom = text.toLowerCase().includes('personnalis') || num === 4;
-      var btn = document.createElement('button');
-      btn.className = 'choice-btn' + (isCustom ? ' custom' : '');
-      btn.innerHTML = '<strong>' + num + '.</strong> ' + text;
-      btn.onclick = (function(n, t, b, isC) {
-        return function() {
-          if (isC) {
-            openCustomModalFor('phase2', null);
-          } else {
-            wrap.querySelectorAll('.choice-btn').forEach(function(x){x.disabled=true;});
-            b.disabled=false; b.classList.add('chosen');
-            sendChoiceMessage(n + '. ' + t);
-          }
-        };
-      })(num, text, btn, isCustom);
-      wrap.appendChild(btn); hasChoices = true;
+// --- API ---
+async function callAPI(initMessage, isInit) {
+  setLoading(true);
+  const messages = isInit ? [{role:'user', content:initMessage}] : conversationHistory;
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({messages})
     });
-    if (hasChoices) ol.replaceWith(wrap);
-  });
+    const data = await response.json();
+    const text = data.text || '';
+    if(isInit) conversationHistory = [{role:'user', content:initMessage}, {role:'assistant', content:text}];
+    else conversationHistory.push({role:'assistant', content:text});
+    addMessage('ai', text);
+    updateHUD(text);
+  } catch(e) { addMessage('ai', 'Erreur de connexion API.'); }
+  setLoading(false);
 }
 
-// ╔══════════════════════════════════════════════════╗
-// ║         SYSTÈME DE NÉGOCIATION                  ║
-// ╚══════════════════════════════════════════════════╝
+// --- AFFICHAGE MESSAGES ---
+function addMessage(role, content) {
+  const container = document.getElementById('chat-messages');
+  const typing = document.getElementById('typing');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const body = document.createElement('div');
+  body.className = 'msg-body';
+  
+  if(role === 'ai') {
+    const cleaned = extractNews(content);
+    body.innerHTML = window.marked ? window.marked.parse(cleaned) : cleaned;
+    container.insertBefore(div, typing);
+    div.appendChild(body);
+    
+    // Détection Négociation ou Phase 1/2
+    if(isNegotiationMessage(content)) {
+      gamePhase = 'negotiation';
+      document.getElementById('nego-badge').classList.add('active');
+      injectNegoPanel(container, typing);
+    } else {
+      renderChoices(body);
+      injectActionButtons(content);
+    }
+  } else {
+    body.textContent = content;
+    div.appendChild(body);
+    container.insertBefore(div, typing);
+  }
+  container.scrollTop = container.scrollHeight;
+}
 
-// Détecte si un message de l'IA est une phase de négociation
+// --- SYSTÈME NÉGOCIATION ---
 function isNegotiationMessage(text) {
-  return /phase de n[ée]gociation|n[ée]gociation (en cours|engag|ouverte)|interlocuteur|vous parle|prend la parole|r[ée]pond|s'exprime|ministre|ambassad|pr[ée]sident|chef d'[ée]tat|syndicat|d[ée]l[ée]gu[ée]|repr[ée]sentant|porte-parole/i.test(text)
-    && !/phase 2|phase 1|tableau|indicateur|popularit[ée]/i.test(text);
+  return /phase de n[ée]gociation|n[ée]gociation/i.test(text) && !/phase [12]/i.test(text);
 }
 
-// Injecte le panneau de négociation dans le chat
 function injectNegoPanel(container, typing) {
-  // Retire un panneau existant
   const old = document.querySelector('.nego-panel');
   if (old) old.remove();
-
   const panel = document.createElement('div');
   panel.className = 'nego-panel msg-actions';
   panel.innerHTML = `
     <div class="nego-panel-title">🤝 RÉPONDRE À LA PROPOSITION</div>
-    <button class="nego-btn accept" onclick="sendNegoChoice(this, '✅ J\'accepte la proposition.')">✅ Accepter la proposition</button>
+    <button class="nego-btn accept" onclick="sendNegoChoice(this, '✅ J\\'accepte la proposition.')">✅ Accepter la proposition</button>
     <button class="nego-btn refuse" onclick="sendNegoChoice(this, '❌ Je refuse la proposition.')">❌ Refuser la proposition</button>
-    <button class="nego-btn change" onclick="sendNegoChoice(this, 'Je souhaite changer d\'interlocuteur ou aborder un autre sujet.')">🔄 Changer d'interlocuteur / sujet</button>
-    <button class="nego-btn custom-nego" onclick="openCustomModalFor('nego', this)">✏ Faire une proposition personnalisée</button>
     <button class="nego-btn end-nego" onclick="sendNegoChoice(this, 'Je mets fin à la réunion. Reprenons le jeu.')">🚪 Terminer la négociation</button>
   `;
   container.insertBefore(panel, typing);
-  container.scrollTop = container.scrollHeight;
-
-  // Active l'indicateur dans le HUD
-  document.getElementById('nego-badge').classList.add('active');
-  gamePhase = 'negotiation';
 }
 
 function sendNegoChoice(btn, text) {
-  // Désactive tous les boutons du panneau
   const panel = btn.closest('.nego-panel');
-  if (panel) { panel.querySelectorAll('button').forEach(b => b.disabled = true); btn.style.opacity = '1'; btn.style.borderColor = 'var(--accent3)'; btn.style.color = 'var(--accent3)'; }
-
-  // Si c'est la fin de la négociation, désactive le badge HUD
-  if (text.includes('Reprenons le jeu') || text.includes('mets fin')) {
-    document.getElementById('nego-badge').classList.remove('active');
+  panel.querySelectorAll('button').forEach(b => b.disabled = true);
+  
+  if (text.includes('Reprenons le jeu')) {
     gamePhase = 'playing';
+    document.getElementById('nego-badge').classList.remove('active');
   }
-  sendChoiceMessage(text);
+  
+  addMessage('user', text);
+  conversationHistory.push({role: 'user', content: text});
+  callAPI(null, false);
 }
 
-// ===== MODALE PROPOSITION PERSONNALISÉE (partagée Phase 2 + Négociation) =====
-function openCustomModalFor(context, btn) {
-  const title = context === 'nego'
-    ? '✏ PROPOSITION PERSONNALISÉE'
-    : '✏ VOTRE ACTION PERSONNALISÉE';
-  const desc = context === 'nego'
-    ? 'Formulez votre proposition en détail · Entrée pour confirmer'
-    : 'Décrivez votre décision en détail · Entrée pour confirmer';
-  const ph = context === 'nego'
-    ? 'Ex: Je propose un accord sur les salaires en échange d\'une levée des blocages...'
-    : 'Ex: Je convoque une réunion d\'urgence avec les syndicats...';
-
-  document.getElementById('custom-modal-title').textContent = title;
-  document.getElementById('custom-modal-desc').textContent = desc;
-  document.getElementById('custom-input').placeholder = ph;
-  document.getElementById('custom-input').value = '';
-
-  // Stocke le contexte pour submitCustomChoice
-  customModalCallback = context;
-  if (btn) { customModalCallback = { context, btn }; }
-
-  document.getElementById('custom-modal').classList.add('active');
-  setTimeout(() => document.getElementById('custom-input').focus(), 100);
-}
-
-function closeCustomModal() {
-  document.getElementById('custom-modal').classList.remove('active');
-  customModalCallback = null;
-}
-
-function submitCustomChoice() {
-  const text = document.getElementById('custom-input').value.trim();
-  if (!text) return;
-  closeCustomModal();
-
-  // Si c'est une proposition en négociation, utilise sendNegoChoice
-  if (customModalCallback && typeof customModalCallback === 'object' && customModalCallback.context === 'nego') {
-    sendNegoChoice(customModalCallback.btn || document.createElement('button'), text);
-  } else {
-    sendChoiceMessage(text);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  const ci = document.getElementById('custom-input');
-  if (ci) ci.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitCustomChoice(); } });
-});
-
-// ===== SIGNALEMENT =====
-function openReportModal() { document.getElementById('report-modal').classList.add('active'); document.getElementById('report-text').value = ''; document.getElementById('report-text').focus(); }
-function submitReport() {
-  var text=document.getElementById('report-text').value.trim();
-  if(!text){alert('Veuillez décrire le problème.');return;}
-  var country=document.getElementById('hud-country').textContent;
-  var diff=document.getElementById('hud-diff').textContent;
-  var date=document.getElementById('hud-date').textContent;
-  var subj=encodeURIComponent('[Signalement] Président le Jeu - '+(country!=='—'?country:'?'));
-  var body=encodeURIComponent('Pays: '+country+'\nDifficulté: '+diff+'\nDate: '+date+'\nNavigateur: '+navigator.userAgent+'\n\nProblème:\n'+text);
-  window.open('mailto:lechikiponk@gmail.com?subject='+subj+'&body='+body,'_blank');
-  document.getElementById('report-modal').classList.remove('active');
-  var s=document.getElementById('report-success'); s.classList.add('show'); setTimeout(function(){s.classList.remove('show');},3000);
-}
-
-// ===== SAUVEGARDE =====
-let conversationHistory = [], isLoading = false;
-function saveGame() {
-  try {
-    localStorage.setItem('president_history',JSON.stringify(conversationHistory));
-    localStorage.setItem('president_hud',JSON.stringify({country:document.getElementById('hud-country').textContent,date:document.getElementById('hud-date').textContent,diff:document.getElementById('hud-diff').textContent}));
-    var ind=document.getElementById('save-indicator');if(ind){ind.classList.add('show');setTimeout(function(){ind.classList.remove('show');},2000);}
-  }catch(e){}
-}
-function loadSave(){try{var h=localStorage.getItem('president_history');var hud=localStorage.getItem('president_hud');if(!h)return null;return{history:JSON.parse(h),hud:hud?JSON.parse(hud):null};}catch(e){return null;}}
-function clearSave(){localStorage.removeItem('president_history');localStorage.removeItem('president_hud');}
-function applyHUD(hud){if(!hud)return;if(hud.country)document.getElementById('hud-country').textContent=hud.country;if(hud.date)document.getElementById('hud-date').textContent=hud.date;if(hud.diff)document.getElementById('hud-diff').textContent=hud.diff;}
-
-window.addEventListener('DOMContentLoaded',function(){
-  var save=loadSave();
-  if(save&&save.history&&save.history.length>0){
-    var hud=save.hud||{};
-    var country=hud.country&&hud.country!=='—'?hud.country:'?';
-    var date=hud.date&&hud.date!=='—'?hud.date:'';
-    var diff=hud.diff&&hud.diff!=='—'?hud.diff:'';
-    document.getElementById('save-desc').textContent='💾 Sauvegarde trouvée — '+[country,date,diff].filter(Boolean).join(' · ');
-    document.getElementById('save-info').style.display='block';
-  }
-  Stats.load();
-});
-
-function resumeGame() {
-  if(!Audio.isRunning())Audio.toggle();
-  var save=loadSave();
-  if(!save||!save.history||save.history.length===0){startGame();return;}
-  document.getElementById('loading').classList.add('active');
-  setTimeout(function(){
-    document.getElementById('loading').classList.remove('active');
-    document.getElementById('landing').style.display='none';
-    document.getElementById('game').classList.add('active');
-    conversationHistory=save.history; applyHUD(save.hud); gamePhase='playing';
-    var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
-    conversationHistory.forEach(function(m){
-      if(m.role==='user'){var div=document.createElement('div');div.className='msg user';var h=document.createElement('div');h.className='msg-header';h.textContent='▶ VOUS';var b=document.createElement('div');b.className='msg-body';b.textContent=m.content;div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
-      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){Stats.record(b,'');enrichTables(b);detectAudioMode(b);renderChoices(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
-    });
-    container.scrollTop=container.scrollHeight;
-  },1500);
-}
-
-function startGame() {
-  if(!Audio.isRunning())Audio.toggle();
-  document.getElementById('loading').classList.add('active');
-  setTimeout(function(){
-    document.getElementById('loading').classList.remove('active');
-    document.getElementById('landing').style.display='none';
-    document.getElementById('game').classList.add('active');
-    conversationHistory=[];Stats.reset();gamePhase='init';
-    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle 2026 et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté.",true);
-  },2000);
-}
-
-async function callAPI(initMessage,isInit) {
-  setLoading(true);
-  var messages=isInit?[{role:'user',content:initMessage}]:conversationHistory;
-  try {
-    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages})});
-    if(!response.ok){var err=await response.json().catch(function(){return{};});throw new Error(err.error||'Erreur HTTP '+response.status);}
-    var data=await response.json();var text=data.text||'';
-    if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
-    else{conversationHistory.push({role:'assistant',content:text});}
-    addMessage('ai',text);updateHUD(text);saveGame();
-    setTimeout(function(){var c=document.getElementById('chat-messages');if(c)c.scrollTop=c.scrollHeight;},800);
-  }catch(err){addMessage('ai','⚠ Erreur : '+err.message+'\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.');}
-  setLoading(false);
-}
-
-// ===== INJECTION BOUTONS DANS LE CHAT =====
-function injectActionButtons(text, bodyEl) {
-  var container=document.getElementById('chat-messages');
-  var typing=document.getElementById('typing');
-
-  // Bouton "Choisir mon pays" après l'intro
-  if (gamePhase === 'init') {
-    gamePhase = 'waiting_country';
-    var div=document.createElement('div');div.className='msg-actions';
-    div.innerHTML='<button class="country-picker-btn" onclick="openCountryModal()">🌍 Choisir mon pays et ma difficulté</button>';
-    container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
-    return;
-  }
-
-  // ✅ Panneau de négociation - PRIORITÉ SUR PHASE 2
-  if (isNegotiationMessage(text)) {
-    gamePhase = 'negotiation'; // On change l'état AVANT pour que renderChoices s'arrête
-    injectNegoPanel(container, typing);
-    return; // On stoppe ici pour ne pas injecter d'autres boutons
-  }
-
-  // Bouton "CONTINUER → PHASE 2"
-  var isPhase1End = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
-    || /tapez\s+(ok|continuer)/i.test(text)
-    || /pour passer à la phase 2/i.test(text);
-
-  if (isPhase1End && gamePhase === 'playing') {
-    var existing=document.querySelector('.continue-btn');if(existing)existing.closest('.msg-actions').remove();
-    var div=document.createElement('div');div.className='msg-actions';
-    div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">▶▶ CONTINUER → PHASE 2</button>';
-    container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
-    return;
-  }
-}
-
-function continueToPhase2(btn) {
-  btn.closest('.msg-actions').remove();
-  addMessage('user','OK');
-  conversationHistory.push({role:'user',content:'OK'});
-  callAPI(null,false);
-}
-
-async function sendChoiceMessage(text) {
-  if(isLoading)return;
-  addMessage('user',text);
-  conversationHistory.push({role:'user',content:text});
-  await callAPI(null,false);
-}
-
-function addMessage(role,content){
-  var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
-  var div=document.createElement('div');div.className='msg '+role;
-  var header=document.createElement('div');header.className='msg-header';header.textContent=role==='ai'?'✦ GEMINI · PRÉSIDENT LE JEU':'▶ VOUS';
-  var body=document.createElement('div');body.className='msg-body';
-  if(role==='ai'){
-    var cleaned=extractAndShowNews(content);body.innerHTML=window.marked.parse(cleaned);
-    setTimeout(function(){
-      var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
-      Stats.record(body,dateLabel);enrichTables(body);detectAudioMode(body);
-      // On lance d'abord injectActionButtons pour détecter la négociation avant renderChoices
-      injectActionButtons(content,body);
-      renderChoices(body);
-      scrollToBottom(container);
-    },0);
-  }else{body.textContent=content;}
-  div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing);scrollToBottom(container);
-}
-
-function scrollToBottom(c){if(c)c.scrollTop=c.scrollHeight;}
-function setLoading(val){isLoading=val;document.getElementById('typing').classList.toggle('active',val);}
-
-function updateHUD(text){
-  var dm=text.match(/(?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\s+\d{4}/i);
-  if(dm)document.getElementById('hud-date').textContent=dm[0];
-  var countries=['France','États-Unis','Allemagne','Royaume-Uni','Chine','Russie','Brésil','Inde','Japon','Canada','Espagne','Italie','Mexique','Australie','Corée du Sud','Argentine','Nigeria','Turquie','Pologne','Ukraine','Suisse','Belgique','Portugal','Pays-Bas'];
-  for(var i=0;i<countries.length;i++){if(text.includes(countries[i])&&document.getElementById('hud-country').textContent==='—'){document.getElementById('hud-country').textContent=countries[i];break;}}
-  var dm2=text.match(/\b(Facile|Normal|Difficile|Réaliste)\b/i);if(dm2)document.getElementById('hud-diff').textContent=dm2[0];
-}
-
-// ===== INDICATEURS DYNAMIQUES =====
-function enrichTables(container){
-  container.querySelectorAll('table').forEach(function(table){
-    table.querySelectorAll('tr').forEach(function(row){
-      var cells=row.querySelectorAll('td');if(!cells.length)return;
-      var label=cells[0]?cells[0].textContent.trim().toLowerCase():'';
-      var valCell=cells[1];if(!valCell)return;var rawVal=valCell.textContent.trim();
-      if(label.includes('popularité')||label.includes('popularite')){var n=parseFloat(rawVal);if(!isNaN(n)){if(n>=55){valCell.innerHTML='<span class="ind-ok">▲ '+rawVal+'</span>';row.classList.add('row-good');}else if(n>=40){valCell.innerHTML='<span class="ind-warn">◆ '+rawVal+'</span>';row.classList.add('row-warn');}else{valCell.innerHTML='<span class="ind-crit">▼ '+rawVal+' ⚠</span>';row.classList.add('row-crit');}}}
-      else if(label.includes('tension')){var n=parseFloat(rawVal);if(!isNaN(n)){if(n<=3){valCell.innerHTML='<span class="ind-ok">● '+rawVal+'</span>';row.classList.add('row-good');}else if(n<=6){valCell.innerHTML='<span class="ind-warn">▲ '+rawVal+' ⚠</span>';row.classList.add('row-warn');}else{valCell.innerHTML='<span class="ind-crit">🔥 '+rawVal+' — CRITIQUE</span>';row.classList.add('row-crit');}if(n>=8){var b=document.createElement('div');b.className='alert-banner';b.innerHTML='⚠ ALERTE — Tensions sociales critiques !';table.parentNode.insertBefore(b,table);}else if(n>=6){var b=document.createElement('div');b.className='warn-banner';b.innerHTML='⚡ ATTENTION — Tensions sociales élevées.';table.parentNode.insertBefore(b,table);}}}
-    });
+// --- PHASE 2 ---
+function renderChoices(body) {
+  if (gamePhase === 'negotiation') return;
+  body.querySelectorAll('ol li').forEach((li, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<b>${idx+1}.</b> ${li.textContent}`;
+    btn.onclick = () => {
+      document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+      addMessage('user', li.textContent);
+      conversationHistory.push({role: 'user', content: li.textContent});
+      callAPI(null, false);
+    };
+    li.innerHTML = '';
+    li.appendChild(btn);
   });
 }
 
-// ===== BREAKING NEWS =====
-function extractAndShowNews(text){
-  var match=text.match(/\[NEWS:\s*(.+?)\]/);if(!match)return text;
-  var titles=match[1].split('|').map(function(t){return t.trim();}).filter(Boolean);if(!titles.length)return text.replace(match[0],'').trim();
-  var track=document.getElementById('news-track');var banner=document.getElementById('news-banner');if(!track||!banner)return text;
-  track.innerHTML=titles.map(function(t,i){return'<span>'+t+'</span>'+(i<titles.length-1?'<span class="news-sep">◆</span>':'');}).join('')+'<span class="news-sep">◆</span>'+titles.map(function(t,i){return'<span>'+t+'</span>'+(i<titles.length-1?'<span class="news-sep">◆</span>':'');}).join('');
-  banner.classList.add('active');document.getElementById('game').classList.add('news-open');
-  track.style.animation='none';track.offsetHeight;track.style.animation='';
-  return text.replace(match[0],'').trim();
+function injectActionButtons(text) {
+  const container = document.getElementById('chat-messages');
+  const typing = document.getElementById('typing');
+  if (gamePhase === 'init') {
+    const div = document.createElement('div');
+    div.className = 'msg-actions';
+    div.innerHTML = '<button class="country-picker-btn" onclick="openCountryModal()">🌍 Choisir mon pays</button>';
+    container.insertBefore(div, typing);
+  }
 }
 
-// ===== AUDIO =====
-const Audio=(()=>{
-  const TRACKS={calm:'/public/audio/Calm.mp3',tension:'/public/audio/tension.mp3',crisis:'/public/audio/crisis.mp3'};
-  let mode='calm',running=false,current=null;const pre={};
-  function preload(){Object.entries(TRACKS).forEach(function([k,s]){var a=new window.Audio(s);a.loop=true;a.volume=0;pre[k]=a;});}preload();
-  function fo(el,d){if(!el)return;d=d||2000;var step=50,delta=el.volume/(d/step);var t=setInterval(function(){el.volume=Math.max(0,el.volume-delta);if(el.volume<=0){clearInterval(t);el.pause();el.currentTime=0;el.volume=0;}},step);}
-  function fi(el,v,d){v=v||0.10;d=d||3000;el.volume=0;el.play().catch(function(){});var step=50,delta=v/(d/step);var t=setInterval(function(){el.volume=Math.min(v,el.volume+delta);if(el.volume>=v)clearInterval(t);},step);}
-  function pm(m,instant){if(!running)return;var el=pre[m];if(!el||current===el)return;if(current)fo(current,instant?600:2500);current=el;fi(el,0.10,instant?800:3000);mode=m;ub();}
-  function ub(){var btn=document.getElementById('audio-btn'),lbl=document.getElementById('audio-label');if(!btn)return;btn.className='audio-btn';if(!running){lbl.textContent='♪ SON';return;}if(mode==='calm'){btn.classList.add('playing');lbl.textContent='♪ CALME';}if(mode==='tension'){btn.classList.add('tension');lbl.textContent='♪ TENSION';}if(mode==='crisis'){btn.classList.add('crisis');lbl.textContent='♪ CRISE';}}
-  return{toggle:function(){if(running){running=false;Object.values(pre).forEach(function(a){fo(a,1200)});current=null;}else{running=true;pm(mode,true);}ub();},setMode:function(m){if(!running||m===mode)return;pm(m);},isRunning:function(){return running;},stop:function(){running=false;Object.values(pre).forEach(function(a){fo(a,1500)});current=null;ub();}};
-})();
-
-function toggleFullscreen(){var btn=document.getElementById('fs-btn');if(!document.fullscreenElement&&!document.webkitFullscreenElement){var el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();if(btn)btn.textContent='⛶ QUITTER';}else{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();if(btn)btn.textContent='⛶ PLEIN ÉCRAN';}}
-document.addEventListener('fullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.fullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
-document.addEventListener('webkitfullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.webkitFullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
-function toggleAudio(){Audio.toggle();}
-function detectAudioMode(container){if(!Audio.isRunning())return;var tensions=-1,popularite=-1,croissance=0;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase();var m=cells[1].textContent.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;if(label.includes('tension'))tensions=val;if(label.includes('popular'))popularite=val;if(label.includes('croissance'))croissance=val;});});var nm='calm';if(tensions>=7||popularite<30||croissance<-1)nm='crisis';else if(tensions>=5||popularite<45||croissance<0)nm='tension';Audio.setMode(nm);}
-
-// ===== STATISTIQUES =====
-const Stats=(()=>{
-  const data={labels:[],popularite:[],tensions:[],croissance:[],chomage:[],dette:[],coffres:[]};const charts={};
-  function extract(container){var found=false;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase().trim();var raw=cells[1].textContent.trim();var m=raw.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;found=true;if(label.includes('popular'))data.popularite.push(val);if(label.includes('tension'))data.tensions.push(val);if(label.includes('croissance'))data.croissance.push(val);if(label.includes('chômage')||label.includes('chomage'))data.chomage.push(val);if(label.includes('dette'))data.dette.push(val);if(label.includes('coffre'))data.coffres.push(val);});});return found;}
-  function render(id,key,label,color,min,max){var canvas=document.getElementById('chart-'+id);if(!canvas)return;var vals=data[key];if(!vals||!vals.length){canvas.parentNode.innerHTML='<div class="no-data">Pas encore de données</div>';return;}var vEl=document.getElementById('val-'+id);if(vEl)vEl.textContent=vals[vals.length-1];var labels=data.labels.length>=vals.length?data.labels.slice(-vals.length):vals.map(function(_,i){return'T'+(i+1);});if(charts[id]){charts[id].destroy();delete charts[id];}charts[id]=new Chart(canvas,{type:'line',data:{labels,datasets:[{label,data:vals,borderColor:color,backgroundColor:color+'14',borderWidth:2,pointRadius:3,pointBackgroundColor:color,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false},tooltip:{backgroundColor:'#161b22',borderColor:color,borderWidth:1,titleColor:color,bodyColor:'#e6edf3',titleFont:{family:'Share Tech Mono'},bodyFont:{family:'Share Tech Mono'}}},scales:{x:{ticks:{color:'#7d8590',font:{family:'Share Tech Mono',size:9},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.04)'}},y:{min:min!=null?min:undefined,max:max!=null?max:undefined,ticks:{color:'#7d8590',font:{family:'Share Tech Mono',size:9},maxTicksLimit:5},grid:{color:'rgba(255,255,255,0.06)'}}}}});}
-  return{
-    record(container,turnLabel){var ok=extract(container);if(ok){var lbl=(turnLabel&&turnLabel!=='—')?turnLabel:'T'+(data.labels.length+1);data.labels.push(lbl);}try{localStorage.setItem('president_stats',JSON.stringify(data));}catch(e){}},
-    load(){try{var s=localStorage.getItem('president_stats');if(s)Object.assign(data,JSON.parse(s));}catch(e){}},
-    reset(){Object.keys(data).forEach(function(k){data[k]=[];});Object.values(charts).forEach(function(c){c.destroy();});Object.keys(charts).forEach(function(k){delete charts[k];});try{localStorage.removeItem('president_stats');}catch(e){}},
-    open(){document.getElementById('stats-modal').classList.add('active');document.getElementById('stats-turns').textContent=data.labels.length+' tour(s) enregistré(s)';setTimeout(function(){render('popularite','popularite','Popularité','#4285f4',0,100);render('tensions','tensions','Tensions','#ff3b5c',0,10);render('croissance','croissance','Croissance','#34a853',-5,10);render('chomage','chomage','Chômage','#fbbc04',0,30);render('dette','dette','Dette','#ea4335',0,200);render('coffres','coffres','Coffres','#34a853',null,null);Object.values(charts).forEach(function(c){c&&c.resize();});},50);}
-  };
-})();
-
-function openStats(){Stats.open();}
-function resetGame(){
-  if(!confirm('Abandonner la partie ?'))return;
-  Audio.stop();Stats.reset();clearSave();gamePhase='init';
-  document.getElementById('nego-badge').classList.remove('active');
-  document.getElementById('game').classList.remove('active');document.getElementById('landing').style.display='';
-  document.getElementById('save-info').style.display='none';
-  document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
-  document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
-  conversationHistory=[];
+// --- UTILITAIRES ---
+function setLoading(v) { isLoading = v; document.getElementById('typing').style.display = v ? 'flex' : 'none'; }
+function openCountryModal() { document.getElementById('country-modal').classList.add('active'); }
+function selectDiff(btn) { document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedDiff = btn.dataset.diff; }
+function filterCountries(v) { document.getElementById('country-confirm-btn').disabled = !v; }
+function confirmCountry() {
+  const c = document.getElementById('country-input').value;
+  document.getElementById('country-modal').classList.remove('active');
+  document.getElementById('hud-country').textContent = c;
+  gamePhase = 'playing';
+  callAPI(`Je dirige ${c} en ${selectedDiff}`, false);
 }
+function startGame() { document.getElementById('landing').style.display = 'none'; document.getElementById('game').style.display = 'flex'; callAPI("Bonjour", true); }
+function extractNews(t) { return t.replace(/\[NEWS:.*?\]/g, ''); }
+function updateHUD(t) { const d = t.match(/(?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\s+\d{4}/i); if(d) document.getElementById('hud-date').textContent = d[0]; }
 </script>
 </body>
 </html>
