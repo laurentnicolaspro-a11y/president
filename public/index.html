@@ -330,7 +330,6 @@
   </div>
 </div>
 
-<!-- MODALE CHOIX DU PAYS -->
 <div id="country-modal">
   <div class="country-box">
     <h2>🌍 CHOISISSEZ VOTRE PAYS</h2>
@@ -354,7 +353,6 @@
   </div>
 </div>
 
-<!-- MODALE PROPOSITION PERSONNALISÉE (Phase 2 + Négociation) -->
 <div id="custom-modal">
   <div class="custom-box">
     <h2 id="custom-modal-title">✏ VOTRE ACTION PERSONNALISÉE</h2>
@@ -407,7 +405,6 @@
       <span>DIFF. <b id="hud-diff">—</b></span>
     </div>
     <span class="hud-ai"><div class="hud-dots"><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div><div class="hud-dot"></div></div>GEMINI</span>
-    <!-- Badge négociation en cours -->
     <span class="nego-badge" id="nego-badge">🤝 NÉGOCIATION EN COURS</span>
     <button class="audio-btn" id="audio-btn" onclick="toggleAudio()">
       <div class="audio-bars"><div class="audio-bar" style="height:6px"></div><div class="audio-bar" style="height:10px"></div><div class="audio-bar" style="height:4px"></div></div>
@@ -521,6 +518,9 @@ window.marked = {
 
 // ===== CHOIX CLIQUABLES PHASE 2 =====
 function renderChoices(container) {
+  // BLOQUAGE NÉGOCIATION : Si on est en négo, on ne veut pas transformer les listes en boutons bleus
+  if (gamePhase === 'negotiation') return;
+
   container.querySelectorAll('ol').forEach(function(ol) {
     var items = ol.querySelectorAll('li');
     var wrap = document.createElement('div');
@@ -746,6 +746,13 @@ function injectActionButtons(text, bodyEl) {
     return;
   }
 
+  // ✅ Panneau de négociation - PRIORITÉ SUR PHASE 2
+  if (isNegotiationMessage(text)) {
+    gamePhase = 'negotiation'; // On change l'état AVANT pour que renderChoices s'arrête
+    injectNegoPanel(container, typing);
+    return; // On stoppe ici pour ne pas injecter d'autres boutons
+  }
+
   // Bouton "CONTINUER → PHASE 2"
   var isPhase1End = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
     || /tapez\s+(ok|continuer)/i.test(text)
@@ -757,11 +764,6 @@ function injectActionButtons(text, bodyEl) {
     div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">▶▶ CONTINUER → PHASE 2</button>';
     container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
     return;
-  }
-
-  // ✅ Panneau de négociation
-  if (gamePhase === 'playing' && isNegotiationMessage(text)) {
-    injectNegoPanel(container, typing);
   }
 }
 
@@ -788,8 +790,10 @@ function addMessage(role,content){
     var cleaned=extractAndShowNews(content);body.innerHTML=window.marked.parse(cleaned);
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
-      Stats.record(body,dateLabel);enrichTables(body);detectAudioMode(body);renderChoices(body);
+      Stats.record(body,dateLabel);enrichTables(body);detectAudioMode(body);
+      // On lance d'abord injectActionButtons pour détecter la négociation avant renderChoices
       injectActionButtons(content,body);
+      renderChoices(body);
       scrollToBottom(container);
     },0);
   }else{body.textContent=content;}
