@@ -782,7 +782,7 @@ function injectActionButtons(text, bodyEl) {
   if (/tensions? sociales?/i.test(tableLines)) indicateurCount++;
   if (/solde mensuel/i.test(tableLines)) indicateurCount++;
   if (/croissance/i.test(tableLines)) indicateurCount++;
-  var hasPhase1Table = indicateurCount >= 4; // exige au moins 4 indicateurs en tableau
+  var hasPhase1Table = indicateurCount >= 3;
   var hasOKSignal = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
     || /tapez\s+(ok|continuer)/i.test(text)
     || /pour passer à la phase 2/i.test(text);
@@ -793,13 +793,12 @@ function injectActionButtons(text, bodyEl) {
     var div=document.createElement('div');div.className='msg-actions';
     div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">▶▶ CONTINUER → PHASE 2</button>';
     container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
-    return;
+    // PAS de return ici — renderChoices doit pouvoir s'exécuter après
   }
 
-  // Panneau de négociation — injecté EN PREMIER, avant renderChoices
-  if (gamePhase === 'playing' && isNegotiationMessage(text)) {
+  // Panneau de négociation
+  if (gamePhase === 'playing' && !isPhase1End && isNegotiationMessage(text)) {
     injectNegoPanel(container, typing);
-    // gamePhase est maintenant 'negotiation' → renderChoices supprimera les <ol>
   }
 }
 
@@ -837,11 +836,12 @@ function addMessage(role,content){
       enrichTables(body);
       detectAudioMode(body);
       // injectActionButtons EN PREMIER → met à jour gamePhase si négociation
+      // NE fait plus de return interne — renderChoices s'exécute toujours après
       injectActionButtons(content, body);
-      // renderChoices EN DERNIER → si gamePhase==='negotiation', supprime les <ol>
+      // renderChoices EN DERNIER → converti les <ol> en boutons si phase 'playing'
       renderChoices(body);
       scrollToBottom(container);
-    },0);
+    },50);
   }else{body.textContent=content;}
   div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing);scrollToBottom(container);
 }
