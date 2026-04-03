@@ -793,7 +793,8 @@ function injectActionButtons(text, bodyEl) {
     var div=document.createElement('div');div.className='msg-actions';
     div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">▶▶ CONTINUER → PHASE 2</button>';
     container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
-    // PAS de return ici — renderChoices doit pouvoir s'exécuter après
+    // Masquer les <ol> parasites si l'IA a mélangé les phases
+    if (bodyEl) bodyEl.querySelectorAll('ol').forEach(function(ol){ ol.style.display='none'; });
   }
 
   // Panneau de négociation
