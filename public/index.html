@@ -862,15 +862,22 @@ function addMessage(role,content){
       // injectActionButtons EN PREMIER → met à jour gamePhase si négociation
       // NE fait plus de return interne — renderChoices s'exécute toujours après
       injectActionButtons(content, body);
-      // renderChoices EN DERNIER → converti les <ol> en boutons si phase 'playing'
       renderChoices(body);
-      scrollToBottom(container);
     },50);
   }else{body.textContent=content;}
-  div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing);scrollToBottom(container);
+  div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing);
+  if(role==='ai'){scrollToMessage(container,div);}else{scrollToBottom(container);}
 }
 
 function scrollToBottom(c){if(c)c.scrollTop=c.scrollHeight;}
+
+function scrollToMessage(c, msgDiv){
+  if(!c||!msgDiv)return;
+  // Scroll vers le haut du nouveau message avec un petit délai pour le rendu
+  setTimeout(function(){
+    msgDiv.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 80);
+}
 function setLoading(val){isLoading=val;document.getElementById('typing').classList.toggle('active',val);}
 
 function updateHUD(text){
