@@ -46,6 +46,10 @@
   .resume-btn::before{content:'';position:absolute;inset:0;background:var(--accent3);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
   .resume-btn:hover{color:#fff;box-shadow:0 0 20px rgba(52,168,83,0.4);}.resume-btn:hover::before{transform:translateX(0);}
   .save-indicator{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--accent3);letter-spacing:0.1em;margin-top:0.5rem;opacity:0;transition:opacity 0.5s;}.save-indicator.show{opacity:1;}
+  .lang-picker{display:flex;gap:0.5rem;margin-bottom:1.5rem;}
+  .lang-btn{padding:0.35rem 0.9rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;cursor:pointer;border-radius:3px;transition:all 0.2s;}
+  .lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .lang-btn.selected{border-color:var(--accent);color:var(--accent);background:rgba(66,133,244,0.1);}
 
   /* GAME */
   #game{display:none;position:fixed;inset:0;z-index:1;padding:1rem;flex-direction:column;overflow:hidden;background:var(--bg);}
@@ -322,6 +326,12 @@
   <div class="title-sub">Simulation géopolitique IA</div>
   <span class="beta-badge">BÊTA · GEMINI</span>
   <p class="title-desc">Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques.</p>
+  <div class="lang-picker">
+    <button class="lang-btn selected" data-lang="fr" onclick="selectLang(this)">🇫🇷 FR</button>
+    <button class="lang-btn" data-lang="en" onclick="selectLang(this)">🇬🇧 EN</button>
+    <button class="lang-btn" data-lang="es" onclick="selectLang(this)">🇪🇸 ES</button>
+    <button class="lang-btn" data-lang="de" onclick="selectLang(this)">🇩🇪 DE</button>
+  </div>
   <div class="powered-badge">
     <div class="g-dots"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div></div>
     Propulsé par <span>Google Gemini</span>
@@ -450,10 +460,166 @@ const COUNTRIES = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagn
 
 // ===== ÉTAT GLOBAL =====
 let selectedDiff = 'Facile';
-let gamePhase = 'init'; // 'init' | 'waiting_country' | 'playing' | 'negotiation'
+let gamePhase = 'init';
 let customModalCallback = null;
 let currentTurn = 0;
-let maxTurns = 0; // sera calculé selon le pays
+let maxTurns = 0;
+let selectedLang = 'fr';
+
+const TRANSLATIONS = {
+  fr: {
+    play: '▶ JOUER', legal: 'MENTIONS LÉGALES', resume: '↺ REPRENDRE LA PARTIE',
+    saveFound: '💾 Sauvegarde trouvée —',
+    countryTitle: '🌍 CHOISISSEZ VOTRE PAYS',
+    countryDesc: 'Saisissez le pays que vous souhaitez diriger et choisissez votre niveau de difficulté.',
+    countryLabel: 'PAYS À DIRIGER', countryPlaceholder: 'Ex : France, Japon, Brésil...',
+    diffLabel: 'DIFFICULTÉ', confirmBtn: '▶ CONFIRMER ET COMMENCER',
+    diff0:'😊 Facile', diff1:'⚖️ Normal', diff2:'🔥 Difficile', diff3:'💀 Réaliste',
+    customTitle: '✏ VOTRE ACTION PERSONNALISÉE', customDesc: 'Décrivez votre décision en détail · Entrée pour confirmer',
+    customPlaceholder: "Ex: Je convoque une réunion d'urgence avec les syndicats...",
+    negoTitle: '✏ PROPOSITION PERSONNALISÉE', negoDesc: 'Formulez votre proposition en détail · Entrée pour confirmer',
+    negoPlaceholder: "Ex: Je propose un accord sur les salaires...",
+    cancel: 'ANNULER', confirm: 'CONFIRMER',
+    reportTitle: '⚠ SIGNALER UN PROBLÈME', reportDesc: 'Décrivez le problème rencontré.',
+    reportSend: 'ENVOYER', reportSuccess: '✅ Merci pour votre signalement !',
+    continueBtn: '▶▶ CONTINUER → PHASE 2', countryPickerBtn: '🌍 Choisir mon pays et ma difficulté',
+    fullscreen: '⛶ PLEIN ÉCRAN', quit: '⛶ QUITTER', abandon: '✕ ABANDONNER', saved: '✦ PARTIE SAUVEGARDÉE',
+    hint: '↵ Entrée · Maj+Entrée saut de ligne', turn: 'TOUR',
+    negoPanel: '🤝 RÉPONDRE À LA PROPOSITION',
+    negoAccept: '✅ Accepter la proposition', negoRefuse: '❌ Refuser la proposition',
+    negoChange: "🔄 Changer d'interlocuteur / sujet", negoCustom: '✏ Faire une proposition personnalisée',
+    negoEnd: '🚪 Terminer la négociation',
+    retryBtn: '↺ relancer', retryTitle: 'Relancer si la discussion est bloquée',
+    relanceMsg: "La discussion semble bloquée ou bugée. Reprends exactement là où on en était et continue le jeu normalement.",
+    abandonConfirm: 'Abandonner la partie ?',
+    aiHeader: '✦ GEMINI · PRÉSIDENT LE JEU', userHeader: '▶ VOUS',
+  },
+  en: {
+    play: '▶ PLAY', legal: 'LEGAL NOTICE', resume: '↺ RESUME GAME',
+    saveFound: '💾 Save found —',
+    countryTitle: '🌍 CHOOSE YOUR COUNTRY',
+    countryDesc: 'Enter the country you want to lead and choose your difficulty level.',
+    countryLabel: 'COUNTRY TO LEAD', countryPlaceholder: 'Ex: France, Japan, Brazil...',
+    diffLabel: 'DIFFICULTY', confirmBtn: '▶ CONFIRM AND START',
+    diff0:'😊 Easy', diff1:'⚖️ Normal', diff2:'🔥 Hard', diff3:'💀 Realistic',
+    customTitle: '✏ YOUR CUSTOM ACTION', customDesc: 'Describe your decision · Enter to confirm',
+    customPlaceholder: 'Ex: I call an emergency meeting with trade unions...',
+    negoTitle: '✏ CUSTOM PROPOSAL', negoDesc: 'Formulate your proposal · Enter to confirm',
+    negoPlaceholder: 'Ex: I propose a wage agreement in exchange for lifting the blockades...',
+    cancel: 'CANCEL', confirm: 'CONFIRM',
+    reportTitle: '⚠ REPORT AN ISSUE', reportDesc: 'Describe the problem encountered.',
+    reportSend: 'SEND', reportSuccess: '✅ Thank you for your report!',
+    continueBtn: '▶▶ CONTINUE → PHASE 2', countryPickerBtn: '🌍 Choose my country and difficulty',
+    fullscreen: '⛶ FULLSCREEN', quit: '⛶ EXIT', abandon: '✕ ABANDON', saved: '✦ GAME SAVED',
+    hint: '↵ Enter · Shift+Enter new line', turn: 'TURN',
+    negoPanel: '🤝 RESPOND TO PROPOSAL',
+    negoAccept: '✅ Accept the proposal', negoRefuse: '❌ Refuse the proposal',
+    negoChange: '🔄 Change interlocutor / topic', negoCustom: '✏ Make a custom proposal',
+    negoEnd: '🚪 End negotiation',
+    retryBtn: '↺ retry', retryTitle: 'Retry if discussion is stuck',
+    relanceMsg: "The discussion seems stuck or bugged. Resume exactly where we left off and continue the game normally.",
+    abandonConfirm: 'Abandon the game?',
+    aiHeader: '✦ GEMINI · PRESIDENT THE GAME', userHeader: '▶ YOU',
+  },
+  es: {
+    play: '▶ JUGAR', legal: 'AVISO LEGAL', resume: '↺ CONTINUAR PARTIDA',
+    saveFound: '💾 Guardado encontrado —',
+    countryTitle: '🌍 ELIGE TU PAÍS',
+    countryDesc: 'Escribe el país que deseas dirigir y elige tu nivel de dificultad.',
+    countryLabel: 'PAÍS A DIRIGIR', countryPlaceholder: 'Ej: Francia, Japón, Brasil...',
+    diffLabel: 'DIFICULTAD', confirmBtn: '▶ CONFIRMAR Y EMPEZAR',
+    diff0:'😊 Fácil', diff1:'⚖️ Normal', diff2:'🔥 Difícil', diff3:'💀 Realista',
+    customTitle: '✏ TU ACCIÓN PERSONALIZADA', customDesc: 'Describe tu decisión · Enter para confirmar',
+    customPlaceholder: 'Ej: Convoco una reunión de urgencia con los sindicatos...',
+    negoTitle: '✏ PROPUESTA PERSONALIZADA', negoDesc: 'Formula tu propuesta · Enter para confirmar',
+    negoPlaceholder: 'Ej: Propongo un acuerdo salarial a cambio de levantar los bloqueos...',
+    cancel: 'CANCELAR', confirm: 'CONFIRMAR',
+    reportTitle: '⚠ REPORTAR UN PROBLEMA', reportDesc: 'Describe el problema encontrado.',
+    reportSend: 'ENVIAR', reportSuccess: '✅ ¡Gracias por tu reporte!',
+    continueBtn: '▶▶ CONTINUAR → FASE 2', countryPickerBtn: '🌍 Elegir mi país y dificultad',
+    fullscreen: '⛶ PANTALLA COMPLETA', quit: '⛶ SALIR', abandon: '✕ ABANDONAR', saved: '✦ PARTIDA GUARDADA',
+    hint: '↵ Enter · Mayús+Enter nueva línea', turn: 'TURNO',
+    negoPanel: '🤝 RESPONDER A LA PROPUESTA',
+    negoAccept: '✅ Aceptar la propuesta', negoRefuse: '❌ Rechazar la propuesta',
+    negoChange: '🔄 Cambiar interlocutor / tema', negoCustom: '✏ Hacer una propuesta personalizada',
+    negoEnd: '🚪 Terminar la negociación',
+    retryBtn: '↺ reintentar', retryTitle: 'Reintentar si la discusión está bloqueada',
+    relanceMsg: "La discusión parece bloqueada o con errores. Retoma exactamente donde estábamos y continúa el juego normalmente.",
+    abandonConfirm: '¿Abandonar la partida?',
+    aiHeader: '✦ GEMINI · PRESIDENTE EL JUEGO', userHeader: '▶ TÚ',
+  },
+  de: {
+    play: '▶ SPIELEN', legal: 'IMPRESSUM', resume: '↺ SPIEL FORTSETZEN',
+    saveFound: '💾 Spielstand gefunden —',
+    countryTitle: '🌍 WÄHLE DEIN LAND',
+    countryDesc: 'Gib das Land ein, das du führen möchtest, und wähle deinen Schwierigkeitsgrad.',
+    countryLabel: 'ZU FÜHRENDES LAND', countryPlaceholder: 'Z.B.: Frankreich, Japan, Brasilien...',
+    diffLabel: 'SCHWIERIGKEIT', confirmBtn: '▶ BESTÄTIGEN UND STARTEN',
+    diff0:'😊 Leicht', diff1:'⚖️ Normal', diff2:'🔥 Schwer', diff3:'💀 Realistisch',
+    customTitle: '✏ DEINE EIGENE AKTION', customDesc: 'Beschreibe deine Entscheidung · Enter zum Bestätigen',
+    customPlaceholder: 'Z.B.: Ich berufe eine Notfallsitzung mit den Gewerkschaften ein...',
+    negoTitle: '✏ EIGENER VORSCHLAG', negoDesc: 'Formuliere deinen Vorschlag · Enter zum Bestätigen',
+    negoPlaceholder: 'Z.B.: Ich schlage ein Lohnabkommen vor...',
+    cancel: 'ABBRECHEN', confirm: 'BESTÄTIGEN',
+    reportTitle: '⚠ PROBLEM MELDEN', reportDesc: 'Beschreibe das aufgetretene Problem.',
+    reportSend: 'SENDEN', reportSuccess: '✅ Danke für deine Meldung!',
+    continueBtn: '▶▶ WEITER → PHASE 2', countryPickerBtn: '🌍 Land und Schwierigkeit wählen',
+    fullscreen: '⛶ VOLLBILD', quit: '⛶ BEENDEN', abandon: '✕ AUFGEBEN', saved: '✦ SPIEL GESPEICHERT',
+    hint: '↵ Enter · Umschalt+Enter neue Zeile', turn: 'ZUG',
+    negoPanel: '🤝 AUF VORSCHLAG ANTWORTEN',
+    negoAccept: '✅ Vorschlag annehmen', negoRefuse: '❌ Vorschlag ablehnen',
+    negoChange: '🔄 Gesprächspartner / Thema wechseln', negoCustom: '✏ Eigenen Vorschlag machen',
+    negoEnd: '🚪 Verhandlung beenden',
+    retryBtn: '↺ wiederholen', retryTitle: 'Wiederholen wenn die Diskussion feststeckt',
+    relanceMsg: "Die Diskussion scheint blockiert oder fehlerhaft. Mache genau dort weiter, wo wir aufgehört haben, und führe das Spiel normal fort.",
+    abandonConfirm: 'Spiel aufgeben?',
+    aiHeader: '✦ GEMINI · PRÄSIDENT DAS SPIEL', userHeader: '▶ SIE',
+  }
+};
+
+function t(key) { return (TRANSLATIONS[selectedLang] || TRANSLATIONS['fr'])[key] || TRANSLATIONS['fr'][key] || key; }
+
+function selectLang(btn) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedLang = btn.dataset.lang;
+  applyTranslations();
+}
+
+function applyTranslations() {
+  // Landing
+  var playBtn = document.querySelector('.play-btn');
+  if (playBtn) playBtn.textContent = t('play');
+  var legalBtn = document.querySelector('.legal-btn');
+  if (legalBtn) legalBtn.textContent = t('legal');
+  // Modale pays
+  var cm = document.querySelector('.country-box h2');
+  if (cm) cm.textContent = t('countryTitle');
+  var cp = document.querySelector('.country-box p');
+  if (cp) cp.textContent = t('countryDesc');
+  var cl = document.querySelector('.country-input-wrap label');
+  if (cl) cl.textContent = t('countryLabel');
+  var ci = document.getElementById('country-input');
+  if (ci) ci.placeholder = t('countryPlaceholder');
+  var dl = document.querySelector('.diff-label');
+  if (dl) dl.textContent = t('diffLabel');
+  var dbs = document.querySelectorAll('.diff-btn');
+  if (dbs.length===4){dbs[0].textContent=t('diff0');dbs[1].textContent=t('diff1');dbs[2].textContent=t('diff2');dbs[3].textContent=t('diff3');}
+  var ccb = document.getElementById('country-confirm-btn');
+  if (ccb) ccb.textContent = t('confirmBtn');
+  // Boutons jeu
+  var fsb = document.getElementById('fs-btn');
+  if (fsb) fsb.textContent = document.fullscreenElement ? t('quit') : t('fullscreen');
+  var rb = document.querySelector('.reset-btn');
+  if (rb) rb.textContent = t('abandon');
+  var hint = document.querySelector('.hint');
+  if (hint) hint.textContent = t('hint');
+  // Indicateur sauvegarde
+  var si = document.getElementById('save-indicator');
+  if (si && si.dataset.base) si.textContent = t('saved');
+  // Compteur tours
+  updateTurnCounter();
+}
 
 const MANDATE_DURATIONS = {
   'France':60,'États-Unis':48,'Allemagne':48,'Royaume-Uni':60,'Russie':72,'Chine':60,
@@ -594,29 +760,25 @@ function injectNegoPanel(container, typing) {
 
   const title = document.createElement('div');
   title.className = 'nego-panel-title';
-  title.textContent = '🤝 RÉPONDRE À LA PROPOSITION';
+  title.textContent = t('negoPanel');
   panel.appendChild(title);
 
-  // Définition des boutons : [classe, label, texte envoyé, estCustom]
   const btns = [
-    ['accept',       '✅ Accepter la proposition',              "✅ J'accepte la proposition.",                              false],
-    ['refuse',       '❌ Refuser la proposition',               "❌ Je refuse la proposition.",                              false],
-    ['change',       "🔄 Changer d'interlocuteur / sujet",      "Je souhaite changer d'interlocuteur ou aborder un autre sujet.", false],
-    ['custom-nego',  '✏ Faire une proposition personnalisée',   null,                                                        true],
-    ['end-nego',     '🚪 Terminer la négociation',              'Je mets fin à la réunion. Reprenons le jeu.',               false],
+    ['accept',      ()=>t('negoAccept'),  ()=>"✅ "+t('negoAccept').replace('✅ ',''),  false],
+    ['refuse',      ()=>t('negoRefuse'),  ()=>"❌ "+t('negoRefuse').replace('❌ ',''),  false],
+    ['change',      ()=>t('negoChange'),  ()=>t('negoChange').replace('🔄 ',''),        false],
+    ['custom-nego', ()=>t('negoCustom'),  null,                                          true],
+    ['end-nego',    ()=>t('negoEnd'),     ()=>'Je mets fin à la réunion. Reprenons le jeu.', false],
   ];
 
   btns.forEach(function(def) {
-    var cls = def[0], label = def[1], msg = def[2], isCustom = def[3];
+    var cls = def[0], labelFn = def[1], msgFn = def[2], isCustom = def[3];
     var btn = document.createElement('button');
     btn.className = 'nego-btn ' + cls;
-    btn.textContent = label;
+    btn.textContent = labelFn();
     btn.addEventListener('click', function() {
-      if (isCustom) {
-        openCustomModalFor('nego', btn);
-      } else {
-        sendNegoChoice(btn, msg);
-      }
+      if (isCustom) { openCustomModalFor('nego', btn); }
+      else { sendNegoChoice(btn, msgFn()); }
     });
     panel.appendChild(btn);
   });
@@ -645,9 +807,9 @@ function sendNegoChoice(btn, text) {
 
 // ===== MODALE PROPOSITION PERSONNALISÉE =====
 function openCustomModalFor(context, btn) {
-  const title = context === 'nego' ? '✏ PROPOSITION PERSONNALISÉE' : '✏ VOTRE ACTION PERSONNALISÉE';
-  const desc = context === 'nego' ? 'Formulez votre proposition en détail · Entrée pour confirmer' : 'Décrivez votre décision en détail · Entrée pour confirmer';
-  const ph = context === 'nego' ? "Ex: Je propose un accord sur les salaires en échange d'une levée des blocages..." : "Ex: Je convoque une réunion d'urgence avec les syndicats...";
+  const title = context === 'nego' ? t('negoTitle') : t('customTitle');
+  const desc = context === 'nego' ? t('negoDesc') : t('customDesc');
+  const ph = context === 'nego' ? t('negoPlaceholder') : t('customPlaceholder');
 
   document.getElementById('custom-modal-title').textContent = title;
   document.getElementById('custom-modal-desc').textContent = desc;
@@ -750,15 +912,16 @@ function startGame() {
     document.getElementById('landing').style.display='none';
     document.getElementById('game').classList.add('active');
     conversationHistory=[];Stats.reset();gamePhase='init';
-    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle 2026 et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté.",true);
+    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle 2026 et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté. LANGUE DU JEU : joue et réponds EXCLUSIVEMENT en " + {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang] + ".",true);
   },2000);
 }
 
 async function callAPI(initMessage,isInit) {
   setLoading(true);
   var messages=isInit?[{role:'user',content:initMessage}]:conversationHistory;
+  var langNames={'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
   try {
-    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages})});
+    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français'})});
     if(!response.ok){var err=await response.json().catch(function(){return{};});throw new Error(err.error||'Erreur HTTP '+response.status);}
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
@@ -777,7 +940,7 @@ function injectActionButtons(text, bodyEl) {
   if (gamePhase === 'init') {
     gamePhase = 'waiting_country';
     var div=document.createElement('div');div.className='msg-actions';
-    div.innerHTML='<button class="country-picker-btn" onclick="openCountryModal()">🌍 Choisir mon pays et ma difficulté</button>';
+    div.innerHTML='<button class="country-picker-btn" onclick="openCountryModal()">'+t('countryPickerBtn')+'</button>';
     container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
     return;
   }
@@ -803,7 +966,7 @@ function injectActionButtons(text, bodyEl) {
   if (isPhase1End && gamePhase === 'playing') {
     var existing=document.querySelector('.continue-btn');if(existing)existing.closest('.msg-actions').remove();
     var div=document.createElement('div');div.className='msg-actions';
-    div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">▶▶ CONTINUER → PHASE 2</button>';
+    div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">'+t('continueBtn')+'</button>';
     container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
     // Masquer les <ol> parasites si l'IA a mélangé les phases
     if (bodyEl) bodyEl.querySelectorAll('ol').forEach(function(ol){ ol.style.display='none'; });
@@ -819,7 +982,7 @@ function updateTurnCounter() {
   var el = document.getElementById('turn-counter');
   if (!el) return;
   var max = maxTurns || '—';
-  el.textContent = 'TOUR ' + currentTurn + ' / ' + max;
+  el.textContent = t('turn') + ' ' + currentTurn + ' / ' + max;
   el.style.color = (maxTurns && currentTurn >= maxTurns * 0.8) ? 'var(--accent2)' : 'var(--muted)';
 }
 
@@ -842,15 +1005,15 @@ async function sendChoiceMessage(text) {
 function addMessage(role,content){
   var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
   var div=document.createElement('div');div.className='msg '+role;
-  var header=document.createElement('div');header.className='msg-header';header.textContent=role==='ai'?'✦ GEMINI · PRÉSIDENT LE JEU':'▶ VOUS';
+  var header=document.createElement('div');header.className='msg-header';header.textContent=role==='ai'?t('aiHeader'):t('userHeader');
   var body=document.createElement('div');body.className='msg-body';
   if(role==='ai'){
     var cleaned=extractAndShowNews(content);body.innerHTML=window.marked.parse(cleaned);
     // Petit bouton discret pour relancer si bug
     var retryBtn=document.createElement('button');
     retryBtn.className='retry-btn';
-    retryBtn.textContent='↺ relancer';
-    retryBtn.title='Relancer si la discussion est bloquée';
+    retryBtn.textContent=t('retryBtn');
+    retryBtn.title=t('retryTitle');
     retryBtn.onclick=function(){ relancerDiscussion(); };
     body.appendChild(retryBtn);
     setTimeout(function(){
@@ -949,14 +1112,14 @@ function openStats(){Stats.open();}
 function relancerDiscussion() {
   if (isLoading) return;
   if (gamePhase === 'init' || gamePhase === 'waiting_country') return;
-  var msg = "La discussion semble bloquée ou bugée. Reprends exactement là où on en était et continue le jeu normalement.";
+  var msg = t('relanceMsg');
   addMessage('user', msg);
   conversationHistory.push({ role: 'user', content: msg });
   callAPI(null, false);
 }
 
 function resetGame(){
-  if(!confirm('Abandonner la partie ?'))return;
+  if(!confirm(t('abandonConfirm')))return;
   Audio.stop();Stats.reset();clearSave();gamePhase='init';
   document.getElementById('nego-badge').classList.remove('active');
   document.getElementById('game').classList.remove('active');document.getElementById('landing').style.display='';
