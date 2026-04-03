@@ -431,6 +431,7 @@
       <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()">⛶ PLEIN ÉCRAN</button>
       <span class="hint">↵ Entrée · Maj+Entrée saut de ligne</span>
     </div>
+    <span id="turn-counter" style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;">TOUR 0 / —</span>
     <div style="display:flex;align-items:center;gap:1rem;">
       <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
       <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
@@ -451,6 +452,15 @@ const COUNTRIES = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagn
 let selectedDiff = 'Facile';
 let gamePhase = 'init'; // 'init' | 'waiting_country' | 'playing' | 'negotiation'
 let customModalCallback = null;
+let currentTurn = 0;
+let maxTurns = 0; // sera calculé selon le pays
+
+const MANDATE_DURATIONS = {
+  'France':60,'États-Unis':48,'Allemagne':48,'Royaume-Uni':60,'Russie':72,'Chine':60,
+  'Brésil':48,'Inde':60,'Japon':48,'Canada':48,'Espagne':48,'Italie':60,'Mexique':72,
+  'Australie':36,'Corée du Sud':60,'Argentine':48,'Nigeria':48,'Turquie':60,'Pologne':60,
+  'Ukraine':60,'Suisse':48,'Belgique':48,'Portugal':60,'Pays-Bas':48,'défaut':60
+};
 
 // ===== SÉLECTEUR DE PAYS =====
 function filterCountries(query) {
@@ -487,6 +497,9 @@ function confirmCountry() {
   document.getElementById('country-modal').classList.remove('active');
   document.getElementById('hud-country').textContent = country;
   document.getElementById('hud-diff').textContent = selectedDiff;
+  currentTurn = 0;
+  maxTurns = MANDATE_DURATIONS[country] || MANDATE_DURATIONS['défaut'];
+  updateTurnCounter();
   const pickerAction = document.querySelector('.country-picker-btn');
   if (pickerAction) pickerAction.closest('.msg-actions').remove();
   const msg = `Je souhaite diriger ${country} en difficulté ${selectedDiff}.`;
@@ -803,8 +816,18 @@ function injectActionButtons(text, bodyEl) {
   }
 }
 
+function updateTurnCounter() {
+  var el = document.getElementById('turn-counter');
+  if (!el) return;
+  var max = maxTurns || '—';
+  el.textContent = 'TOUR ' + currentTurn + ' / ' + max;
+  el.style.color = (maxTurns && currentTurn >= maxTurns * 0.8) ? 'var(--accent2)' : 'var(--muted)';
+}
+
 function continueToPhase2(btn) {
   btn.closest('.msg-actions').remove();
+  currentTurn++;
+  updateTurnCounter();
   addMessage('user','OK');
   conversationHistory.push({role:'user',content:'OK'});
   callAPI(null,false);
@@ -934,6 +957,7 @@ function resetGame(){
   document.getElementById('save-info').style.display='none';
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
+  currentTurn=0;maxTurns=0;updateTurnCounter();
   conversationHistory=[];
 }
 </script>
