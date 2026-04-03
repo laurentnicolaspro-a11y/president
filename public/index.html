@@ -873,10 +873,10 @@ function scrollToBottom(c){if(c)c.scrollTop=c.scrollHeight;}
 
 function scrollToMessage(c, msgDiv){
   if(!c||!msgDiv)return;
-  // Scroll vers le haut du nouveau message avec un petit délai pour le rendu
   setTimeout(function(){
-    msgDiv.scrollIntoView({behavior:'smooth', block:'start'});
-  }, 80);
+    var offset = msgDiv.offsetTop - c.offsetTop;
+    c.scrollTo({top: offset - 16, behavior:'smooth'});
+  }, 100);
 }
 function setLoading(val){isLoading=val;document.getElementById('typing').classList.toggle('active',val);}
 
