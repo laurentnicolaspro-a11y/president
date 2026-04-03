@@ -40,8 +40,6 @@
   .play-btn{position:relative;padding:1rem 3rem;background:transparent;border:2px solid var(--accent);color:var(--accent);font-family:'Orbitron',monospace;font-size:0.95rem;font-weight:700;letter-spacing:0.15em;cursor:pointer;transition:all 0.3s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);overflow:hidden;}
   .play-btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateX(-100%);transition:transform 0.3s;z-index:-1;}
   .play-btn:hover{color:#fff;box-shadow:var(--glow);}.play-btn:hover::before{transform:translateX(0);}
-  .rules-btn{padding:1rem 2rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
-  .rules-btn:hover{border-color:var(--muted);color:var(--text);}
   .legal-btn{padding:1rem 1.5rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
   .legal-btn:hover{border-color:var(--accent3);color:var(--accent3);}
   .resume-btn{padding:1rem 2rem;background:rgba(52,168,83,0.08);border:2px solid var(--accent3);color:var(--accent3);font-family:'Orbitron',monospace;font-size:0.85rem;letter-spacing:0.12em;cursor:pointer;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);position:relative;overflow:hidden;}
@@ -528,36 +526,36 @@ window.marked = {
 
 // ===== CHOIX CLIQUABLES PHASE 2 =====
 function renderChoices(container) {
-  // Ne jamais transformer les <ol> en boutons sauf si on est en phase 'playing'
-  if (gamePhase !== 'playing') {
-    return; // En init, waiting_country, negotiation : on laisse le texte tel quel
-  }
+  if (gamePhase !== 'playing') return;
   container.querySelectorAll('ol').forEach(function(ol) {
     var items = ol.querySelectorAll('li');
+    if (!items.length) return;
     var wrap = document.createElement('div');
     wrap.style.cssText = 'display:flex;flex-direction:column;gap:0.3rem;margin:0.5rem 0;';
-    var hasChoices = false;
     items.forEach(function(li, idx) {
       var text = li.textContent.trim();
       var num = idx + 1;
       var isCustom = text.toLowerCase().includes('personnalis') || num === 4;
       var btn = document.createElement('button');
       btn.className = 'choice-btn' + (isCustom ? ' custom' : '');
-      btn.innerHTML = '<strong>' + num + '.</strong> ' + text;
-      btn.onclick = (function(n, t, b, isC) {
+      // Style pointer-events sur les enfants pour éviter que <strong> capture le clic
+      btn.innerHTML = '<strong style="pointer-events:none">' + num + '.</strong> <span style="pointer-events:none">' + text + '</span>';
+      btn.addEventListener('click', (function(n, t, b, w, isC) {
         return function() {
+          if (b.disabled) return;
           if (isC) {
             openCustomModalFor('phase2', null);
           } else {
-            wrap.querySelectorAll('.choice-btn').forEach(function(x){x.disabled=true;});
-            b.disabled=false; b.classList.add('chosen');
+            w.querySelectorAll('.choice-btn').forEach(function(x){ x.disabled = true; });
+            b.disabled = false;
+            b.classList.add('chosen');
             sendChoiceMessage(n + '. ' + t);
           }
         };
-      })(num, text, btn, isCustom);
-      wrap.appendChild(btn); hasChoices = true;
+      })(num, text, btn, wrap, isCustom));
+      wrap.appendChild(btn);
     });
-    if (hasChoices) ol.replaceWith(wrap);
+    ol.replaceWith(wrap);
   });
 }
 
@@ -773,10 +771,18 @@ function injectActionButtons(text, bodyEl) {
   }
 
   // Bouton "CONTINUER → PHASE 2"
-  // Détection fiable : la Phase 1 contient toujours un tableau avec "Coffres" ou "Popularité"
-  // On ne dépend plus d'une phrase de l'IA qui peut varier
-  var hasPhase1Table = /coffres|popularit[ée]|taux de ch[oô]mage/i.test(text)
-    && /<table|^\|.+\|/im.test(text.replace(/\[NEWS:[^\]]*\]/,''));
+  // Détection fiable : la Phase 1 contient OBLIGATOIREMENT les deux tableaux côte à côte
+  // Détection Phase 1 fiable : les indicateurs doivent être dans des lignes de tableau Markdown
+  // On cherche des lignes "| Coffres..." etc. — la Phase 2 ne les a jamais sous cette forme
+  var tableLines = text.split('\n').filter(function(l){ return /^\|/.test(l.trim()); }).join('\n');
+  var indicateurCount = 0;
+  if (/coffres/i.test(tableLines)) indicateurCount++;
+  if (/popularit[ée]/i.test(tableLines)) indicateurCount++;
+  if (/taux de ch[oô]mage/i.test(tableLines)) indicateurCount++;
+  if (/tensions? sociales?/i.test(tableLines)) indicateurCount++;
+  if (/solde mensuel/i.test(tableLines)) indicateurCount++;
+  if (/croissance/i.test(tableLines)) indicateurCount++;
+  var hasPhase1Table = indicateurCount >= 4; // exige au moins 4 indicateurs en tableau
   var hasOKSignal = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
     || /tapez\s+(ok|continuer)/i.test(text)
     || /pour passer à la phase 2/i.test(text);
