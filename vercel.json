@@ -1,8 +1,8 @@
 {
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/ads.txt", "destination": "/ads.txt" },
-    { "source": "/og-image.png", "destination": "/og-image.png" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/ads.txt", "dest": "/ads.txt" },
+    { "src": "/og-image.png", "dest": "/og-image.png" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
