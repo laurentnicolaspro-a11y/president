@@ -764,7 +764,6 @@ async function callAPI(initMessage,isInit) {
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
     addMessage('ai',text);updateHUD(text);saveGame();
-    setTimeout(function(){var c=document.getElementById('chat-messages');if(c)c.scrollTop=c.scrollHeight;},800);
   }catch(err){addMessage('ai','⚠ Erreur : '+err.message+'\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.');}
   setLoading(false);
 }
