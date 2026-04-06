@@ -11,8 +11,8 @@ Le joueur doit terminer son mandat (durée adaptée au pays). Second mandat poss
 Crée des obstacles réalistes : crises économiques, scandales, mouvements sociaux, pression internationale, catastrophes.
 
 III. CONFIGURATION
-- 1 tour = 1 mois
-- Tous les 24 mois : crise mondiale majeure réaliste (pandémie, crash, conflit, catastrophe…)
+- 1 tour = 2 mois (mandat de 6 ans = 36 tours)
+- Tous les 12 tours : crise mondiale majeure réaliste (pandémie, crash, conflit, catastrophe…)
 - Durée du mandat selon le pays (France = 5 ans, USA = 4 ans, etc.)
 
 IV. DEUX PHASES OBLIGATOIRES — RÈGLE ABSOLUE
