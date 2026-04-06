@@ -252,6 +252,21 @@
   .result-btn-replay{border-color:var(--muted);color:var(--muted);}
   .result-btn-replay:hover{border-color:var(--text);color:var(--text);}
   @media(max-width:480px){.result-indicators{grid-template-columns:repeat(2,1fr);}}
+
+  /* ===== ÉCRAN DÉFAITE ===== */
+  #defeat-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;padding:2rem 1rem;}
+  #defeat-screen.active{display:block;}
+  .defeat-inner{max-width:640px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding-bottom:3rem;}
+  .defeat-title{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4vw,2rem);font-weight:900;letter-spacing:0.1em;color:var(--red);text-align:center;animation:critPulse 2s ease-in-out infinite;}
+  .defeat-meta{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.2em;text-align:center;}
+  .defeat-badge{padding:0.4rem 1.5rem;border:2px solid var(--red);color:var(--red);font-family:'Share Tech Mono',monospace;font-size:0.82rem;letter-spacing:0.18em;border-radius:4px;background:rgba(255,59,92,0.07);text-align:center;}
+  .defeat-intro{width:100%;font-size:0.88rem;color:rgba(230,237,243,0.85);line-height:1.85;font-family:'Rajdhani',sans-serif;border-left:3px solid var(--red);padding:0.9rem 1.2rem;background:rgba(255,59,92,0.05);border-radius:0 6px 6px 0;}
+  .defeat-stats{display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;}
+  .defeat-stat{display:flex;flex-direction:column;align-items:center;gap:0.2rem;}
+  .defeat-stat-val{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;color:var(--red);}
+  .defeat-stat-label{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;}
+  .defeat-divider{width:100%;border:none;border-top:1px solid rgba(255,59,92,0.15);}
+  .defeat-btns{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;}
   #custom-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #custom-modal.active{display:flex;}
   .custom-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:560px;width:100%;padding:1.8rem;border-radius:4px;}
@@ -516,6 +531,34 @@
       <button class="result-btn result-btn-share" onclick="shareResult()">⬆ PARTAGER</button>
       <button class="result-btn result-btn-rank" onclick="openLeaderboard()">🏆 CLASSEMENT</button>
       <button class="result-btn result-btn-replay" onclick="replayGame()">↺ REJOUER</button>
+    </div>
+  </div>
+</div>
+
+<div id="defeat-screen">
+  <div class="defeat-inner">
+    <div class="defeat-title">MANDAT INTERROMPU</div>
+    <div class="defeat-meta" id="defeat-meta">— · — · TOUR 0 / 36</div>
+    <div class="defeat-badge" id="defeat-badge">☠ RENVERSÉ PAR L'HISTOIRE</div>
+    <div class="defeat-intro" id="defeat-intro">Chargement du bilan...</div>
+    <div class="defeat-stats">
+      <div class="defeat-stat">
+        <div class="defeat-stat-val" id="defeat-turns">0</div>
+        <div class="defeat-stat-label">TOURS SURVÉCUS</div>
+      </div>
+      <div class="defeat-stat">
+        <div class="defeat-stat-val" id="defeat-pop">—</div>
+        <div class="defeat-stat-label">POPULARITÉ FINALE</div>
+      </div>
+      <div class="defeat-stat">
+        <div class="defeat-stat-val" id="defeat-tensions">—</div>
+        <div class="defeat-stat-label">TENSIONS FINALES</div>
+      </div>
+    </div>
+    <hr class="defeat-divider">
+    <div class="defeat-btns">
+      <button class="result-btn result-btn-replay" onclick="replayGame()">↺ REJOUER</button>
+      <button class="result-btn result-btn-rank" onclick="openLeaderboard()">🏆 CLASSEMENT</button>
     </div>
   </div>
 </div>
@@ -1258,8 +1301,11 @@ function addMessage(role,content){
       Stats.record(body,dateLabel);
       enrichTables(body);
       detectAudioMode(body);
-      // injectActionButtons EN PREMIER → met à jour gamePhase si négociation
-      // NE fait plus de return interne — renderChoices s'exécute toujours après
+      // Détecter GAME OVER
+      if(/\[GAME OVER\]/i.test(content)) {
+        setTimeout(function(){ showDefeatScreen(); }, 1500);
+        return;
+      }
       injectActionButtons(content, body);
       renderChoices(body);
     },50);
@@ -1606,7 +1652,36 @@ async function showResultScreen() {
   submitScore(lastResultData);
 }
 
-// ===== CLASSEMENT EN LIGNE (Vercel KV) =====
+async function showDefeatScreen() {
+  var country = document.getElementById('hud-country').textContent || '?';
+  var diff = document.getElementById('hud-diff').textContent || '?';
+
+  document.getElementById('defeat-meta').textContent =
+    (playerPseudo ? playerPseudo + ' · ' : '') +
+    country.toUpperCase() + ' · ' + diff.toUpperCase() +
+    ' · TOUR ' + currentTurn + ' / ' + maxTurns;
+  document.getElementById('defeat-turns').textContent = currentTurn;
+  document.getElementById('defeat-pop').textContent =
+    gameState.popularite !== null ? gameState.popularite + '%' : '—';
+  document.getElementById('defeat-tensions').textContent =
+    gameState.tensions !== null ? gameState.tensions + '/10' : '—';
+
+  document.getElementById('defeat-intro').textContent = 'Génération du bilan...';
+  document.getElementById('defeat-screen').classList.add('active');
+  document.getElementById('game').classList.remove('active');
+  Audio.stop();
+  clearSave();
+
+  // Bilan narratif de la défaite par Gemini
+  try {
+    var prompt = 'En 2-3 phrases concises et dramatiques, raconte la chute du joueur qui vient de perdre son mandat à la tête de ' + country + ' au tour ' + currentTurn + ' sur 36. Style historique sombre. Pas de titre, juste le texte.';
+    var resp = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}], lang: ({'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang]||'français')})});
+    var data = await resp.json();
+    document.getElementById('defeat-intro').textContent = data.text || '';
+  } catch(e) {
+    document.getElementById('defeat-intro').textContent = 'Votre mandat a pris fin prématurément.';
+  }
+}
 async function submitScore(data) {
   try {
     await fetch('/api/scores', {
@@ -1669,6 +1744,7 @@ function shareResult() {
 
 function replayGame() {
   document.getElementById('result-screen').classList.remove('active');
+  document.getElementById('defeat-screen').classList.remove('active');
   document.getElementById('landing').style.display = '';
   Stats.reset();clearSave();
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
