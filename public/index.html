@@ -205,6 +205,25 @@
   .country-confirm-btn:hover{background:#2d9e47;box-shadow:0 0 20px rgba(52,168,83,0.4);}
   .country-confirm-btn:disabled{opacity:0.35;cursor:not-allowed;}
 
+  /* ===== MODALE PSEUDO ===== */
+  #pseudo-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.97);z-index:600;align-items:center;justify-content:center;padding:1.5rem;}
+  #pseudo-modal.active{display:flex;}
+  .pseudo-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);max-width:420px;width:100%;padding:2rem;border-radius:4px;animation:modalIn 0.3s ease-out;}
+  .pseudo-box h2{font-family:'Orbitron',monospace;color:var(--accent);font-size:1rem;letter-spacing:0.12em;margin-bottom:0.5rem;}
+  .pseudo-box p{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.6;}
+  .pseudo-input-wrap{position:relative;margin-bottom:1.2rem;}
+  .pseudo-input-wrap label{display:block;font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:0.4rem;}
+  #pseudo-input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1.1rem;padding:0.7rem 1rem;border-radius:4px;outline:none;transition:border-color 0.3s;letter-spacing:0.05em;}
+  #pseudo-input:focus{border-color:var(--accent);}
+  #pseudo-input::placeholder{color:var(--muted);}
+  .pseudo-confirm-btn{width:100%;padding:0.8rem;background:var(--accent);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:0.12em;cursor:pointer;border-radius:4px;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+  .pseudo-confirm-btn:hover{background:#5a9cf5;box-shadow:var(--glow);}
+  .pseudo-confirm-btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .pseudo-display{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:0.5rem;}
+  .pseudo-display span{color:var(--accent);}
+  .pseudo-change-btn{background:none;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.65rem;cursor:pointer;text-decoration:underline;padding:0;}
+  .pseudo-change-btn:hover{color:var(--accent);}
+
   /* ===== ÉCRAN RÉSULTAT ===== */
   #result-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;padding:2rem 1rem;}
   #result-screen.active{display:block;}
@@ -432,6 +451,12 @@
     <button class="legal-btn" onclick="openLeaderboard()">🏆 CLASSEMENT</button>
     <button class="legal-btn" onclick="document.getElementById('legal-modal').classList.add('active')">MENTIONS LÉGALES</button>
   </div>
+  <div id="pseudo-display" style="margin-top:0.8rem;display:none;">
+    <div class="pseudo-display">
+      <span id="pseudo-display-name"></span>
+      <button class="pseudo-change-btn" onclick="changePseudo()">✎ changer</button>
+    </div>
+  </div>
   <div id="save-info" style="margin-top:2rem;display:none;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;" id="save-desc"></div>
     <button class="resume-btn" onclick="resumeGame()">↺ REPRENDRE LA PARTIE</button>
@@ -492,6 +517,23 @@
       <button class="result-btn result-btn-rank" onclick="openLeaderboard()">🏆 CLASSEMENT</button>
       <button class="result-btn result-btn-replay" onclick="replayGame()">↺ REJOUER</button>
     </div>
+  </div>
+</div>
+
+<!-- MODALE PSEUDO -->
+<div id="pseudo-modal">
+  <div class="pseudo-box">
+    <h2>👤 VOTRE IDENTITÉ</h2>
+    <p>Choisissez un pseudo pour apparaître dans le classement mondial. Il sera sauvegardé pour vos prochaines parties.</p>
+    <div class="pseudo-input-wrap">
+      <label>VOTRE PSEUDO</label>
+      <input type="text" id="pseudo-input" placeholder="Ex : Napoleon, Merkel42..." maxlength="20" autocomplete="off"
+        oninput="document.getElementById('pseudo-confirm-btn').disabled=!this.value.trim()"
+        onkeydown="if(event.key==='Enter'&&this.value.trim())confirmPseudo()" />
+    </div>
+    <button class="pseudo-confirm-btn" id="pseudo-confirm-btn" onclick="confirmPseudo()" disabled>
+      ▶ CONFIRMER ET JOUER
+    </button>
   </div>
 </div>
 
@@ -1045,6 +1087,7 @@ window.addEventListener('DOMContentLoaded',function(){
     document.getElementById('save-info').style.display='block';
   }
   Stats.load();
+  loadPseudo();
 });
 
 function resumeGame() {
@@ -1066,17 +1109,6 @@ function resumeGame() {
   },1500);
 }
 
-function startGame() {
-  if(!Audio.isRunning())Audio.toggle();
-  document.getElementById('loading').classList.add('active');
-  setTimeout(function(){
-    document.getElementById('loading').classList.remove('active');
-    document.getElementById('landing').style.display='none';
-    document.getElementById('game').classList.add('active');
-    conversationHistory=[];Stats.reset();gamePhase='init';
-    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle 2026 et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté. LANGUE DU JEU : joue et réponds EXCLUSIVEMENT en " + {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang] + ".",true);
-  },2000);
-}
 
 async function callAPI(initMessage,isInit) {
   setLoading(true);
@@ -1401,7 +1433,68 @@ function resetGame(){
   conversationHistory=[];
 }
 
-// ===== SYSTÈME DE SCORE =====
+// ===== PSEUDO JOUEUR =====
+var playerPseudo = '';
+
+function loadPseudo() {
+  try { playerPseudo = localStorage.getItem('president_pseudo') || ''; } catch(e) {}
+  updatePseudoDisplay();
+}
+
+function updatePseudoDisplay() {
+  var el = document.getElementById('pseudo-display');
+  var name = document.getElementById('pseudo-display-name');
+  if (!el || !name) return;
+  if (playerPseudo) {
+    name.textContent = '👤 ' + playerPseudo;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function confirmPseudo() {
+  var val = document.getElementById('pseudo-input').value.trim();
+  if (!val) return;
+  playerPseudo = val.slice(0, 20);
+  try { localStorage.setItem('president_pseudo', playerPseudo); } catch(e) {}
+  document.getElementById('pseudo-modal').classList.remove('active');
+  updatePseudoDisplay();
+  // Lancer le jeu après confirmation
+  launchGame();
+}
+
+function changePseudo() {
+  document.getElementById('pseudo-input').value = playerPseudo || '';
+  document.getElementById('pseudo-confirm-btn').disabled = !playerPseudo;
+  document.getElementById('pseudo-modal').classList.add('active');
+  setTimeout(() => document.getElementById('pseudo-input').focus(), 100);
+}
+
+function startGame() {
+  if (!playerPseudo) {
+    // Pas encore de pseudo — demander
+    document.getElementById('pseudo-input').value = '';
+    document.getElementById('pseudo-confirm-btn').disabled = true;
+    document.getElementById('pseudo-modal').classList.add('active');
+    setTimeout(() => document.getElementById('pseudo-input').focus(), 100);
+  } else {
+    launchGame();
+  }
+}
+
+function launchGame() {
+  if(!Audio.isRunning()) Audio.toggle();
+  document.getElementById('loading').classList.add('active');
+  setTimeout(function(){
+    document.getElementById('loading').classList.remove('active');
+    document.getElementById('landing').style.display='none';
+    document.getElementById('game').classList.add('active');
+    conversationHistory=[];Stats.reset();gamePhase='init';
+    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle 2026 et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté. LANGUE DU JEU : joue et réponds EXCLUSIVEMENT en " + {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang] + ".",true);
+  },2000);
+}
+
 var initialState = {};
 var finalScore = 0;
 var lastResultData = {};
@@ -1484,7 +1577,7 @@ async function showResultScreen() {
   finalScore = scoreData.total;
   var note = getNote(finalScore);
 
-  document.getElementById('result-meta').textContent = country.toUpperCase() + ' · ' + diff.toUpperCase() + ' · ' + currentTurn + ' TOURS';
+  document.getElementById('result-meta').textContent = (playerPseudo ? playerPseudo + ' · ' : '') + country.toUpperCase() + ' · ' + diff.toUpperCase() + ' · ' + currentTurn + ' TOURS';
   document.getElementById('result-score').textContent = finalScore.toLocaleString();
   document.getElementById('result-score-detail').textContent = 'Score base ' + scoreData.base + ' × difficulté ×' + scoreData.mult;
   document.getElementById('result-note').textContent = '⭐ ' + note.label.toUpperCase();
@@ -1509,7 +1602,7 @@ async function showResultScreen() {
   }
 
   // Envoyer le score en ligne
-  lastResultData = {name: country, score: finalScore, diff, turns: currentTurn, note: note.label};
+  lastResultData = {name: playerPseudo || document.getElementById('hud-country').textContent, score: finalScore, diff, turns: currentTurn, note: note.label};
   submitScore(lastResultData);
 }
 
