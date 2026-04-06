@@ -205,7 +205,34 @@
   .country-confirm-btn:hover{background:#2d9e47;box-shadow:0 0 20px rgba(52,168,83,0.4);}
   .country-confirm-btn:disabled{opacity:0.35;cursor:not-allowed;}
 
-  /* ===== MODALE PROPOSITION PERSONNALISÉE ===== */
+  /* ===== ÉCRAN RÉSULTAT ===== */
+  #result-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;padding:2rem 1rem;}
+  #result-screen.active{display:block;}
+  .result-inner{max-width:640px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding-bottom:3rem;}
+  .result-title{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:900;letter-spacing:0.1em;background:linear-gradient(135deg,var(--accent),#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;animation:titleGlow 2s ease-in-out infinite alternate;}
+  .result-meta{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.2em;text-align:center;}
+  .result-intro{width:100%;font-size:0.88rem;color:rgba(230,237,243,0.85);line-height:1.85;font-family:'Rajdhani',sans-serif;border-left:3px solid var(--accent);padding:0.9rem 1.2rem;background:rgba(66,133,244,0.06);border-radius:0 6px 6px 0;}
+  .result-note{padding:0.5rem 2rem;border:2px solid var(--accent4);color:var(--accent4);font-family:'Share Tech Mono',monospace;font-size:0.9rem;letter-spacing:0.18em;border-radius:4px;background:rgba(251,188,4,0.07);text-align:center;}
+  .result-score-block{display:flex;flex-direction:column;align-items:center;gap:0.3rem;}
+  .result-score-label{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--muted);letter-spacing:0.2em;}
+  .result-score-value{font-family:'Orbitron',monospace;font-size:3rem;font-weight:900;color:var(--accent);letter-spacing:0.05em;}
+  .result-score-detail{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--muted);}
+  .result-divider{width:100%;border:none;border-top:1px solid rgba(255,255,255,0.07);}
+  .result-indicators{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;width:100%;}
+  .result-ind{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:0.7rem 0.9rem;}
+  .result-ind-label{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:0.35rem;}
+  .result-ind-row{display:flex;align-items:center;gap:0.4rem;font-family:'Share Tech Mono',monospace;font-size:0.78rem;}
+  .result-ind-start{color:var(--muted);}
+  .result-ind-arrow{font-size:0.65rem;}
+  .result-btns{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;width:100%;}
+  .result-btn{padding:0.7rem 1.5rem;border:2px solid;font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;border-radius:4px;background:transparent;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+  .result-btn-share{border-color:var(--accent3);color:var(--accent3);}
+  .result-btn-share:hover{background:var(--accent3);color:#fff;}
+  .result-btn-rank{border-color:var(--accent);color:var(--accent);}
+  .result-btn-rank:hover{background:var(--accent);color:#fff;}
+  .result-btn-replay{border-color:var(--muted);color:var(--muted);}
+  .result-btn-replay:hover{border-color:var(--text);color:var(--text);}
+  @media(max-width:480px){.result-indicators{grid-template-columns:repeat(2,1fr);}}
   #custom-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #custom-modal.active{display:flex;}
   .custom-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:560px;width:100%;padding:1.8rem;border-radius:4px;}
@@ -442,6 +469,37 @@
     <button class="country-confirm-btn" id="country-confirm-btn" onclick="confirmCountry()" disabled>
       ▶ CONFIRMER ET COMMENCER
     </button>
+  </div>
+</div>
+
+<div id="result-screen">
+  <div class="result-inner">
+    <div class="result-title">FIN DE MANDAT</div>
+    <div class="result-meta" id="result-meta">— · — · 36 TOURS</div>
+    <div class="result-intro" id="result-intro">Chargement du bilan...</div>
+    <div class="result-note" id="result-note">—</div>
+    <div class="result-score-block">
+      <div class="result-score-label">SCORE FINAL</div>
+      <div class="result-score-value" id="result-score">0</div>
+      <div class="result-score-detail" id="result-score-detail">Score base 0 × difficulté ×1</div>
+    </div>
+    <hr class="result-divider">
+    <div class="result-indicators" id="result-indicators"></div>
+    <hr class="result-divider">
+    <div class="result-btns">
+      <button class="result-btn result-btn-share" onclick="shareResult()">⬆ PARTAGER</button>
+      <button class="result-btn result-btn-rank" onclick="openLeaderboard()">🏆 CLASSEMENT</button>
+      <button class="result-btn result-btn-replay" onclick="replayGame()">↺ REJOUER</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE CLASSEMENT -->
+<div id="leaderboard-modal" style="display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:500;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:560px;width:100%;padding:1.8rem;border-radius:4px;max-height:85vh;overflow-y:auto;">
+    <h2 style="font-family:'Orbitron',monospace;color:var(--accent4);font-size:0.95rem;letter-spacing:0.12em;margin-bottom:1.5rem;text-align:center;">🏆 CLASSEMENT MONDIAL — TOP 20</h2>
+    <div id="leaderboard-content" style="font-family:'Share Tech Mono',monospace;font-size:0.8rem;">Chargement...</div>
+    <button onclick="document.getElementById('leaderboard-modal').style.display='none'" style="margin-top:1.5rem;width:100%;padding:0.7rem;background:none;border:1px solid var(--accent);color:var(--accent);font-family:'Orbitron',monospace;font-size:0.78rem;letter-spacing:0.1em;cursor:pointer;border-radius:2px;">FERMER</button>
   </div>
 </div>
 
@@ -747,6 +805,7 @@ function confirmCountry() {
   addMessage('user', msg);
   conversationHistory.push({ role: 'user', content: msg });
   gamePhase = 'playing';
+  saveInitialState();
   callAPI(null, false);
 }
 
@@ -1101,6 +1160,11 @@ function continueToPhase2(btn) {
   btn.closest('.msg-actions').remove();
   currentTurn++;
   updateTurnCounter();
+  // Fin de mandat ?
+  if (maxTurns && currentTurn >= maxTurns) {
+    showResultScreen();
+    return;
+  }
   var stateStr = buildStateString();
   var msgForGemini = stateStr ? 'OK ' + stateStr : 'OK';
   addMessage('user', 'OK');
@@ -1308,6 +1372,191 @@ function resetGame(){
   currentTurn=0;maxTurns=0;updateTurnCounter();
   conversationHistory=[];
 }
+
+// ===== SYSTÈME DE SCORE =====
+var initialState = {};
+var finalScore = 0;
+var lastResultData = {};
+
+var DIFF_MULTIPLIERS = {'Facile':1,'Normal':1.5,'Difficile':2,'Réaliste':3};
+var NOTES = [
+  {min:0,    label:'Président oublié',    color:'var(--muted)'},
+  {min:2000, label:'Dirigeant convenable', color:'var(--accent4)'},
+  {min:4000, label:'Réformateur sérieux',  color:'var(--accent4)'},
+  {min:6000, label:'Grand réformateur',    color:'var(--accent)'},
+  {min:8000, label:'Légende politique',    color:'var(--accent3)'},
+  {min:10000,label:'Président légendaire', color:'var(--accent2)'}
+];
+
+function getNote(score) {
+  var note = NOTES[0];
+  for (var i = 0; i < NOTES.length; i++) { if (score >= NOTES[i].min) note = NOTES[i]; }
+  return note;
+}
+
+function saveInitialState() {
+  initialState = JSON.parse(JSON.stringify(gameState));
+}
+
+function computeScore() {
+  var diff = document.getElementById('hud-diff').textContent || 'Facile';
+  var mult = DIFF_MULTIPLIERS[diff] || 1;
+  var base = 0;
+
+  function delta(key, goodIfPositive, weight) {
+    var ini = initialState[key], fin = gameState[key];
+    if (ini === null || ini === undefined || fin === null || fin === undefined) return 0;
+    var d = goodIfPositive ? (fin - ini) : (ini - fin);
+    return Math.round(d * weight);
+  }
+
+  base += delta('popularite', true,  25);
+  base += delta('tensions',   false, 20);
+  base += delta('croissance', true,  20);
+  base += delta('chomage',    false, 15);
+  base += delta('coffres',    true,  10);
+  base += delta('dette',      false, 10);
+  base += 500; // bonus mandat terminé
+
+  base = Math.max(0, base);
+  var total = Math.round(base * mult);
+  return {total, base, mult, diff};
+}
+
+function buildIndicatorsHTML() {
+  var inds = [
+    {key:'popularite', label:'POPULARITÉ',  unit:'%',    goodIfPositive:true},
+    {key:'tensions',   label:'TENSIONS',    unit:'/10',  goodIfPositive:false},
+    {key:'croissance', label:'CROISSANCE',  unit:'%',    goodIfPositive:true},
+    {key:'chomage',    label:'CHÔMAGE',     unit:'%',    goodIfPositive:false},
+    {key:'dette',      label:'DETTE',       unit:'% PIB',goodIfPositive:false},
+    {key:'coffres',    label:'COFFRES',     unit:' Mds', goodIfPositive:true}
+  ];
+  return inds.map(function(ind){
+    var ini = initialState[ind.key], fin = gameState[ind.key];
+    if (ini === null || ini === undefined || fin === null || fin === undefined) return '';
+    var improved = ind.goodIfPositive ? (fin > ini) : (fin < ini);
+    var same = fin === ini;
+    var color = same ? 'var(--muted)' : improved ? '#34a853' : '#ff3b5c';
+    var arrow = same ? '—' : improved ? '▲' : '▼';
+    return '<div class="result-ind">'
+      +'<div class="result-ind-label">'+ind.label+'</div>'
+      +'<div class="result-ind-row">'
+      +'<span class="result-ind-start">'+ini+ind.unit+'</span>'
+      +'<span class="result-ind-arrow" style="color:'+color+'">'+arrow+'</span>'
+      +'<span class="result-ind-end" style="color:'+color+'">'+fin+ind.unit+'</span>'
+      +'</div></div>';
+  }).join('');
+}
+
+async function showResultScreen() {
+  var country = document.getElementById('hud-country').textContent || '?';
+  var diff = document.getElementById('hud-diff').textContent || '?';
+  var scoreData = computeScore();
+  finalScore = scoreData.total;
+  var note = getNote(finalScore);
+
+  document.getElementById('result-meta').textContent = country.toUpperCase() + ' · ' + diff.toUpperCase() + ' · ' + currentTurn + ' TOURS';
+  document.getElementById('result-score').textContent = finalScore.toLocaleString();
+  document.getElementById('result-score-detail').textContent = 'Score base ' + scoreData.base + ' × difficulté ×' + scoreData.mult;
+  document.getElementById('result-note').textContent = '⭐ ' + note.label.toUpperCase();
+  document.getElementById('result-note').style.borderColor = note.color;
+  document.getElementById('result-note').style.color = note.color;
+  document.getElementById('result-indicators').innerHTML = buildIndicatorsHTML();
+
+  // Intro générée par Gemini
+  document.getElementById('result-intro').textContent = 'Génération du bilan de votre mandat...';
+  document.getElementById('result-screen').classList.add('active');
+  document.getElementById('game').classList.remove('active');
+  Audio.stop();
+
+  // Demander à Gemini un bilan narratif
+  try {
+    var prompt = 'En 2-3 phrases concises, fais le bilan historique du mandat du joueur qui vient de terminer ses 6 ans à la tête de '+country+'. Mentionne les grandes réalisations ou échecs basés sur l\'évolution des indicateurs. Ton neutre et historique. Pas de titre, juste le texte.';
+    var resp = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}], lang: ({'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang]||'français')})});
+    var data = await resp.json();
+    document.getElementById('result-intro').textContent = data.text || '';
+  } catch(e) {
+    document.getElementById('result-intro').textContent = 'Votre mandat de 6 ans est terminé.';
+  }
+
+  // Envoyer le score en ligne
+  lastResultData = {name: country, score: finalScore, diff, turns: currentTurn, note: note.label};
+  submitScore(lastResultData);
+}
+
+// ===== CLASSEMENT EN LIGNE (Vercel KV) =====
+async function submitScore(data) {
+  try {
+    await fetch('/api/scores', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+  } catch(e) {}
+}
+
+async function openLeaderboard() {
+  document.getElementById('leaderboard-modal').style.display = 'flex';
+  document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--muted);text-align:center;padding:2rem;">Chargement...</div>';
+  try {
+    var resp = await fetch('/api/scores');
+    var data = await resp.json();
+    if (!data.scores || !data.scores.length) {
+      document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--muted);text-align:center;padding:2rem;">Aucun score enregistré.</div>';
+      return;
+    }
+    var html = '<table style="width:100%;border-collapse:collapse;">'
+      +'<tr style="color:var(--muted);font-size:0.65rem;border-bottom:1px solid var(--border);">'
+      +'<th style="padding:0.4rem;text-align:left;">#</th>'
+      +'<th style="padding:0.4rem;text-align:left;">PAYS</th>'
+      +'<th style="padding:0.4rem;text-align:left;">NOTE</th>'
+      +'<th style="padding:0.4rem;text-align:left;">DIFF.</th>'
+      +'<th style="padding:0.4rem;text-align:right;">SCORE</th>'
+      +'</tr>';
+    data.scores.forEach(function(s, i) {
+      var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      var isMe = lastResultData.score === s.score && lastResultData.name === s.name;
+      var rowStyle = isMe ? 'background:rgba(66,133,244,0.08);' : '';
+      html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);'+rowStyle+'">'
+        +'<td style="padding:0.55rem 0.4rem;color:var(--muted);">'+(medal||('#'+(i+1)))+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;color:var(--text);">'+s.name+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;color:var(--accent4);font-size:0.7rem;">'+s.note+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;color:var(--muted);">'+s.diff+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;text-align:right;color:var(--accent);font-weight:700;">'+s.score.toLocaleString()+'</td>'
+        +'</tr>';
+    });
+    html += '</table>';
+    document.getElementById('leaderboard-content').innerHTML = html;
+  } catch(e) {
+    document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--red);text-align:center;padding:2rem;">Erreur de chargement.</div>';
+  }
+}
+
+function shareResult() {
+  var country = document.getElementById('hud-country').textContent || '?';
+  var note = document.getElementById('result-note').textContent.replace('⭐ ','');
+  var text = 'J\'ai terminé mon mandat en '+country+' avec '+finalScore.toLocaleString()+' points ! 🌍\n'+note+'\n#PrésidentLeJeu\npresident-wine.vercel.app';
+  if (navigator.share) {
+    navigator.share({title:'Président le Jeu', text});
+  } else {
+    navigator.clipboard.writeText(text).then(function(){
+      alert('Score copié dans le presse-papiers !');
+    });
+  }
+}
+
+function replayGame() {
+  document.getElementById('result-screen').classList.remove('active');
+  document.getElementById('landing').style.display = '';
+  Stats.reset();clearSave();
+  gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
+  prevState={};initialState={};
+  document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
+  currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
+}
+
 </script>
 </body>
 </html>
