@@ -716,7 +716,40 @@ const TRANSLATIONS = {
     relanceMsg: "La discussion semble bloquée ou bugée. Reprends exactement là où on en était et continue le jeu normalement.",
     abandonConfirm: 'Abandonner la partie ?',
     aiHeader: '✦ GEMINI · PRÉSIDENT LE JEU', userHeader: '▶ VOUS',
-  },
+    // Écran résultat
+    resultTitle: 'FIN DE MANDAT',
+    resultScoreLabel: 'SCORE FINAL',
+    resultScoreDetail: 'Score base {base} × difficulté ×{mult}',
+    resultShare: '⬆ PARTAGER', resultRank: '🏆 CLASSEMENT', resultReplay: '↺ REJOUER',
+    resultLoading: 'Génération du bilan de votre mandat...',
+    resultFallback: 'Votre mandat de 6 ans est terminé.',
+    resultSharedText: 'J\'ai terminé mon mandat en {country} avec {score} points ! 🌍\n{note}\n#PrésidentLeJeu\npresident-wine.vercel.app',
+    resultCopied: 'Score copié dans le presse-papiers !',
+    // Notes historiques
+    note0: 'Président oublié', note1: 'Dirigeant convenable', note2: 'Réformateur sérieux',
+    note3: 'Grand réformateur', note4: 'Légende politique', note5: 'Président légendaire',
+    // Indicateurs résultat
+    indPop: 'POPULARITÉ', indTensions: 'TENSIONS', indCroissance: 'CROISSANCE',
+    indChomage: 'CHÔMAGE', indDette: 'DETTE', indCoffres: 'COFFRES',
+    // Écran défaite
+    defeatTitle: 'MANDAT INTERROMPU',
+    defeatBadge: '☠ RENVERSÉ PAR L\'HISTOIRE',
+    defeatTurns: 'TOURS SURVÉCUS', defeatPop: 'POPULARITÉ FINALE', defeatTensions: 'TENSIONS FINALES',
+    defeatReplay: '↺ REJOUER', defeatRank: '🏆 CLASSEMENT',
+    defeatLoading: 'Génération du bilan...',
+    defeatFallback: 'Votre mandat a pris fin prématurément.',
+    // Pseudo
+    pseudoTitle: '👤 VOTRE IDENTITÉ',
+    pseudoDesc: 'Choisissez un pseudo pour apparaître dans le classement mondial. Il sera sauvegardé pour vos prochaines parties.',
+    pseudoLabel: 'VOTRE PSEUDO',
+    pseudoPlaceholder: 'Ex : Napoleon, Merkel42...',
+    pseudoConfirm: '▶ CONFIRMER ET JOUER',
+    // Classement
+    lbTitle: '🏆 CLASSEMENT MONDIAL — TOP 20',
+    lbEmpty: 'Aucun score enregistré.', lbError: 'Erreur de chargement.',
+    lbLoading: 'Chargement...', lbClose: 'FERMER',
+    lbMe: '★ = votre score · mis à jour en temps réel',
+    lbColRank: '#', lbColName: 'PSEUDO', lbColNote: 'NOTE', lbColDiff: 'DIFF.', lbColScore: 'SCORE',
   en: {
     play: '▶ PLAY', legal: 'LEGAL NOTICE', resume: '↺ RESUME GAME',
     leaderboard: '🏆 LEADERBOARD',
@@ -747,7 +780,34 @@ const TRANSLATIONS = {
     relanceMsg: "The discussion seems stuck or bugged. Resume exactly where we left off and continue the game normally.",
     abandonConfirm: 'Abandon the game?',
     aiHeader: '✦ GEMINI · PRESIDENT THE GAME', userHeader: '▶ YOU',
-  },
+    resultTitle: 'END OF MANDATE',
+    resultScoreLabel: 'FINAL SCORE',
+    resultScoreDetail: 'Base score {base} × difficulty ×{mult}',
+    resultShare: '⬆ SHARE', resultRank: '🏆 LEADERBOARD', resultReplay: '↺ REPLAY',
+    resultLoading: 'Generating your mandate summary...',
+    resultFallback: 'Your 6-year mandate is over.',
+    resultSharedText: 'I completed my mandate in {country} with {score} points! 🌍\n{note}\n#PresidentTheGame\npresident-wine.vercel.app',
+    resultCopied: 'Score copied to clipboard!',
+    note0: 'Forgotten President', note1: 'Decent Leader', note2: 'Serious Reformer',
+    note3: 'Great Reformer', note4: 'Political Legend', note5: 'Legendary President',
+    indPop: 'POPULARITY', indTensions: 'TENSIONS', indCroissance: 'GROWTH',
+    indChomage: 'UNEMPLOYMENT', indDette: 'DEBT', indCoffres: 'TREASURY',
+    defeatTitle: 'MANDATE INTERRUPTED',
+    defeatBadge: '☠ OVERTHROWN BY HISTORY',
+    defeatTurns: 'TURNS SURVIVED', defeatPop: 'FINAL POPULARITY', defeatTensions: 'FINAL TENSIONS',
+    defeatReplay: '↺ REPLAY', defeatRank: '🏆 LEADERBOARD',
+    defeatLoading: 'Generating summary...',
+    defeatFallback: 'Your mandate ended prematurely.',
+    pseudoTitle: '👤 YOUR IDENTITY',
+    pseudoDesc: 'Choose a username to appear on the global leaderboard. It will be saved for your next games.',
+    pseudoLabel: 'YOUR USERNAME',
+    pseudoPlaceholder: 'Ex: Napoleon, Merkel42...',
+    pseudoConfirm: '▶ CONFIRM AND PLAY',
+    lbTitle: '🏆 GLOBAL LEADERBOARD — TOP 20',
+    lbEmpty: 'No scores recorded.', lbError: 'Loading error.',
+    lbLoading: 'Loading...', lbClose: 'CLOSE',
+    lbMe: '★ = your score · updated in real time',
+    lbColRank: '#', lbColName: 'USERNAME', lbColNote: 'TITLE', lbColDiff: 'DIFF.', lbColScore: 'SCORE',
   es: {
     play: '▶ JUGAR', legal: 'AVISO LEGAL', resume: '↺ CONTINUAR PARTIDA',
     leaderboard: '🏆 CLASIFICACIÓN',
@@ -778,6 +838,34 @@ const TRANSLATIONS = {
     relanceMsg: "La discusión parece bloqueada o con errores. Retoma exactamente donde estábamos y continúa el juego normalmente.",
     abandonConfirm: '¿Abandonar la partida?',
     aiHeader: '✦ GEMINI · PRESIDENTE EL JUEGO', userHeader: '▶ TÚ',
+    resultTitle: 'FIN DEL MANDATO',
+    resultScoreLabel: 'PUNTUACIÓN FINAL',
+    resultScoreDetail: 'Puntuación base {base} × dificultad ×{mult}',
+    resultShare: '⬆ COMPARTIR', resultRank: '🏆 CLASIFICACIÓN', resultReplay: '↺ REJUGAR',
+    resultLoading: 'Generando el resumen de tu mandato...',
+    resultFallback: 'Tu mandato de 6 años ha terminado.',
+    resultSharedText: '¡Completé mi mandato en {country} con {score} puntos! 🌍\n{note}\n#PresidenteElJuego\npresident-wine.vercel.app',
+    resultCopied: '¡Puntuación copiada al portapapeles!',
+    note0: 'Presidente olvidado', note1: 'Líder decente', note2: 'Reformador serio',
+    note3: 'Gran reformador', note4: 'Leyenda política', note5: 'Presidente legendario',
+    indPop: 'POPULARIDAD', indTensions: 'TENSIONES', indCroissance: 'CRECIMIENTO',
+    indChomage: 'DESEMPLEO', indDette: 'DEUDA', indCoffres: 'TESORO',
+    defeatTitle: 'MANDATO INTERRUMPIDO',
+    defeatBadge: '☠ DERROCADO POR LA HISTORIA',
+    defeatTurns: 'TURNOS SOBREVIVIDOS', defeatPop: 'POPULARIDAD FINAL', defeatTensions: 'TENSIONES FINALES',
+    defeatReplay: '↺ REJUGAR', defeatRank: '🏆 CLASIFICACIÓN',
+    defeatLoading: 'Generando resumen...',
+    defeatFallback: 'Tu mandato terminó prematuramente.',
+    pseudoTitle: '👤 TU IDENTIDAD',
+    pseudoDesc: 'Elige un apodo para aparecer en la clasificación mundial. Se guardará para tus próximas partidas.',
+    pseudoLabel: 'TU APODO',
+    pseudoPlaceholder: 'Ej: Napoleon, Merkel42...',
+    pseudoConfirm: '▶ CONFIRMAR Y JUGAR',
+    lbTitle: '🏆 CLASIFICACIÓN MUNDIAL — TOP 20',
+    lbEmpty: 'No hay puntuaciones registradas.', lbError: 'Error de carga.',
+    lbLoading: 'Cargando...', lbClose: 'CERRAR',
+    lbMe: '★ = tu puntuación · actualizado en tiempo real',
+    lbColRank: '#', lbColName: 'APODO', lbColNote: 'TÍTULO', lbColDiff: 'DIF.', lbColScore: 'PUNTOS',
   },
   de: {
     play: '▶ SPIELEN', legal: 'IMPRESSUM', resume: '↺ SPIEL FORTSETZEN',
@@ -809,7 +897,34 @@ const TRANSLATIONS = {
     relanceMsg: "Die Diskussion scheint blockiert oder fehlerhaft. Mache genau dort weiter, wo wir aufgehört haben, und führe das Spiel normal fort.",
     abandonConfirm: 'Spiel aufgeben?',
     aiHeader: '✦ GEMINI · PRÄSIDENT DAS SPIEL', userHeader: '▶ SIE',
-  }
+    resultTitle: 'MANDAT BEENDET',
+    resultScoreLabel: 'ENDPUNKTZAHL',
+    resultScoreDetail: 'Basispunkte {base} × Schwierigkeit ×{mult}',
+    resultShare: '⬆ TEILEN', resultRank: '🏆 BESTENLISTE', resultReplay: '↺ NOCHMAL',
+    resultLoading: 'Mandatsbericht wird erstellt...',
+    resultFallback: 'Dein 6-jähriges Mandat ist beendet.',
+    resultSharedText: 'Ich habe mein Mandat in {country} mit {score} Punkten abgeschlossen! 🌍\n{note}\n#PräsidentDasSpiel\npresident-wine.vercel.app',
+    resultCopied: 'Punktzahl in die Zwischenablage kopiert!',
+    note0: 'Vergessener Präsident', note1: 'Anständiger Anführer', note2: 'Ernsthafter Reformer',
+    note3: 'Großer Reformer', note4: 'Politische Legende', note5: 'Legendärer Präsident',
+    indPop: 'BELIEBTHEIT', indTensions: 'SPANNUNGEN', indCroissance: 'WACHSTUM',
+    indChomage: 'ARBEITSLOSIGKEIT', indDette: 'SCHULDEN', indCoffres: 'STAATSSCHATZ',
+    defeatTitle: 'MANDAT UNTERBROCHEN',
+    defeatBadge: '☠ VON DER GESCHICHTE GESTÜRZT',
+    defeatTurns: 'ÜBERLEBTE ZÜGE', defeatPop: 'ENDBELIEBTHEIT', defeatTensions: 'ENDSPANNUNGEN',
+    defeatReplay: '↺ NOCHMAL', defeatRank: '🏆 BESTENLISTE',
+    defeatLoading: 'Bericht wird erstellt...',
+    defeatFallback: 'Dein Mandat endete vorzeitig.',
+    pseudoTitle: '👤 DEINE IDENTITÄT',
+    pseudoDesc: 'Wähle einen Benutzernamen für die Weltrangliste. Er wird für deine nächsten Spiele gespeichert.',
+    pseudoLabel: 'DEIN BENUTZERNAME',
+    pseudoPlaceholder: 'Z.B.: Napoleon, Merkel42...',
+    pseudoConfirm: '▶ BESTÄTIGEN UND SPIELEN',
+    lbTitle: '🏆 WELTRANGLISTE — TOP 20',
+    lbEmpty: 'Keine Punkte gespeichert.', lbError: 'Ladefehler.',
+    lbLoading: 'Wird geladen...', lbClose: 'SCHLIESSEN',
+    lbMe: '★ = deine Punkte · in Echtzeit aktualisiert',
+    lbColRank: '#', lbColName: 'BENUTZERNAME', lbColNote: 'TITEL', lbColDiff: 'SCHW.', lbColScore: 'PUNKTE',
 };
 
 function t(key) { return (TRANSLATIONS[selectedLang] || TRANSLATIONS['fr'])[key] || TRANSLATIONS['fr'][key] || key; }
@@ -863,6 +978,44 @@ function applyTranslations() {
   // Indicateur sauvegarde
   var si = document.getElementById('save-indicator');
   if (si && si.dataset.base) si.textContent = t('saved');
+  // Modale pseudo
+  var ph2 = document.querySelector('.pseudo-box h2');
+  if (ph2) ph2.textContent = t('pseudoTitle');
+  var pp = document.querySelector('.pseudo-box p');
+  if (pp) pp.textContent = t('pseudoDesc');
+  var pl = document.querySelector('.pseudo-input-wrap label');
+  if (pl) pl.textContent = t('pseudoLabel');
+  var pi = document.getElementById('pseudo-input');
+  if (pi) pi.placeholder = t('pseudoPlaceholder');
+  var pcb = document.getElementById('pseudo-confirm-btn');
+  if (pcb) pcb.textContent = t('pseudoConfirm');
+  // Écran résultat
+  var rt = document.querySelector('.result-title');
+  if (rt) rt.textContent = t('resultTitle');
+  var rsl = document.querySelector('.result-score-label');
+  if (rsl) rsl.textContent = t('resultScoreLabel');
+  var rbShare = document.querySelector('.result-btn-share');
+  if (rbShare) rbShare.textContent = t('resultShare');
+  var rbRank = document.querySelector('.result-btn-rank');
+  if (rbRank) rbRank.textContent = t('resultRank');
+  var rbReplay = document.querySelector('.result-btn-replay');
+  if (rbReplay) rbReplay.textContent = t('resultReplay');
+  // Écran défaite
+  var dt = document.querySelector('.defeat-title');
+  if (dt) dt.textContent = t('defeatTitle');
+  var dTurnsLbl = document.querySelector('.defeat-stat:nth-child(1) .defeat-stat-label');
+  if (dTurnsLbl) dTurnsLbl.textContent = t('defeatTurns');
+  var dPopLbl = document.querySelector('.defeat-stat:nth-child(2) .defeat-stat-label');
+  if (dPopLbl) dPopLbl.textContent = t('defeatPop');
+  var dTensLbl = document.querySelector('.defeat-stat:nth-child(3) .defeat-stat-label');
+  if (dTensLbl) dTensLbl.textContent = t('defeatTensions');
+  var dbReplay = document.querySelector('.defeat-btns .result-btn-replay');
+  if (dbReplay) dbReplay.textContent = t('defeatReplay');
+  var dbRank = document.querySelector('.defeat-btns .result-btn-rank');
+  if (dbRank) dbRank.textContent = t('defeatRank');
+  // Classement
+  var lbH2 = document.querySelector('#leaderboard-modal h2');
+  if (lbH2) lbH2.textContent = t('lbTitle');
   // Compteur tours
   updateTurnCounter();
 }
@@ -1545,20 +1698,20 @@ var initialState = {};
 var finalScore = 0;
 var lastResultData = {};
 
-var DIFF_MULTIPLIERS = {'Facile':1,'Normal':1.5,'Difficile':2,'Réaliste':3};
+var DIFF_MULTIPLIERS = {'Facile':1,'Normal':1.5,'Difficile':2,'Réaliste':3,'Easy':1,'Hard':2,'Realistic':3,'Fácil':1,'Difícil':2,'Realista':3,'Leicht':1,'Schwer':2,'Realistisch':3};
 var NOTES = [
-  {min:0,    label:'Président oublié',    color:'var(--muted)'},
-  {min:2000, label:'Dirigeant convenable', color:'var(--accent4)'},
-  {min:4000, label:'Réformateur sérieux',  color:'var(--accent4)'},
-  {min:6000, label:'Grand réformateur',    color:'var(--accent)'},
-  {min:8000, label:'Légende politique',    color:'var(--accent3)'},
-  {min:10000,label:'Président légendaire', color:'var(--accent2)'}
+  {min:0,    key:'note0', color:'var(--muted)'},
+  {min:2000, key:'note1', color:'var(--accent4)'},
+  {min:4000, key:'note2', color:'var(--accent4)'},
+  {min:6000, key:'note3', color:'var(--accent)'},
+  {min:8000, key:'note4', color:'var(--accent3)'},
+  {min:10000,key:'note5', color:'var(--accent2)'}
 ];
 
 function getNote(score) {
   var note = NOTES[0];
   for (var i = 0; i < NOTES.length; i++) { if (score >= NOTES[i].min) note = NOTES[i]; }
-  return note;
+  return {label: t(note.key), color: note.color};
 }
 
 function saveInitialState() {
@@ -1592,12 +1745,12 @@ function computeScore() {
 
 function buildIndicatorsHTML() {
   var inds = [
-    {key:'popularite', label:'POPULARITÉ',  unit:'%',    goodIfPositive:true},
-    {key:'tensions',   label:'TENSIONS',    unit:'/10',  goodIfPositive:false},
-    {key:'croissance', label:'CROISSANCE',  unit:'%',    goodIfPositive:true},
-    {key:'chomage',    label:'CHÔMAGE',     unit:'%',    goodIfPositive:false},
-    {key:'dette',      label:'DETTE',       unit:'% PIB',goodIfPositive:false},
-    {key:'coffres',    label:'COFFRES',     unit:' Mds', goodIfPositive:true}
+    {key:'popularite', tkey:'indPop',       unit:'%',     goodIfPositive:true},
+    {key:'tensions',   tkey:'indTensions',  unit:'/10',   goodIfPositive:false},
+    {key:'croissance', tkey:'indCroissance',unit:'%',     goodIfPositive:true},
+    {key:'chomage',    tkey:'indChomage',   unit:'%',     goodIfPositive:false},
+    {key:'dette',      tkey:'indDette',     unit:'% PIB', goodIfPositive:false},
+    {key:'coffres',    tkey:'indCoffres',   unit:' Mds',  goodIfPositive:true}
   ];
   return inds.map(function(ind){
     var ini = initialState[ind.key], fin = gameState[ind.key];
@@ -1607,7 +1760,7 @@ function buildIndicatorsHTML() {
     var color = same ? 'var(--muted)' : improved ? '#34a853' : '#ff3b5c';
     var arrow = same ? '—' : improved ? '▲' : '▼';
     return '<div class="result-ind">'
-      +'<div class="result-ind-label">'+ind.label+'</div>'
+      +'<div class="result-ind-label">'+t(ind.tkey)+'</div>'
       +'<div class="result-ind-row">'
       +'<span class="result-ind-start">'+ini+ind.unit+'</span>'
       +'<span class="result-ind-arrow" style="color:'+color+'">'+arrow+'</span>'
@@ -1623,32 +1776,28 @@ async function showResultScreen() {
   finalScore = scoreData.total;
   var note = getNote(finalScore);
 
-  document.getElementById('result-meta').textContent = (playerPseudo ? playerPseudo + ' · ' : '') + country.toUpperCase() + ' · ' + diff.toUpperCase() + ' · ' + currentTurn + ' TOURS';
+  document.getElementById('result-meta').textContent = (playerPseudo ? playerPseudo + ' · ' : '') + country.toUpperCase() + ' · ' + diff.toUpperCase() + ' · ' + currentTurn + ' ' + t('turn') + 'S';
   document.getElementById('result-score').textContent = finalScore.toLocaleString();
-  document.getElementById('result-score-detail').textContent = 'Score base ' + scoreData.base + ' × difficulté ×' + scoreData.mult;
+  document.getElementById('result-score-detail').textContent = t('resultScoreDetail').replace('{base}', scoreData.base).replace('{mult}', scoreData.mult);
   document.getElementById('result-note').textContent = '⭐ ' + note.label.toUpperCase();
   document.getElementById('result-note').style.borderColor = note.color;
   document.getElementById('result-note').style.color = note.color;
   document.getElementById('result-indicators').innerHTML = buildIndicatorsHTML();
-
-  // Intro générée par Gemini
-  document.getElementById('result-intro').textContent = 'Génération du bilan de votre mandat...';
+  document.getElementById('result-intro').textContent = t('resultLoading');
   document.getElementById('result-screen').classList.add('active');
   document.getElementById('game').classList.remove('active');
   Audio.stop();
 
-  // Demander à Gemini un bilan narratif
   try {
-    var prompt = 'En 2-3 phrases concises, fais le bilan historique du mandat du joueur qui vient de terminer ses 6 ans à la tête de '+country+'. Mentionne les grandes réalisations ou échecs basés sur l\'évolution des indicateurs. Ton neutre et historique. Pas de titre, juste le texte.';
+    var prompt = 'En 2-3 phrases concises, fais le bilan historique du mandat du joueur qui vient de terminer ses 6 ans à la tête de '+country+'. Mentionne les grandes réalisations ou échecs. Ton neutre et historique. Pas de titre, juste le texte.';
     var resp = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}], lang: ({'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang]||'français')})});
     var data = await resp.json();
     document.getElementById('result-intro').textContent = data.text || '';
   } catch(e) {
-    document.getElementById('result-intro').textContent = 'Votre mandat de 6 ans est terminé.';
+    document.getElementById('result-intro').textContent = t('resultFallback');
   }
 
-  // Envoyer le score en ligne
-  lastResultData = {name: playerPseudo || document.getElementById('hud-country').textContent, score: finalScore, diff, turns: currentTurn, note: note.label};
+  lastResultData = {name: playerPseudo || country, score: finalScore, diff, turns: currentTurn, note: note.label};
   submitScore(lastResultData);
 }
 
@@ -1659,85 +1808,80 @@ async function showDefeatScreen() {
   document.getElementById('defeat-meta').textContent =
     (playerPseudo ? playerPseudo + ' · ' : '') +
     country.toUpperCase() + ' · ' + diff.toUpperCase() +
-    ' · TOUR ' + currentTurn + ' / ' + maxTurns;
+    ' · ' + t('turn') + ' ' + currentTurn + ' / ' + maxTurns;
+  document.getElementById('defeat-badge').textContent = t('defeatBadge');
   document.getElementById('defeat-turns').textContent = currentTurn;
-  document.getElementById('defeat-pop').textContent =
-    gameState.popularite !== null ? gameState.popularite + '%' : '—';
-  document.getElementById('defeat-tensions').textContent =
-    gameState.tensions !== null ? gameState.tensions + '/10' : '—';
-
-  document.getElementById('defeat-intro').textContent = 'Génération du bilan...';
+  document.getElementById('defeat-pop').textContent = gameState.popularite !== null ? gameState.popularite + '%' : '—';
+  document.getElementById('defeat-tensions').textContent = gameState.tensions !== null ? gameState.tensions + '/10' : '—';
+  document.getElementById('defeat-intro').textContent = t('defeatLoading');
   document.getElementById('defeat-screen').classList.add('active');
   document.getElementById('game').classList.remove('active');
   Audio.stop();
   clearSave();
 
-  // Bilan narratif de la défaite par Gemini
   try {
     var prompt = 'En 2-3 phrases concises et dramatiques, raconte la chute du joueur qui vient de perdre son mandat à la tête de ' + country + ' au tour ' + currentTurn + ' sur 36. Style historique sombre. Pas de titre, juste le texte.';
     var resp = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}], lang: ({'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang]||'français')})});
     var data = await resp.json();
     document.getElementById('defeat-intro').textContent = data.text || '';
   } catch(e) {
-    document.getElementById('defeat-intro').textContent = 'Votre mandat a pris fin prématurément.';
+    document.getElementById('defeat-intro').textContent = t('defeatFallback');
   }
 }
+
 async function submitScore(data) {
   try {
-    await fetch('/api/scores', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    });
+    await fetch('/api/scores', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
   } catch(e) {}
 }
 
 async function openLeaderboard() {
   document.getElementById('leaderboard-modal').style.display = 'flex';
-  document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--muted);text-align:center;padding:2rem;">Chargement...</div>';
+  document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--muted);text-align:center;padding:2rem;">'+t('lbLoading')+'</div>';
   try {
     var resp = await fetch('/api/scores');
     var data = await resp.json();
     if (!data.scores || !data.scores.length) {
-      document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--muted);text-align:center;padding:2rem;">Aucun score enregistré.</div>';
+      document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--muted);text-align:center;padding:2rem;">'+t('lbEmpty')+'</div>';
       return;
     }
     var html = '<table style="width:100%;border-collapse:collapse;">'
       +'<tr style="color:var(--muted);font-size:0.65rem;border-bottom:1px solid var(--border);">'
-      +'<th style="padding:0.4rem;text-align:left;">#</th>'
-      +'<th style="padding:0.4rem;text-align:left;">PAYS</th>'
-      +'<th style="padding:0.4rem;text-align:left;">NOTE</th>'
-      +'<th style="padding:0.4rem;text-align:left;">DIFF.</th>'
-      +'<th style="padding:0.4rem;text-align:right;">SCORE</th>'
+      +'<th style="padding:0.4rem;text-align:left;">'+t('lbColRank')+'</th>'
+      +'<th style="padding:0.4rem;text-align:left;">'+t('lbColName')+'</th>'
+      +'<th style="padding:0.4rem;text-align:left;">'+t('lbColNote')+'</th>'
+      +'<th style="padding:0.4rem;text-align:left;">'+t('lbColDiff')+'</th>'
+      +'<th style="padding:0.4rem;text-align:right;">'+t('lbColScore')+'</th>'
       +'</tr>';
     data.scores.forEach(function(s, i) {
       var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
       var isMe = lastResultData.score === s.score && lastResultData.name === s.name;
       var rowStyle = isMe ? 'background:rgba(66,133,244,0.08);' : '';
+      var nameDisplay = isMe ? '★ ' + s.name : s.name;
       html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);'+rowStyle+'">'
         +'<td style="padding:0.55rem 0.4rem;color:var(--muted);">'+(medal||('#'+(i+1)))+'</td>'
-        +'<td style="padding:0.55rem 0.4rem;color:var(--text);">'+s.name+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;color:'+(isMe?'var(--accent)':'var(--text)')+';">'+nameDisplay+'</td>'
         +'<td style="padding:0.55rem 0.4rem;color:var(--accent4);font-size:0.7rem;">'+s.note+'</td>'
         +'<td style="padding:0.55rem 0.4rem;color:var(--muted);">'+s.diff+'</td>'
         +'<td style="padding:0.55rem 0.4rem;text-align:right;color:var(--accent);font-weight:700;">'+s.score.toLocaleString()+'</td>'
         +'</tr>';
     });
-    html += '</table>';
+    html += '</table><div style="margin-top:0.8rem;text-align:center;font-size:0.62rem;color:var(--muted);border-top:1px solid var(--border);padding-top:0.6rem;">'+t('lbMe')+'</div>';
     document.getElementById('leaderboard-content').innerHTML = html;
   } catch(e) {
-    document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--red);text-align:center;padding:2rem;">Erreur de chargement.</div>';
+    document.getElementById('leaderboard-content').innerHTML = '<div style="color:var(--red);text-align:center;padding:2rem;">'+t('lbError')+'</div>';
   }
 }
 
 function shareResult() {
   var country = document.getElementById('hud-country').textContent || '?';
   var note = document.getElementById('result-note').textContent.replace('⭐ ','');
-  var text = 'J\'ai terminé mon mandat en '+country+' avec '+finalScore.toLocaleString()+' points ! 🌍\n'+note+'\n#PrésidentLeJeu\npresident-wine.vercel.app';
+  var text = t('resultSharedText').replace('{country}', country).replace('{score}', finalScore.toLocaleString()).replace('{note}', note);
   if (navigator.share) {
-    navigator.share({title:'Président le Jeu', text});
+    navigator.share({title: t('resultTitle'), text});
   } else {
     navigator.clipboard.writeText(text).then(function(){
-      alert('Score copié dans le presse-papiers !');
+      alert(t('resultCopied'));
     });
   }
 }
