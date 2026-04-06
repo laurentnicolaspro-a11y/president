@@ -57,6 +57,13 @@ VI. BREAKING NEWS
 - Titres courts, style journalistique, max 60 caractères chacun
 - Jamais en Phase 1
 
+VII. FIN DE PARTIE ANTICIPÉE
+Si le joueur est renversé, démissionne, est destitué ou perd le pouvoir de façon irrémédiable :
+- Raconte la chute de façon dramatique et immersive
+- Termine OBLIGATOIREMENT ton message avec le marqueur exact : [GAME OVER]
+- Ce marqueur doit être sur une ligne seule, à la toute fin du message
+- Ne l'utilise QUE si le mandat se termine avant les 36 tours prévus
+
 RÈGLES GÉNÉRALES :
 - Chiffres adaptés à la réalité du pays choisi
 - Cohérence stricte d'un tour à l'autre
