@@ -326,7 +326,7 @@
     <p>Survivre jusqu'à la fin de votre mandat. Vous pouvez briguer un second mandat.</p>
     <div class="rule-block"><p>L'IA crée des obstacles crédibles : crises, scandales, mouvements sociaux…</p></div>
     <h3>III. Configuration</h3>
-    <ul><li><strong>1 tour = 1 mois</strong></li><li>Tous les <strong>24 mois</strong> : crise mondiale majeure</li></ul>
+    <ul><li><strong>1 tour = 2 mois</strong></li><li>Tous les <strong>12 tours</strong> : crise mondiale majeure</li></ul>
     <h3>IV. Phases</h3>
     <p><strong>Phase 1</strong> — Tableaux chiffrés → bouton <strong>▶▶ CONTINUER</strong></p>
     <p><strong>Phase 2</strong> — Narration · 3 choix cliquables + option personnalisée</p>
@@ -516,7 +516,7 @@
       <button class="fs-btn" id="fs-btn" onclick="toggleFullscreen()">⛶ PLEIN ÉCRAN</button>
       <span class="hint">↵ Entrée · Maj+Entrée saut de ligne</span>
     </div>
-    <span id="turn-counter" style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;">TOUR 0 / —</span>
+    <span id="turn-counter" style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--accent4);letter-spacing:0.1em;">TOUR 0 / —</span>
     <div style="display:flex;align-items:center;gap:1rem;">
       <span class="save-indicator" id="save-indicator">✦ PARTIE SAUVEGARDÉE</span>
       <button class="reset-btn" onclick="resetGame()">✕ ABANDONNER</button>
@@ -697,10 +697,10 @@ function applyTranslations() {
 }
 
 const MANDATE_DURATIONS = {
-  'France':60,'États-Unis':48,'Allemagne':48,'Royaume-Uni':60,'Russie':72,'Chine':60,
-  'Brésil':48,'Inde':60,'Japon':48,'Canada':48,'Espagne':48,'Italie':60,'Mexique':72,
-  'Australie':36,'Corée du Sud':60,'Argentine':48,'Nigeria':48,'Turquie':60,'Pologne':60,
-  'Ukraine':60,'Suisse':48,'Belgique':48,'Portugal':60,'Pays-Bas':48,'défaut':60
+  'France':36,'États-Unis':36,'Allemagne':36,'Royaume-Uni':36,'Russie':36,'Chine':36,
+  'Brésil':36,'Inde':36,'Japon':36,'Canada':36,'Espagne':36,'Italie':36,'Mexique':36,
+  'Australie':36,'Corée du Sud':36,'Argentine':36,'Nigeria':36,'Turquie':36,'Pologne':36,
+  'Ukraine':36,'Suisse':36,'Belgique':36,'Portugal':36,'Pays-Bas':36,'défaut':36
 };
 
 // ===== SÉLECTEUR DE PAYS =====
@@ -1058,7 +1058,7 @@ function updateTurnCounter() {
   if (!el) return;
   var max = maxTurns || '—';
   el.textContent = t('turn') + ' ' + currentTurn + ' / ' + max;
-  el.style.color = (maxTurns && currentTurn >= maxTurns * 0.8) ? 'var(--accent2)' : 'var(--muted)';
+  el.style.color = (maxTurns && currentTurn >= maxTurns * 0.8) ? 'var(--accent2)' : 'var(--accent4)';
 }
 
 function continueToPhase2(btn) {
