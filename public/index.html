@@ -1061,13 +1061,51 @@ function updateTurnCounter() {
   el.style.color = (maxTurns && currentTurn >= maxTurns * 0.8) ? 'var(--accent2)' : 'var(--accent4)';
 }
 
+// ===== ÉTAT DU JEU (indicateurs) =====
+var gameState = {
+  popularite: null, tensions: null, croissance: null,
+  chomage: null, dette: null, coffres: null, solde: null
+};
+var prevState = {};
+
+function updateGameState(key, val) {
+  prevState[key] = gameState[key];
+  gameState[key] = val;
+}
+
+function buildStateString() {
+  var parts = [];
+  if (gameState.coffres   !== null) parts.push('Coffres: ' + gameState.coffres + ' Mds');
+  if (gameState.solde     !== null) parts.push('Solde: ' + gameState.solde + ' M€');
+  if (gameState.croissance!== null) parts.push('Croissance: ' + gameState.croissance + '%');
+  if (gameState.dette     !== null) parts.push('Dette: ' + gameState.dette + '% PIB');
+  if (gameState.popularite!== null) parts.push('Popularité: ' + gameState.popularite + '%');
+  if (gameState.tensions  !== null) parts.push('Tensions: ' + gameState.tensions + '/10');
+  if (gameState.chomage   !== null) parts.push('Chômage: ' + gameState.chomage + '%');
+  return parts.length ? '[ÉTAT ACTUEL : ' + parts.join(' | ') + ']' : '';
+}
+
+function getArrow(key, newVal) {
+  var prev = prevState[key];
+  if (prev === null || prev === undefined) return '';
+  var better = {
+    popularite: newVal > prev, tensions: newVal < prev,
+    croissance: newVal > prev, chomage: newVal < prev,
+    dette: newVal < prev, coffres: newVal > prev, solde: newVal > prev
+  };
+  if (newVal === prev) return '';
+  return better[key] ? ' ▲' : ' ▼';
+}
+
 function continueToPhase2(btn) {
   btn.closest('.msg-actions').remove();
   currentTurn++;
   updateTurnCounter();
-  addMessage('user','OK');
-  conversationHistory.push({role:'user',content:'OK'});
-  callAPI(null,false);
+  var stateStr = buildStateString();
+  var msgForGemini = stateStr ? 'OK ' + stateStr : 'OK';
+  addMessage('user', 'OK');
+  conversationHistory.push({role:'user', content: msgForGemini});
+  callAPI(null, false);
 }
 
 async function sendChoiceMessage(text) {
@@ -1131,9 +1169,73 @@ function enrichTables(container){
     table.querySelectorAll('tr').forEach(function(row){
       var cells=row.querySelectorAll('td');if(!cells.length)return;
       var label=cells[0]?cells[0].textContent.trim().toLowerCase():'';
-      var valCell=cells[1];if(!valCell)return;var rawVal=valCell.textContent.trim();
-      if(label.includes('popularité')||label.includes('popularite')){var n=parseFloat(rawVal);if(!isNaN(n)){if(n>=55){valCell.innerHTML='<span class="ind-ok">▲ '+rawVal+'</span>';row.classList.add('row-good');}else if(n>=40){valCell.innerHTML='<span class="ind-warn">◆ '+rawVal+'</span>';row.classList.add('row-warn');}else{valCell.innerHTML='<span class="ind-crit">▼ '+rawVal+' ⚠</span>';row.classList.add('row-crit');}}}
-      else if(label.includes('tension')){var n=parseFloat(rawVal);if(!isNaN(n)){if(n<=3){valCell.innerHTML='<span class="ind-ok">● '+rawVal+'</span>';row.classList.add('row-good');}else if(n<=6){valCell.innerHTML='<span class="ind-warn">▲ '+rawVal+' ⚠</span>';row.classList.add('row-warn');}else{valCell.innerHTML='<span class="ind-crit">🔥 '+rawVal+' — CRITIQUE</span>';row.classList.add('row-crit');}if(n>=8){var b=document.createElement('div');b.className='alert-banner';b.innerHTML='⚠ ALERTE — Tensions sociales critiques !';table.parentNode.insertBefore(b,table);}else if(n>=6){var b=document.createElement('div');b.className='warn-banner';b.innerHTML='⚡ ATTENTION — Tensions sociales élevées.';table.parentNode.insertBefore(b,table);}}}
+      var valCell=cells[1];if(!valCell)return;
+      var rawVal=valCell.textContent.trim();
+      var n=parseFloat(rawVal.replace(/[^\d.\-]/g,''));
+      if(isNaN(n))return;
+
+      var arrow='';var cls='';var display=rawVal;
+
+      // POPULARITÉ
+      if(label.includes('popularit')){
+        updateGameState('popularite',n);
+        arrow=getArrow('popularite',n);
+        if(n>=55){cls='ind-ok';row.classList.add('row-good');}
+        else if(n>=40){cls='ind-warn';row.classList.add('row-warn');}
+        else{cls='ind-crit';row.classList.add('row-crit');}
+      }
+      // TENSIONS SOCIALES
+      else if(label.includes('tension')){
+        updateGameState('tensions',n);
+        arrow=getArrow('tensions',n);
+        if(n<=3){cls='ind-ok';row.classList.add('row-good');}
+        else if(n<=6){cls='ind-warn';row.classList.add('row-warn');}
+        else{cls='ind-crit';row.classList.add('row-crit');}
+        if(n>=8){var b=document.createElement('div');b.className='alert-banner';b.innerHTML='⚠ ALERTE — Tensions sociales critiques !';table.parentNode.insertBefore(b,table);}
+        else if(n>=6){var b=document.createElement('div');b.className='warn-banner';b.innerHTML='⚡ ATTENTION — Tensions sociales élevées.';table.parentNode.insertBefore(b,table);}
+      }
+      // CROISSANCE
+      else if(label.includes('croissance')){
+        updateGameState('croissance',n);
+        arrow=getArrow('croissance',n);
+        if(n>=1){cls='ind-ok';row.classList.add('row-good');}
+        else if(n>=0){cls='ind-warn';row.classList.add('row-warn');}
+        else{cls='ind-crit';row.classList.add('row-crit');}
+      }
+      // CHÔMAGE
+      else if(label.includes('ch'+'ômage')||label.includes('chomage')){
+        updateGameState('chomage',n);
+        arrow=getArrow('chomage',n);
+        if(n<5){cls='ind-ok';row.classList.add('row-good');}
+        else if(n<=10){cls='ind-warn';row.classList.add('row-warn');}
+        else{cls='ind-crit';row.classList.add('row-crit');}
+      }
+      // DETTE
+      else if(label.includes('dette')){
+        updateGameState('dette',n);
+        arrow=getArrow('dette',n);
+        if(n<60){cls='ind-ok';row.classList.add('row-good');}
+        else if(n<=90){cls='ind-warn';row.classList.add('row-warn');}
+        else{cls='ind-crit';row.classList.add('row-crit');}
+      }
+      // COFFRES
+      else if(label.includes('coffre')){
+        updateGameState('coffres',n);
+        arrow=getArrow('coffres',n);
+        if(n>100){cls='ind-ok';row.classList.add('row-good');}
+        else if(n>0){cls='ind-warn';row.classList.add('row-warn');}
+        else{cls='ind-crit';row.classList.add('row-crit');}
+      }
+      // SOLDE MENSUEL
+      else if(label.includes('solde')){
+        updateGameState('solde',n);
+        arrow=getArrow('solde',n);
+        if(n>0){cls='ind-ok';row.classList.add('row-good');}
+        else if(n===0){cls='ind-warn';row.classList.add('row-warn');}
+        else{cls='ind-crit';row.classList.add('row-crit');}
+      }
+
+      if(cls) valCell.innerHTML='<span class="'+cls+'">'+display+arrow+'</span>';
     });
   });
 }
@@ -1196,6 +1298,8 @@ function relancerDiscussion() {
 function resetGame(){
   if(!confirm(t('abandonConfirm')))return;
   Audio.stop();Stats.reset();clearSave();gamePhase='init';
+  gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
+  prevState={};
   document.getElementById('nego-badge').classList.remove('active');
   document.getElementById('game').classList.remove('active');document.getElementById('landing').style.display='';
   document.getElementById('save-info').style.display='none';
