@@ -414,9 +414,9 @@
 <div id="landing">
   <div class="globe-container"><div class="globe"></div><div class="globe-ring"></div></div>
   <div class="title-main">PRÉSIDENT<br>LE JEU</div>
-  <div class="title-sub">Simulation géopolitique IA</div>
+  <div class="title-sub" id="title-sub">Simulation géopolitique IA</div>
   <span class="beta-badge">BÊTA · GEMINI</span>
-  <p class="title-desc">Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques.</p>
+  <p class="title-desc" id="title-desc">Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques.</p>
   <div class="lang-picker">
     <button class="lang-btn selected" data-lang="fr" onclick="selectLang(this)">🇫🇷 FR</button>
     <button class="lang-btn" data-lang="en" onclick="selectLang(this)">🇬🇧 EN</button>
@@ -603,6 +603,10 @@ let selectedLang = 'fr';
 const TRANSLATIONS = {
   fr: {
     play: '▶ JOUER', legal: 'MENTIONS LÉGALES', resume: '↺ REPRENDRE LA PARTIE',
+    leaderboard: '🏆 CLASSEMENT',
+    titleSub: 'Simulation géopolitique IA',
+    titleDesc: 'Dirigez un pays à travers crises économiques, tensions sociales et défis géopolitiques.',
+    powered: 'Propulsé par',
     saveFound: '💾 Sauvegarde trouvée —',
     countryTitle: '🌍 CHOISISSEZ VOTRE PAYS',
     countryDesc: 'Saisissez le pays que vous souhaitez diriger et choisissez votre niveau de difficulté.',
@@ -630,6 +634,10 @@ const TRANSLATIONS = {
   },
   en: {
     play: '▶ PLAY', legal: 'LEGAL NOTICE', resume: '↺ RESUME GAME',
+    leaderboard: '🏆 LEADERBOARD',
+    titleSub: 'AI Geopolitical Simulation',
+    titleDesc: 'Lead a country through economic crises, social tensions and geopolitical challenges.',
+    powered: 'Powered by',
     saveFound: '💾 Save found —',
     countryTitle: '🌍 CHOOSE YOUR COUNTRY',
     countryDesc: 'Enter the country you want to lead and choose your difficulty level.',
@@ -657,6 +665,10 @@ const TRANSLATIONS = {
   },
   es: {
     play: '▶ JUGAR', legal: 'AVISO LEGAL', resume: '↺ CONTINUAR PARTIDA',
+    leaderboard: '🏆 CLASIFICACIÓN',
+    titleSub: 'Simulación Geopolítica IA',
+    titleDesc: 'Dirige un país a través de crisis económicas, tensiones sociales y desafíos geopolíticos.',
+    powered: 'Impulsado por',
     saveFound: '💾 Guardado encontrado —',
     countryTitle: '🌍 ELIGE TU PAÍS',
     countryDesc: 'Escribe el país que deseas dirigir y elige tu nivel de dificultad.',
@@ -684,6 +696,10 @@ const TRANSLATIONS = {
   },
   de: {
     play: '▶ SPIELEN', legal: 'IMPRESSUM', resume: '↺ SPIEL FORTSETZEN',
+    leaderboard: '🏆 BESTENLISTE',
+    titleSub: 'KI-Geopolitik-Simulation',
+    titleDesc: 'Führe ein Land durch Wirtschaftskrisen, soziale Spannungen und geopolitische Herausforderungen.',
+    powered: 'Betrieben von',
     saveFound: '💾 Spielstand gefunden —',
     countryTitle: '🌍 WÄHLE DEIN LAND',
     countryDesc: 'Gib das Land ein, das du führen möchtest, und wähle deinen Schwierigkeitsgrad.',
@@ -721,11 +737,22 @@ function selectLang(btn) {
 }
 
 function applyTranslations() {
-  // Landing
+  // Landing — titre et description
+  var titleSub = document.querySelector('.title-sub');
+  if (titleSub) titleSub.textContent = t('titleSub');
+  var titleDesc = document.querySelector('.title-desc');
+  if (titleDesc) titleDesc.textContent = t('titleDesc');
+  var poweredTxt = document.querySelector('.powered-badge');
+  if (poweredTxt) poweredTxt.innerHTML = '<div class="g-dots"><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div><div class="g-dot"></div></div>' + t('powered') + ' <span>Google Gemini</span>';
+  // Boutons accueil
   var playBtn = document.querySelector('.play-btn');
   if (playBtn) playBtn.textContent = t('play');
-  var legalBtn = document.querySelector('.legal-btn');
+  var lbBtn = document.querySelector('.legal-btn[onclick="openLeaderboard()"]');
+  if (lbBtn) lbBtn.textContent = t('leaderboard');
+  var legalBtn = document.querySelector('.legal-btn[onclick*="legal-modal"]');
   if (legalBtn) legalBtn.textContent = t('legal');
+  var resumeBtn = document.querySelector('.resume-btn');
+  if (resumeBtn) resumeBtn.textContent = t('resume');
   // Modale pays
   var cm = document.querySelector('.country-box h2');
   if (cm) cm.textContent = t('countryTitle');
