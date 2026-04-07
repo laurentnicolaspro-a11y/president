@@ -3,6 +3,7 @@
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/ads.txt", "dest": "/ads.txt" },
     { "src": "/og-image.png", "dest": "/og-image.png" },
+     { "src": "/LOGO_PONK_PARTY_BLANC_h.png", "dest": "/LOGO_PONK_PARTY_BLANC_h.png" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
