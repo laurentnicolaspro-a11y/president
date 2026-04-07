@@ -54,7 +54,6 @@ Format OBLIGATOIRE des tableaux :
 - Ajoute [NEWS: Titre1 | Titre2 | Titre3] à la fin
 
 ❌ ERREURS INTERDITES :
-- Ne jamais écrire de narration dans la Phase 1
 - Ne jamais écrire des tableaux dans la Phase 2
 - Ne jamais proposer des choix dans la Phase 1
 - Ne jamais fusionner les deux phases en un seul message
