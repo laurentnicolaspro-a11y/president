@@ -7,19 +7,28 @@ Utilise la date actuelle 2026 et les événements réels pour une introduction c
 Rappelle que le jeu est en bêta et que l'IA peut faire des erreurs.
 
 II. OBJECTIF
-Le joueur doit terminer son mandat (durée adaptée au pays). Second mandat possible.
+Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total). Second mandat possible.
 Crée des obstacles réalistes : crises économiques, scandales, mouvements sociaux, pression internationale, catastrophes.
 
 III. CONFIGURATION
 - 1 tour = 2 mois (mandat de 6 ans = 36 tours)
 - Tous les 12 tours : crise mondiale majeure réaliste (pandémie, crash, conflit, catastrophe…)
-- Durée du mandat selon le pays (France = 5 ans, USA = 4 ans, etc.)
 
-IV. DEUX PHASES OBLIGATOIRES — RÈGLE ABSOLUE
+IV. DEUX PHASES OBLIGATOIRES — RÈGLE ABSOLUE ET NON NÉGOCIABLE
 
-PHASE 1 — Données chiffrées uniquement
-Affiche le mois et l'année en titre (ex: ## Janvier 2026).
-Affiche UNIQUEMENT les deux tableaux. RIEN D'AUTRE. Pas de texte avant, pas de texte après.
+⚠️ RÈGLE FONDAMENTALE : chaque tour se déroule en EXACTEMENT DEUX étapes séparées.
+Tu ne peux JAMAIS les fusionner. Tu ne peux JAMAIS sauter une étape.
+
+ÉTAPE 1 — PHASE 1 : Données chiffrées (déclenchée quand le tour commence)
+- Commence IMMÉDIATEMENT par le titre du mois ## Mois Année
+- Affiche LES DEUX TABLEAUX et RIEN D'AUTRE
+- ZÉRO texte avant les tableaux
+- ZÉRO texte après les tableaux
+- ZÉRO narration
+- ZÉRO choix
+- ZÉRO question
+
+Format OBLIGATOIRE des tableaux :
 
 | Indicateur        | Valeur       |
 |-------------------|--------------|
@@ -34,14 +43,22 @@ Affiche UNIQUEMENT les deux tableaux. RIEN D'AUTRE. Pas de texte avant, pas de t
 | Projet en cours | Début | Fin prévue |
 |-----------------|-------|------------|
 
-⛔ STOP ABSOLU ICI. Tu NE DOIS PAS continuer. Tu NE DOIS PAS écrire de narration. Tu NE DOIS PAS proposer de choix. Le joueur doit cliquer CONTINUER pour accéder à la Phase 2. Si tu continues après les tableaux, tu brises le jeu.
+⛔ STOP TOTAL APRÈS LES TABLEAUX. Pas un mot de plus. Le joueur clique CONTINUER.
 
-PHASE 2 — Narration et décisions (UNIQUEMENT après que le joueur a envoyé "OK")
-- Situation détaillée, réaliste et complexe
-- TOUJOURS exactement 3 choix numérotés (1. 2. 3.) aux conséquences différentes
+ÉTAPE 2 — PHASE 2 : Narration et décisions (déclenchée UNIQUEMENT quand le joueur envoie "OK")
+- Le message "OK" du joueur = signal pour commencer la Phase 2
+- Narration immersive de la situation (3-5 phrases)
+- TOUJOURS exactement 3 choix numérotés (1. 2. 3.) avec conséquences différentes
 - TOUJOURS un 4e choix : "4. Faire un choix personnalisé — décrivez votre action"
-- OBLIGATOIRE : termine TOUJOURS tes phrases. Ne coupe jamais une réponse en cours.
-- Sois concis mais complet.
+- Termine TOUJOURS tes phrases complètement
+- Ajoute [NEWS: Titre1 | Titre2 | Titre3] à la fin
+
+❌ ERREURS INTERDITES :
+- Ne jamais écrire de narration dans la Phase 1
+- Ne jamais écrire des tableaux dans la Phase 2
+- Ne jamais proposer des choix dans la Phase 1
+- Ne jamais fusionner les deux phases en un seul message
+- Ne jamais demander au joueur de "taper OK" — l'interface le fait automatiquement
 
 V. PHASE DE NÉGOCIATION
 Quand le joueur décide de parler, négocier ou appeler un chef d'État :
@@ -49,35 +66,81 @@ Quand le joueur décide de parler, négocier ou appeler un chef d'État :
 - Le temps est suspendu (aucun tour ne s'écoule)
 - Tu incarnes les interlocuteurs de façon réaliste, max 3-4 phrases chacun
 - Tu proposes obligatoirement une offre concrète avec le marqueur : [PROPOSITION]
-- Tu ne quittes cette phase QUE sur signal explicite du joueur
+- Quand le joueur met fin à la négociation → reprends IMMÉDIATEMENT avec une Phase 1 normale
 
 VI. BREAKING NEWS
-À la fin de chaque Phase 2 UNIQUEMENT, ajoute toujours :
+À la fin de chaque Phase 2 UNIQUEMENT :
 [NEWS: Titre 1 | Titre 2 | Titre 3]
-- Titres courts, style journalistique, max 60 caractères chacun
-- Jamais en Phase 1
+- Titres courts, style journalistique, max 60 caractères
+- JAMAIS en Phase 1, JAMAIS en négociation
 
 VII. FIN DE PARTIE ANTICIPÉE
-Si le joueur est renversé, démissionne, est destitué ou perd le pouvoir de façon irrémédiable :
-- Raconte la chute de façon dramatique et immersive
-- Termine OBLIGATOIREMENT ton message avec le marqueur exact : [GAME OVER]
-- Ce marqueur doit être sur une ligne seule, à la toute fin du message
-- Ne l'utilise QUE si le mandat se termine avant les 36 tours prévus
+Si le joueur est renversé, démissionne ou est destitué :
+- Raconte la chute dramatiquement
+- Termine avec le marqueur exact sur une ligne seule : [GAME OVER]
+- N'utilise ce marqueur QUE si le mandat finit avant 36 tours
 
 RÈGLES GÉNÉRALES :
-- Chiffres adaptés à la réalité du pays choisi
-- Cohérence stricte d'un tour à l'autre
+- Chiffres cohérents et réalistes pour le pays choisi
+- Cohérence stricte d'un tour à l'autre — mémorise les décisions passées
 - Les décisions ont des conséquences durables
-- Réaliste et impitoyable dans les crises
+- En cas de doute sur ce que tu dois faire → génère une Phase 1
 - TOUJOURS compléter tes réponses — ne jamais laisser une phrase inachevée`;
 
-const MAX_HISTORY_MESSAGES = 10; // 2 fixes (init) + 8 récents ≈ 4 tours complets
+const MAX_HISTORY_MESSAGES = 10;
+const MAX_RETRIES = 2; // Nombre de tentatives max
 
 function trimHistory(messages) {
   if (messages.length <= MAX_HISTORY_MESSAGES) return messages;
   const first = messages.slice(0, 2);
   const recent = messages.slice(-(MAX_HISTORY_MESSAGES - 2));
   return [...first, ...recent];
+}
+
+// Détecter si c'est un appel de jeu actif (pas intro, pas bilan)
+function isGameplayCall(messages) {
+  if (!messages || messages.length < 2) return false;
+  const lastMsg = messages[messages.length - 1]?.content || '';
+  // Appels spéciaux → pas de validation
+  if (lastMsg.includes('introduction immersive')) return false;
+  if (lastMsg.includes('bilan historique')) return false;
+  if (lastMsg.includes('chute du joueur')) return false;
+  return true;
+}
+
+// Valider la réponse de Gemini
+function isValidResponse(text, messages) {
+  if (!text || text.length < 80) return false;
+  if (!isGameplayCall(messages)) return true; // Pas de validation pour les appels spéciaux
+  const hasTable = text.includes('|');
+  const hasChoices = /\n\s*[1-4]\./m.test(text);
+  const hasGameOver = /\[GAME OVER\]/i.test(text);
+  const hasNego = /\[NÉGOCIATION\]|\[NEGOCIATION\]/i.test(text);
+  return hasTable || hasChoices || hasGameOver || hasNego;
+}
+
+async function callGemini(apiKey, contents, systemPrompt) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents,
+        generationConfig: {
+          maxOutputTokens: 2000,
+          temperature: 0.65
+        }
+      })
+    }
+  );
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'Erreur API Gemini ' + response.status);
+  }
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 export default async function handler(req, res) {
@@ -105,29 +168,28 @@ export default async function handler(req, res) {
   }));
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT + langInstruction }] },
-          contents,
-          generationConfig: {
-            maxOutputTokens: 2000,
-            temperature: 0.65
-          }
-        })
-      }
-    );
+    const systemPrompt = SYSTEM_PROMPT + langInstruction;
+    let text = '';
+    let attempts = 0;
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ error: err.error?.message || 'Erreur API Gemini' });
+    while (attempts < MAX_RETRIES) {
+      attempts++;
+      text = await callGemini(apiKey, contents, systemPrompt);
+
+      if (isValidResponse(text, trimmed)) break;
+
+      // Réponse invalide — on réessaie avec un rappel
+      if (attempts < MAX_RETRIES) {
+        const retryContents = [
+          ...contents,
+          { role: 'model', parts: [{ text }] },
+          { role: 'user', parts: [{ text: 'Ta réponse semble incomplète ou incorrecte. Recommence en respectant strictement le format demandé — Phase 1 avec les deux tableaux uniquement, ou Phase 2 avec narration et 4 choix.' }] }
+        ];
+        text = await callGemini(apiKey, retryContents, systemPrompt);
+        if (isValidResponse(text, trimmed)) break;
+      }
     }
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     return res.status(200).json({ text });
 
   } catch (err) {
