@@ -1583,7 +1583,7 @@ function extractAndShowNews(text){
 
 // ===== AUDIO =====
 const Audio=(()=>{
-  const TRACKS={calm:'/public/audio/Calm.mp3',tension:'/public/audio/tension.mp3',crisis:'/public/audio/crisis.mp3'};
+  const TRACKS={calm:'/audio/Calm.mp3',tension:'/audio/tension.mp3',crisis:'/audio/crisis.mp3'};
   let mode='calm',running=false,current=null;const pre={};
   function preload(){Object.entries(TRACKS).forEach(function([k,s]){var a=new window.Audio(s);a.loop=true;a.volume=0;pre[k]=a;});}preload();
   function fo(el,d){if(!el)return;d=d||2000;var step=50,delta=el.volume/(d/step);var t=setInterval(function(){el.volume=Math.max(0,el.volume-delta);if(el.volume<=0){clearInterval(t);el.pause();el.currentTime=0;el.volume=0;}},step);}
