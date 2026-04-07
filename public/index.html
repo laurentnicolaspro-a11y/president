@@ -203,9 +203,7 @@
   .diff-btn[data-diff="Réaliste"].selected{border-color:var(--red);color:var(--red);background:rgba(255,59,92,0.08);}
   .country-confirm-btn{width:100%;padding:0.8rem;background:var(--accent3);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;letter-spacing:0.12em;cursor:pointer;border-radius:4px;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
   .country-confirm-btn:hover{background:#2d9e47;box-shadow:0 0 20px rgba(52,168,83,0.4);}
-  .country-confirm-btn:disabled{opacity:0.35;cursor:not-allowed;}
-
-  /* ===== MODALE PSEUDO ===== */
+  .country-confirm-btn:disabled{opacity:0.35;cursor:not-allowed;}  /* ===== MODALE PSEUDO ===== */
   #pseudo-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.97);z-index:600;align-items:center;justify-content:center;padding:1.5rem;}
   #pseudo-modal.active{display:flex;}
   .pseudo-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);max-width:420px;width:100%;padding:2rem;border-radius:4px;animation:modalIn 0.3s ease-out;}
@@ -1283,9 +1281,14 @@ window.addEventListener('DOMContentLoaded',function(){
 });
 
 function resumeGame() {
-  if(!Audio.isRunning())Audio.toggle();
   var save=loadSave();
   if(!save||!save.history||save.history.length===0){startGame();return;}
+  _doResumeGame();
+}
+
+function _doResumeGame() {
+  var save=loadSave();
+  if(!save||!save.history||save.history.length===0){launchGame();return;}
   document.getElementById('loading').classList.add('active');
   setTimeout(function(){
     document.getElementById('loading').classList.remove('active');
@@ -1663,8 +1666,6 @@ function confirmPseudo() {
   try { localStorage.setItem('president_pseudo', playerPseudo); } catch(e) {}
   document.getElementById('pseudo-modal').classList.remove('active');
   updatePseudoDisplay();
-  // Démarrer l'audio ICI — on est dans un vrai clic utilisateur
-  if (!Audio.isRunning()) Audio.toggle();
   launchGame();
 }
 
@@ -1682,14 +1683,11 @@ function startGame() {
     document.getElementById('pseudo-modal').classList.add('active');
     setTimeout(() => document.getElementById('pseudo-input').focus(), 100);
   } else {
-    // Démarrer l'audio ICI — on est dans un vrai clic utilisateur
-    if (!Audio.isRunning()) Audio.toggle();
     launchGame();
   }
 }
 
 function launchGame() {
-  // Audio déjà démarré dans startGame ou confirmPseudo
   document.getElementById('loading').classList.add('active');
   setTimeout(function(){
     document.getElementById('loading').classList.remove('active');
