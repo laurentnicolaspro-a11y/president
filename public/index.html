@@ -1582,7 +1582,7 @@ function extractAndShowNews(text){
 }
 
 // ===== AUDIO =====
-const Audio=(()=>{
+const AudioPlayer=(()=>{
   const TRACKS={calm:'/audio/Calm.mp3',tension:'/audio/tension.mp3',crisis:'/audio/crisis.mp3'};
   let mode='calm',running=false,current=null;const pre={};
   function preload(){Object.entries(TRACKS).forEach(function([k,s]){var a=new window.Audio(s);a.loop=true;a.volume=0;pre[k]=a;});}
@@ -1607,8 +1607,8 @@ const Audio=(()=>{
 function toggleFullscreen(){var btn=document.getElementById('fs-btn');if(!document.fullscreenElement&&!document.webkitFullscreenElement){var el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();if(btn)btn.textContent='⛶ QUITTER';}else{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();if(btn)btn.textContent='⛶ PLEIN ÉCRAN';}}
 document.addEventListener('fullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.fullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
 document.addEventListener('webkitfullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.webkitFullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
-function toggleAudio(){Audio.toggle();}
-function detectAudioMode(container){if(!Audio.isRunning())return;var tensions=-1,popularite=-1,croissance=0;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase();var m=cells[1].textContent.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;if(label.includes('tension'))tensions=val;if(label.includes('popular'))popularite=val;if(label.includes('croissance'))croissance=val;});});var nm='calm';if(tensions>=7||popularite<30||croissance<-1)nm='crisis';else if(tensions>=5||popularite<45||croissance<0)nm='tension';Audio.setMode(nm);}
+function toggleAudio(){AudioPlayer.toggle();}
+function detectAudioMode(container){if(!AudioPlayer.isRunning())return;var tensions=-1,popularite=-1,croissance=0;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase();var m=cells[1].textContent.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;if(label.includes('tension'))tensions=val;if(label.includes('popular'))popularite=val;if(label.includes('croissance'))croissance=val;});});var nm='calm';if(tensions>=7||popularite<30||croissance<-1)nm='crisis';else if(tensions>=5||popularite<45||croissance<0)nm='tension';AudioPlayer.setMode(nm);}
 
 // ===== STATISTIQUES =====
 const Stats=(()=>{
@@ -1635,7 +1635,7 @@ function relancerDiscussion() {
 
 function resetGame(){
   if(!confirm(t('abandonConfirm')))return;
-  Audio.stop();Stats.reset();clearSave();gamePhase='init';
+  AudioPlayer.stop();Stats.reset();clearSave();gamePhase='init';
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
   prevState={};
   document.getElementById('nego-badge').classList.remove('active');
@@ -1801,7 +1801,7 @@ async function showResultScreen() {
   document.getElementById('result-intro').textContent = t('resultLoading');
   document.getElementById('result-screen').classList.add('active');
   document.getElementById('game').classList.remove('active');
-  Audio.stop();
+  AudioPlayer.stop();
 
   try {
     var prompt = 'En 2-3 phrases concises, fais le bilan historique du mandat du joueur qui vient de terminer ses 6 ans à la tête de '+country+'. Mentionne les grandes réalisations ou échecs. Ton neutre et historique. Pas de titre, juste le texte.';
@@ -1831,7 +1831,7 @@ async function showDefeatScreen() {
   document.getElementById('defeat-intro').textContent = t('defeatLoading');
   document.getElementById('defeat-screen').classList.add('active');
   document.getElementById('game').classList.remove('active');
-  Audio.stop();
+  AudioPlayer.stop();
   clearSave();
 
   try {
