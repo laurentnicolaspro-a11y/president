@@ -1,5 +1,4 @@
 {
-  "toolbar": false,
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/ads.txt", "dest": "/ads.txt" },
