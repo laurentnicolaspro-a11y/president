@@ -7,7 +7,7 @@ Utilise la date actuelle 2026 et les événements réels pour une introduction c
 Rappelle que le jeu est en bêta et que l'IA peut faire des erreurs.
 
 II. OBJECTIF
-Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total). Second mandat possible.
+Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total). l'IA doit faire en sorte que le joueur n'y arrive pas.
 Crée des obstacles réalistes : crises économiques, scandales, mouvements sociaux, pression internationale, catastrophes.
 
 III. CONFIGURATION
