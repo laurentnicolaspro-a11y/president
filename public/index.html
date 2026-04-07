@@ -1667,7 +1667,8 @@ function confirmPseudo() {
   try { localStorage.setItem('president_pseudo', playerPseudo); } catch(e) {}
   document.getElementById('pseudo-modal').classList.remove('active');
   updatePseudoDisplay();
-  // Lancer le jeu après confirmation
+  // Démarrer l'audio ICI — on est dans un vrai clic utilisateur
+  if (!Audio.isRunning()) Audio.toggle();
   launchGame();
 }
 
@@ -1680,18 +1681,19 @@ function changePseudo() {
 
 function startGame() {
   if (!playerPseudo) {
-    // Pas encore de pseudo — demander
     document.getElementById('pseudo-input').value = '';
     document.getElementById('pseudo-confirm-btn').disabled = true;
     document.getElementById('pseudo-modal').classList.add('active');
     setTimeout(() => document.getElementById('pseudo-input').focus(), 100);
   } else {
+    // Démarrer l'audio ICI — on est dans un vrai clic utilisateur
+    if (!Audio.isRunning()) Audio.toggle();
     launchGame();
   }
 }
 
 function launchGame() {
-  if(!Audio.isRunning()) Audio.toggle();
+  // Audio déjà démarré dans startGame ou confirmPseudo
   document.getElementById('loading').classList.add('active');
   setTimeout(function(){
     document.getElementById('loading').classList.remove('active');
