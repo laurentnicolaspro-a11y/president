@@ -1339,22 +1339,27 @@ function injectActionButtons(text, bodyEl) {
   }
 
   // Bouton "CONTINUER → PHASE 2"
-  // Détection fiable : la Phase 1 contient OBLIGATOIREMENT les deux tableaux côte à côte
-  // Détection Phase 1 fiable : les indicateurs doivent être dans des lignes de tableau Markdown
-  // On cherche des lignes "| Coffres..." etc. — la Phase 2 ne les a jamais sous cette forme
-  var tableLines = text.split('\n').filter(function(l){ return /^\|/.test(l.trim()); }).join('\n');
-  var indicateurCount = 0;
-  if (/coffres/i.test(tableLines)) indicateurCount++;
-  if (/popularit[ée]/i.test(tableLines)) indicateurCount++;
-  if (/taux de ch[oô]mage/i.test(tableLines)) indicateurCount++;
-  if (/tensions? sociales?/i.test(tableLines)) indicateurCount++;
-  if (/solde mensuel/i.test(tableLines)) indicateurCount++;
-  if (/croissance/i.test(tableLines)) indicateurCount++;
-  var hasPhase1Table = indicateurCount >= 3;
+  // Détection robuste : on cherche des lignes de tableau markdown avec des valeurs numériques
+  var tableLines = text.split('\n').filter(function(l){ return /^\|/.test(l.trim()); });
+  // Compter les lignes de données (pas les séparateurs ---)
+  var dataLines = tableLines.filter(function(l){ return !/^[\|\s\-:]+$/.test(l); });
+  // Une Phase 1 a au moins 4 lignes de données dans ses tableaux
+  var hasPhase1Table = dataLines.length >= 4;
   var hasOKSignal = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
     || /tapez\s+(ok|continuer)/i.test(text)
-    || /pour passer à la phase 2/i.test(text);
+    || /pour passer à la phase 2/i.test(text)
+    || /to continue to phase 2/i.test(text)
+    || /para continuar/i.test(text)
+    || /weiter zu phase/i.test(text);
   var isPhase1End = hasPhase1Table || hasOKSignal;
+
+  // Si on était en négociation et qu'on reçoit une Phase 1 ou Phase 2 normale → reset gamePhase
+  if (gamePhase === 'negotiation' && (isPhase1End || !isNegotiationMessage(text))) {
+    gamePhase = 'playing';
+    document.getElementById('nego-badge').classList.remove('active');
+    var oldPanel = document.querySelector('.nego-panel');
+    if (oldPanel) oldPanel.remove();
+  }
 
   if (isPhase1End && gamePhase === 'playing') {
     var existing=document.querySelector('.continue-btn');if(existing)existing.closest('.msg-actions').remove();
