@@ -1502,7 +1502,11 @@ function enrichTables(container, isLatest){
       var label=cells[0]?cells[0].textContent.trim().toLowerCase():'';
       var valCell=cells[1];if(!valCell)return;
       var rawVal=valCell.textContent.trim();
-      var n=parseFloat(rawVal.replace(/[^\d.\-]/g,''));
+      // Pour les valeurs X/10, extraire uniquement le numérateur
+      var n;
+      var slashMatch = rawVal.match(/^(\d+(?:\.\d+)?)\s*\/\s*10/);
+      if(slashMatch){ n = parseFloat(slashMatch[1]); }
+      else { n = parseFloat(rawVal.replace(/[^\d.\-]/g,'')); }
       if(isNaN(n))return;
 
       var arrow='';var cls='';var display=rawVal;
