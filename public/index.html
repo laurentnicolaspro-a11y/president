@@ -1455,8 +1455,8 @@ function addMessage(role,content){
     body.appendChild(retryBtn);
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
-      Stats.record(body,dateLabel);
       enrichTables(body, true);
+      Stats.record(body,dateLabel);
       detectAudioMode(body);
       // Détecter GAME OVER
       if(/\[GAME OVER\]/i.test(content)) {
@@ -1504,9 +1504,9 @@ function enrichTables(container, isLatest){
       var rawVal=valCell.textContent.trim();
       // Pour les valeurs X/10, extraire uniquement le numérateur
       var n;
-      var slashMatch = rawVal.match(/^(\d+(?:\.\d+)?)\s*\/\s*10/);
-      if(slashMatch){ n = parseFloat(slashMatch[1]); }
-      else { n = parseFloat(rawVal.replace(/[^\d.\-]/g,'')); }
+      var slashMatch = rawVal.match(/^(\d+(?:[.,]\d+)?)\s*\/\s*10/);
+      if(slashMatch){ n = parseFloat(slashMatch[1].replace(',','.')); }
+      else { n = parseFloat(rawVal.replace(',','.').replace(/[^\d.\-]/g,'')); }
       if(isNaN(n))return;
 
       var arrow='';var cls='';var display=rawVal;
@@ -1632,10 +1632,24 @@ function detectAudioMode(container){if(!AudioPlayer.isRunning())return;var tensi
 // ===== STATISTIQUES =====
 const Stats=(()=>{
   const data={labels:[],popularite:[],tensions:[],croissance:[],chomage:[],dette:[],coffres:[]};const charts={};
-  function extract(container){var found=false;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase().trim();var raw=cells[1].textContent.trim();var m=raw.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;found=true;if(label.includes('popular'))data.popularite.push(val);if(label.includes('tension'))data.tensions.push(val);if(label.includes('croissance'))data.croissance.push(val);if(label.includes('chômage')||label.includes('chomage'))data.chomage.push(val);if(label.includes('dette'))data.dette.push(val);if(label.includes('coffre'))data.coffres.push(val);});});return found;}
+  function extract(container){var found=false;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase().trim();var raw=cells[1].textContent.trim();var slashM=raw.match(/^(\d+(?:[.,]\d+)?)\s*\/\s*10/);var val;if(slashM){val=parseFloat(slashM[1].replace(',','.'));}else{var m=raw.replace(',','.').match(/-?\d+(\.\d+)?/);if(!m)return;val=parseFloat(m[0]);}if(isNaN(val))return;found=true;if(label.includes('popular'))data.popularite.push(val);if(label.includes('tension'))data.tensions.push(val);if(label.includes('croissance'))data.croissance.push(val);if(label.includes('chômage')||label.includes('chomage'))data.chomage.push(val);if(label.includes('dette'))data.dette.push(val);if(label.includes('coffre'))data.coffres.push(val);});});return found;}
   function render(id,key,label,color,min,max){var canvas=document.getElementById('chart-'+id);if(!canvas)return;var vals=data[key];if(!vals||!vals.length){canvas.parentNode.innerHTML='<div class="no-data">Pas encore de données</div>';return;}var vEl=document.getElementById('val-'+id);if(vEl)vEl.textContent=vals[vals.length-1];var labels=data.labels.length>=vals.length?data.labels.slice(-vals.length):vals.map(function(_,i){return'T'+(i+1);});if(charts[id]){charts[id].destroy();delete charts[id];}charts[id]=new Chart(canvas,{type:'line',data:{labels,datasets:[{label,data:vals,borderColor:color,backgroundColor:color+'14',borderWidth:2,pointRadius:3,pointBackgroundColor:color,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false},tooltip:{backgroundColor:'#161b22',borderColor:color,borderWidth:1,titleColor:color,bodyColor:'#e6edf3',titleFont:{family:'Share Tech Mono'},bodyFont:{family:'Share Tech Mono'}}},scales:{x:{ticks:{color:'#7d8590',font:{family:'Share Tech Mono',size:9},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.04)'}},y:{min:min!=null?min:undefined,max:max!=null?max:undefined,ticks:{color:'#7d8590',font:{family:'Share Tech Mono',size:9},maxTicksLimit:5},grid:{color:'rgba(255,255,255,0.06)'}}}}});}
   return{
-    record(container,turnLabel){var ok=extract(container);if(ok){var lbl=(turnLabel&&turnLabel!=='—')?turnLabel:'T'+(data.labels.length+1);data.labels.push(lbl);}try{localStorage.setItem('president_stats',JSON.stringify(data));}catch(e){}},
+    record(container,turnLabel){
+      // Lire depuis gameState qui est déjà à jour après enrichTables
+      var hasData = gameState.popularite !== null || gameState.tensions !== null || gameState.coffres !== null;
+      if(hasData){
+        if(gameState.popularite !== null) data.popularite.push(gameState.popularite);
+        if(gameState.tensions   !== null) data.tensions.push(gameState.tensions);
+        if(gameState.croissance !== null) data.croissance.push(gameState.croissance);
+        if(gameState.chomage    !== null) data.chomage.push(gameState.chomage);
+        if(gameState.dette      !== null) data.dette.push(gameState.dette);
+        if(gameState.coffres    !== null) data.coffres.push(gameState.coffres);
+        var lbl=(turnLabel&&turnLabel!=='—')?turnLabel:'T'+(data.labels.length+1);
+        data.labels.push(lbl);
+      }
+      try{localStorage.setItem('president_stats',JSON.stringify(data));}catch(e){}
+    },
     load(){try{var s=localStorage.getItem('president_stats');if(s)Object.assign(data,JSON.parse(s));}catch(e){}},
     reset(){Object.keys(data).forEach(function(k){data[k]=[];});Object.values(charts).forEach(function(c){c.destroy();});Object.keys(charts).forEach(function(k){delete charts[k];});try{localStorage.removeItem('president_stats');}catch(e){}},
     open(){document.getElementById('stats-modal').classList.add('active');document.getElementById('stats-turns').textContent=data.labels.length+' tour(s) enregistré(s)';setTimeout(function(){render('popularite','popularite','Popularité','#4285f4',0,100);render('tensions','tensions','Tensions','#ff3b5c',0,10);render('croissance','croissance','Croissance','#34a853',-5,10);render('chomage','chomage','Chômage','#fbbc04',0,30);render('dette','dette','Dette','#ea4335',0,200);render('coffres','coffres','Coffres','#34a853',null,null);Object.values(charts).forEach(function(c){c&&c.resize();});},50);}
