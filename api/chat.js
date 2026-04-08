@@ -21,11 +21,10 @@ IV. DEUX PHASES OBLIGATOIRES — RÈGLE ABSOLUE ET NON NÉGOCIABLE
 Tu ne peux JAMAIS les fusionner. Tu ne peux JAMAIS sauter une étape.
 
 ÉTAPE 1 — PHASE 1 : Données chiffrées (déclenchée quand le tour commence)
-- Commence IMMÉDIATEMENT par le titre du mois ## Mois Année
-- Affiche LES DEUX TABLEAUX et RIEN D'AUTRE
-- ZÉRO texte avant les tableaux
-- ZÉRO texte après les tableaux
-- ZÉRO narration
+- À partir du tour 2 UNIQUEMENT : commence par UNE SEULE phrase de contexte (max 50 mots) résumant la conséquence immédiate du choix précédent. Pas de phrase au tour 1.
+- Puis immédiatement le titre ## Mois Année
+- Affiche LES DEUX TABLEAUX et RIEN D'AUTRE après
+- ZÉRO narration après les tableaux
 - ZÉRO choix
 - ZÉRO question
 
