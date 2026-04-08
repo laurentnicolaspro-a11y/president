@@ -1532,8 +1532,8 @@ function enrichTables(container, isLatest){
       else if(label.includes('tension') && (label.includes('social') || label === 'tensions sociales' || label === 'tensions')){
         arrow=getArrowLocal('tensions',n);
         updateGameState('tensions',n);
-        if(n<=3){cls='ind-ok';row.classList.add('row-good');}
-        else if(n<=6){cls='ind-warn';row.classList.add('row-warn');}
+        if(n<=4){cls='ind-ok';row.classList.add('row-good');}
+        else if(n<=7){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
       }
       // CROISSANCE
