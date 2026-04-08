@@ -150,7 +150,7 @@ async function callGemini(apiKey, contents, systemPrompt, model) {
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
         tools: [{ google_search: {} }],
-        generationConfig: { maxOutputTokens: 2000, temperature: 0.70 }
+        generationConfig: { maxOutputTokens: 2000, temperature: 0.65 }
       })
     }
   );
