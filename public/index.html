@@ -1493,6 +1493,12 @@ function updateHUD(text){
 
 // ===== INDICATEURS DYNAMIQUES =====
 function enrichTables(container){
+  // Supprimer les anciens banners avant d'en créer de nouveaux
+  container.querySelectorAll('.alert-banner, .warn-banner').forEach(function(b){ b.remove(); });
+
+  // Snapshot de l'état AVANT ce tableau pour les flèches
+  var stateSnapshot = JSON.parse(JSON.stringify(gameState));
+
   container.querySelectorAll('table').forEach(function(table){
     table.querySelectorAll('tr').forEach(function(row){
       var cells=row.querySelectorAll('td');if(!cells.length)return;
@@ -1504,18 +1510,31 @@ function enrichTables(container){
 
       var arrow='';var cls='';var display=rawVal;
 
+      // Calcul flèche basé sur le snapshot (état AVANT ce tableau)
+      function getArrowLocal(key, newVal) {
+        var prev = stateSnapshot[key];
+        if (prev === null || prev === undefined) return '';
+        var better = {
+          popularite: newVal > prev, tensions: newVal < prev,
+          croissance: newVal > prev, chomage: newVal < prev,
+          dette: newVal < prev, coffres: newVal > prev, solde: newVal > prev
+        };
+        if (newVal === prev) return '';
+        return better[key] ? ' ▲' : ' ▼';
+      }
+
       // POPULARITÉ
       if(label.includes('popularit')){
+        arrow=getArrowLocal('popularite',n);
         updateGameState('popularite',n);
-        arrow=getArrow('popularite',n);
         if(n>=55){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=40){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
       }
       // TENSIONS SOCIALES
       else if(label.includes('tension')){
+        arrow=getArrowLocal('tensions',n);
         updateGameState('tensions',n);
-        arrow=getArrow('tensions',n);
         if(n<=3){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=6){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1524,40 +1543,40 @@ function enrichTables(container){
       }
       // CROISSANCE
       else if(label.includes('croissance')){
+        arrow=getArrowLocal('croissance',n);
         updateGameState('croissance',n);
-        arrow=getArrow('croissance',n);
         if(n>=1){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
       }
       // CHÔMAGE
       else if(label.includes('ch'+'ômage')||label.includes('chomage')){
+        arrow=getArrowLocal('chomage',n);
         updateGameState('chomage',n);
-        arrow=getArrow('chomage',n);
         if(n<5){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=10){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
       }
       // DETTE
       else if(label.includes('dette')){
+        arrow=getArrowLocal('dette',n);
         updateGameState('dette',n);
-        arrow=getArrow('dette',n);
         if(n<60){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=90){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
       }
       // COFFRES
       else if(label.includes('coffre')){
+        arrow=getArrowLocal('coffres',n);
         updateGameState('coffres',n);
-        arrow=getArrow('coffres',n);
         if(n>100){cls='ind-ok';row.classList.add('row-good');}
         else if(n>0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
       }
       // SOLDE MENSUEL
       else if(label.includes('solde')){
+        arrow=getArrowLocal('solde',n);
         updateGameState('solde',n);
-        arrow=getArrow('solde',n);
         if(n>0){cls='ind-ok';row.classList.add('row-good');}
         else if(n===0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
