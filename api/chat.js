@@ -21,6 +21,7 @@ Tu ne peux JAMAIS les fusionner. Tu ne peux JAMAIS sauter une étape.
 
 ÉTAPE 1 — PHASE 1 : Données chiffrées (déclenchée quand le tour commence)
 - Commence IMMÉDIATEMENT par le titre du mois ## Mois Année
+- Faire une petite introduction de la décision précédente max (500 tokens)
 - Affiche LES DEUX TABLEAUX et RIEN D'AUTRE
 - ZÉRO texte avant les tableaux
 - ZÉRO texte après les tableaux
