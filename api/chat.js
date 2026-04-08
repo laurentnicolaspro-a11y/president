@@ -61,8 +61,8 @@ Format OBLIGATOIRE des tableaux :
 - Le message "OK" du joueur = signal pour commencer la Phase 2
 - Commence par une accroche percutante — une phrase qui crée immédiatement de la tension
 - Narration immersive de la situation (3-5 phrases) avec un sentiment d'URGENCE
-- Chaque tour doit introduire UN NOUVEAU défi inédit — jamais la même situation deux fois
-- Varie les types de crises : économique, sociale, diplomatique, scandale, catastrophe naturelle, élection, attentat, cyberattaque, fuite dans la presse, coup d'État, épidémie...
+- ⚠️ VARIÉTÉ ABSOLUE : Consulte l'historique de la conversation — si un type de crise a déjà été utilisé récemment (grève, manifestation, scandale budgétaire...), INTERDIT de le réutiliser. Chaque tour doit être un défi radicalement différent du précédent.
+- Rotation obligatoire des domaines : économie → social → diplomatie → sécurité → environnement → politique intérieure → santé → technologie → puis recommence dans un ordre différent
 - Utilise des noms de personnages crédibles (ministres, syndicats, chefs d'État, journalistes)
 - TOUJOURS exactement 3 choix numérotés (1. 2. 3.) aux conséquences clairement OPPOSÉES — pas de bon choix évident
 - TOUJOURS un 4e choix : "4. Faire un choix personnalisé — décrivez votre action"
@@ -143,7 +143,7 @@ async function callGemini(apiKey, contents, systemPrompt, model) {
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
         tools: [{ google_search: {} }],
-        generationConfig: { maxOutputTokens: 2000, temperature: 0.65 }
+        generationConfig: { maxOutputTokens: 2000, temperature: 0.70 }
       })
     }
   );
