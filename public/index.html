@@ -1457,6 +1457,8 @@ function addMessage(role,content){
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
       Stats.record(body,dateLabel);
+      // Supprimer tous les anciens banners AVANT d'enrichir le nouveau tableau
+      document.querySelectorAll('.alert-banner, .warn-banner').forEach(function(b){ b.remove(); });
       enrichTables(body, true);
       detectAudioMode(body);
       // Détecter GAME OVER
@@ -1493,8 +1495,6 @@ function updateHUD(text){
 
 // ===== INDICATEURS DYNAMIQUES =====
 function enrichTables(container, isLatest){
-  // Supprimer tous les anciens banners du chat entier
-  document.querySelectorAll('.alert-banner, .warn-banner').forEach(function(b){ b.remove(); });
 
   // Snapshot de l'état AVANT ce tableau pour les flèches
   var stateSnapshot = JSON.parse(JSON.stringify(gameState));
@@ -1532,14 +1532,15 @@ function enrichTables(container, isLatest){
         else{cls='ind-crit';row.classList.add('row-crit');}
       }
       // TENSIONS SOCIALES
-      else if(label.includes('tension')){
+      else if(label.includes('tension') && (label.includes('social') || label === 'tensions sociales' || label === 'tensions')){
         arrow=getArrowLocal('tensions',n);
         updateGameState('tensions',n);
+        console.log('TENSIONS DÉTECTÉES:', n, 'label:', label, 'isLatest:', isLatest, 'currentTurn:', currentTurn);
         if(n<=3){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=6){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
-        if(n>=8 && isLatest){var b=document.createElement('div');b.className='alert-banner';b.innerHTML='⚠ ALERTE — Tensions sociales critiques !';table.parentNode.insertBefore(b,table);}
-        else if(n>=6 && isLatest){var b=document.createElement('div');b.className='warn-banner';b.innerHTML='⚡ ATTENTION — Tensions sociales élevées.';table.parentNode.insertBefore(b,table);}
+        if(n>=8 && n<=10 && isLatest && currentTurn > 0){console.log('BANNER CRÉÉ!');var b=document.createElement('div');b.className='alert-banner';b.innerHTML='⚠ ALERTE — Tensions sociales critiques !';table.parentNode.insertBefore(b,table);}
+        else if(n>=6 && n<=10 && isLatest && currentTurn > 0){var b=document.createElement('div');b.className='warn-banner';b.innerHTML='⚡ ATTENTION — Tensions sociales élevées.';table.parentNode.insertBefore(b,table);}
       }
       // CROISSANCE
       else if(label.includes('croissance')){
