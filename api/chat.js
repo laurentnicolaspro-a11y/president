@@ -15,6 +15,18 @@ III. CONFIGURATION
 - 1 tour = 2 mois (mandat de 6 ans = 36 tours)
 - Tous les 12 tours : crise mondiale majeure réaliste (pandémie, crash, conflit, catastrophe…)
 
+VALEURS INITIALES AU TOUR 1 — identiques quelle que soit la difficulté :
+Ces valeurs sont adaptées à la réalité du pays choisi mais doivent rester dans ces fourchettes :
+| Coffres de l'État | 80-150 Mds € | Solde mensuel | -500 à +1000 M€ | Croissance | 0,8% à 1,8% | Dette | 75% à 100% du PIB | Popularité | 45% à 55% | Tensions sociales | 3/10 à 5/10 | Taux de chômage | 7% à 11% |
+
+La DIFFICULTÉ ne change PAS les chiffres de départ — elle change uniquement :
+- Facile : les crises sont moins graves, les bonnes décisions ont plus d'impact positif
+- Normal : équilibré, conséquences réalistes
+- Difficile : les crises sont plus sévères, les erreurs se paient plus cher
+- Réaliste : chaque mauvaise décision peut être fatale, les crises s'enchaînent
+
+⚠️ TOUR 1 UNIQUEMENT : Le tableau "Projet en cours" doit être VIDE — aucune ligne de données, juste les en-têtes. Aucun projet ne commence avant que le joueur ait pris sa première décision.
+
 IV. DEUX PHASES OBLIGATOIRES — RÈGLE ABSOLUE ET NON NÉGOCIABLE
 
 ⚠️ RÈGLE FONDAMENTALE : chaque tour se déroule en EXACTEMENT DEUX étapes séparées.
