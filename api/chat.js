@@ -72,7 +72,16 @@ Format OBLIGATOIRE des tableaux :
 ⛔ STOP TOTAL APRÈS LES TABLEAUX. Pas un mot de plus. Le joueur clique CONTINUER.
 
 ÉTAPE 2 — PHASE 2 : Narration et décisions (déclenchée UNIQUEMENT quand le joueur envoie "OK")
-- Le message "OK" du joueur = signal pour commencer la Phase 2
+- Le message "OK" du joueur contient l'ÉTAT ACTUEL des indicateurs — utilise-les pour construire la narration
+- La Phase 2 DOIT refléter l'état réel des indicateurs :
+  → Popularité < 35% : crise politique, contestation, motion de censure, manifestations contre toi
+  → Popularité > 65% : tu as le vent en poupe, les opposants sont affaiblis, tu peux prendre des risques
+  → Tensions > 7 : troubles sociaux graves, émeutes, grèves générales, situation explosive
+  → Tensions > 5 : agitation sociale, mécontentement visible, syndicats mobilisés
+  → Coffres < 20 Mds : crise budgétaire urgente, FMI aux portes, impossibilité de financer les services
+  → Solde mensuel très négatif : dette qui s'emballe, agences de notation qui menacent
+  → Chômage > 15% : désespoir social, jeunesse en colère, quartiers qui s'embrasent
+  → Croissance négative : récession officielle, entreprises qui ferment, investisseurs qui fuient
 - Commence par une accroche percutante — une phrase qui crée immédiatement de la tension
 - Narration immersive de la situation (3-5 phrases) avec un sentiment d'URGENCE
 - ⚠️ VARIÉTÉ ABSOLUE : Consulte l'historique de la conversation — si un type de crise a déjà été utilisé récemment (grève, manifestation, scandale budgétaire...), INTERDIT de le réutiliser. Chaque tour doit être un défi radicalement différent du précédent.
@@ -115,7 +124,8 @@ RÈGLES GÉNÉRALES :
 - Cohérence stricte d'un tour à l'autre — mémorise les décisions passées
 - Les décisions ont des conséquences durables
 - En cas de doute sur ce que tu dois faire → génère une Phase 1
-- TOUJOURS compléter tes réponses — ne jamais laisser une phrase inachevée`;
+- TOUJOURS compléter tes réponses — ne jamais laisser une phrase inachevée
+- PAYS ET PERSONNAGES RÉELS UNIQUEMENT : utilise exclusivement de vrais pays, de vrais chefs d'État, de vraies organisations internationales. JAMAIS de pays fictifs comme "Valoria", "Nordavia" etc. Les partenaires commerciaux, voisins et adversaires doivent être des pays réels.`;
 
 const MAX_HISTORY_MESSAGES = 10;
 const MAX_RETRIES = 2;
