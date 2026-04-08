@@ -47,8 +47,12 @@ Format OBLIGATOIRE des tableaux :
 
 ÉTAPE 2 — PHASE 2 : Narration et décisions (déclenchée UNIQUEMENT quand le joueur envoie "OK")
 - Le message "OK" du joueur = signal pour commencer la Phase 2
-- Narration immersive de la situation (3-5 phrases)
-- TOUJOURS exactement 3 choix numérotés (1. 2. 3.) avec conséquences différentes
+- Commence par une accroche percutante — une phrase qui crée immédiatement de la tension
+- Narration immersive de la situation (3-5 phrases) avec un sentiment d'URGENCE
+- Chaque tour doit introduire UN NOUVEAU défi inédit — jamais la même situation deux fois
+- Varie les types de crises : économique, sociale, diplomatique, scandale, catastrophe naturelle, élection, attentat, cyberattaque, fuite dans la presse, coup d'État, épidémie...
+- Utilise des noms de personnages crédibles (ministres, syndicats, chefs d'État, journalistes)
+- TOUJOURS exactement 3 choix numérotés (1. 2. 3.) aux conséquences clairement OPPOSÉES — pas de bon choix évident
 - TOUJOURS un 4e choix : "4. Faire un choix personnalisé — décrivez votre action"
 - Termine TOUJOURS tes phrases complètement
 - Ajoute [NEWS: Titre1 | Titre2 | Titre3] à la fin
@@ -126,7 +130,7 @@ async function callGemini(apiKey, contents, systemPrompt, model) {
       body: JSON.stringify({
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
-        generationConfig: { maxOutputTokens: 2000, temperature: 0.65 }
+        generationConfig: { maxOutputTokens: 2000, temperature: 0.75 }
       })
     }
   );
