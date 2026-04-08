@@ -1436,6 +1436,19 @@ function getArrow(key, newVal) {
   return better[key] ? ' ▲' : ' ▼';
 }
 
+// ===== TRACKING SITUATION EN COURS =====
+var currentSituation = '';
+
+function extractSituation(text) {
+  // Cherche la première phrase courte qui résume la situation (avant les choix)
+  var lines = text.split('\n').filter(function(l){ return l.trim() && !l.match(/^\|/) && !l.match(/^\d\./) && !l.match(/^\[/); });
+  if (!lines.length) return '';
+  // Prend les 2 premières lignes de narration comme résumé de situation
+  var summary = lines.slice(0, 2).join(' ').replace(/<[^>]+>/g, '').trim();
+  // Limiter à 100 caractères
+  return summary.length > 100 ? summary.substring(0, 100) + '...' : summary;
+}
+
 function continueToPhase2(btn) {
   btn.closest('.msg-actions').remove();
   currentTurn++;
@@ -1446,7 +1459,8 @@ function continueToPhase2(btn) {
     return;
   }
   var stateStr = buildStateString();
-  var msgForGemini = stateStr ? 'OK ' + stateStr : 'OK';
+  var situationStr = currentSituation ? ' [SITUATION EN COURS : ' + currentSituation + ']' : '';
+  var msgForGemini = 'OK' + (stateStr ? ' ' + stateStr : '') + situationStr;
   addMessage('user', 'OK');
   conversationHistory.push({role:'user', content: msgForGemini});
   callAPI(null, false);
@@ -1454,6 +1468,9 @@ function continueToPhase2(btn) {
 
 async function sendChoiceMessage(text) {
   if(isLoading)return;
+  // Extraire la situation du dernier message AI avant que le joueur choisisse
+  var lastAI = conversationHistory.filter(function(m){ return m.role==='assistant'; });
+  if(lastAI.length) currentSituation = extractSituation(lastAI[lastAI.length-1].content);
   addMessage('user',text);
   conversationHistory.push({role:'user',content:text});
   await callAPI(null,false);
@@ -1694,7 +1711,7 @@ function resetGame(){
   if(!confirm(t('abandonConfirm')))return;
   AudioPlayer.stop();Stats.reset();clearSave();gamePhase='init';
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
-  prevState={};
+  prevState={};currentSituation="";
   document.getElementById('nego-badge').classList.remove('active');
   document.getElementById('game').classList.remove('active');document.getElementById('landing').style.display='';
   document.getElementById('save-info').style.display='none';
@@ -1965,7 +1982,7 @@ function goHome() {
   document.getElementById('landing').style.display = '';
   Stats.reset(); clearSave();
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
-  prevState={};initialState={};
+  prevState={};initialState={};currentSituation="";
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
   currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
@@ -1979,7 +1996,7 @@ function replayGame() {
   document.getElementById('landing').style.display = '';
   Stats.reset();clearSave();
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
-  prevState={};initialState={};
+  prevState={};initialState={};currentSituation="";
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
   currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
