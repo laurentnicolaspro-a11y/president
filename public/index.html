@@ -1493,8 +1493,8 @@ function updateHUD(text){
 
 // ===== INDICATEURS DYNAMIQUES =====
 function enrichTables(container){
-  // Supprimer les anciens banners avant d'en créer de nouveaux
-  container.querySelectorAll('.alert-banner, .warn-banner').forEach(function(b){ b.remove(); });
+  // Supprimer les anciens banners dans TOUT le chat (pas seulement ce message)
+  document.querySelectorAll('.alert-banner, .warn-banner').forEach(function(b){ b.remove(); });
 
   // Snapshot de l'état AVANT ce tableau pour les flèches
   var stateSnapshot = JSON.parse(JSON.stringify(gameState));
