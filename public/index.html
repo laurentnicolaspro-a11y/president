@@ -1299,7 +1299,7 @@ function _doResumeGame() {
     var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
     conversationHistory.forEach(function(m){
       if(m.role==='user'){var div=document.createElement('div');div.className='msg user';var h=document.createElement('div');h.className='msg-header';h.textContent='▶ VOUS';var b=document.createElement('div');b.className='msg-body';b.textContent=m.content;div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
-      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){Stats.record(b,'');enrichTables(b);detectAudioMode(b);renderChoices(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
+      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){Stats.record(b,'');enrichTables(b, false);detectAudioMode(b);renderChoices(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
     });
     container.scrollTop=container.scrollHeight;
   },1500);
@@ -1457,7 +1457,7 @@ function addMessage(role,content){
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
       Stats.record(body,dateLabel);
-      enrichTables(body);
+      enrichTables(body, true);
       detectAudioMode(body);
       // Détecter GAME OVER
       if(/\[GAME OVER\]/i.test(content)) {
@@ -1492,8 +1492,8 @@ function updateHUD(text){
 }
 
 // ===== INDICATEURS DYNAMIQUES =====
-function enrichTables(container){
-  // Supprimer les anciens banners dans TOUT le chat (pas seulement ce message)
+function enrichTables(container, isLatest){
+  // Supprimer tous les anciens banners du chat entier
   document.querySelectorAll('.alert-banner, .warn-banner').forEach(function(b){ b.remove(); });
 
   // Snapshot de l'état AVANT ce tableau pour les flèches
@@ -1538,8 +1538,8 @@ function enrichTables(container){
         if(n<=3){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=6){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
-        if(n>=8){var b=document.createElement('div');b.className='alert-banner';b.innerHTML='⚠ ALERTE — Tensions sociales critiques !';table.parentNode.insertBefore(b,table);}
-        else if(n>=6){var b=document.createElement('div');b.className='warn-banner';b.innerHTML='⚡ ATTENTION — Tensions sociales élevées.';table.parentNode.insertBefore(b,table);}
+        if(n>=8 && isLatest){var b=document.createElement('div');b.className='alert-banner';b.innerHTML='⚠ ALERTE — Tensions sociales critiques !';table.parentNode.insertBefore(b,table);}
+        else if(n>=6 && isLatest){var b=document.createElement('div');b.className='warn-banner';b.innerHTML='⚡ ATTENTION — Tensions sociales élevées.';table.parentNode.insertBefore(b,table);}
       }
       // CROISSANCE
       else if(label.includes('croissance')){
@@ -1726,7 +1726,7 @@ function launchGame() {
     document.getElementById('landing').style.display='none';
     document.getElementById('game').classList.add('active');
     conversationHistory=[];Stats.reset();gamePhase='init';
-    callAPI("Commence le jeu. Lance une introduction immersive courte basée sur la date actuelle 2026 et les événements réels du monde. Présente les enjeux géopolitiques du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté. LANGUE DU JEU : joue et réponds EXCLUSIVEMENT en " + {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang] + ".",true);
+    callAPI("Commence le jeu. Recherche les événements réels actuels dans le monde et lance une introduction immersive courte basée sur la date d'aujourd'hui et l'actualité géopolitique du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté. LANGUE DU JEU : joue et réponds EXCLUSIVEMENT en " + {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang] + ".",true);
   },2000);
 }
 
