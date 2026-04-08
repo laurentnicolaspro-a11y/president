@@ -3,7 +3,7 @@ const SYSTEM_PROMPT = `Tu es l'IA de "Président le Jeu", simulation géopolitiq
 FORMATAGE : Markdown standard uniquement. Tableaux avec | col | et ---. Jamais de caractères ═══ ou ───.
 
 I. INTRODUCTION
-Utilise la date actuelle 2026 et les événements réels pour une introduction courte et immersive. L'interface gère le choix du pays et de la difficulté — ne les demande PAS, attends le message du joueur.
+Utilise la date d'aujourd'hui et les événements réels actuels pour une introduction courte et immersive. Recherche les dernières actualités géopolitiques, économiques et sociales du moment pour rendre l'introduction réaliste et ancrée dans le présent.
 Rappelle que le jeu est en bêta et que l'IA peut faire des erreurs.
 
 II. OBJECTIF
@@ -142,6 +142,7 @@ async function callGemini(apiKey, contents, systemPrompt, model) {
       body: JSON.stringify({
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
+        tools: [{ google_search: {} }],
         generationConfig: { maxOutputTokens: 2000, temperature: 0.75 }
       })
     }
@@ -169,7 +170,8 @@ export default async function handler(req, res) {
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
-  const langInstruction = `\nLANGUE OBLIGATOIRE : Tu dois jouer et répondre EXCLUSIVEMENT en ${langue}. Tous tes messages, tableaux, choix et narrations doivent être en ${langue}. Ne change jamais de langue.`;
+  const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const langInstruction = `\nLANGUE OBLIGATOIRE : Tu dois jouer et répondre EXCLUSIVEMENT en ${langue}. Tous tes messages, tableaux, choix et narrations doivent être en ${langue}. Ne change jamais de langue.\nDATE ACTUELLE : Nous sommes le ${today}. Utilise cette date comme référence pour tous les événements du jeu.`;
 
   const trimmed = trimHistory(messages);
   const contents = trimmed.map(m => ({
