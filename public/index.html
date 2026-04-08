@@ -536,6 +536,7 @@
       <button class="result-btn result-btn-share" onclick="shareResult()">⬆ PARTAGER</button>
       <button class="result-btn result-btn-rank" onclick="openLeaderboard()">🏆 CLASSEMENT</button>
       <button class="result-btn result-btn-replay" onclick="replayGame()">↺ REJOUER</button>
+      <button class="result-btn" style="border-color:var(--muted);color:var(--muted);" onclick="goHome()">⌂ ACCUEIL</button>
     </div>
   </div>
 </div>
@@ -564,6 +565,7 @@
     <div class="defeat-btns">
       <button class="result-btn result-btn-replay" onclick="replayGame()">↺ REJOUER</button>
       <button class="result-btn result-btn-rank" onclick="openLeaderboard()">🏆 CLASSEMENT</button>
+      <button class="result-btn" style="border-color:var(--muted);color:var(--muted);" onclick="goHome()">⌂ ACCUEIL</button>
     </div>
   </div>
 </div>
@@ -1948,6 +1950,20 @@ function shareResult() {
       alert(t('resultCopied'));
     });
   }
+}
+
+function goHome() {
+  document.getElementById('result-screen').classList.remove('active');
+  document.getElementById('defeat-screen').classList.remove('active');
+  document.getElementById('landing').style.display = '';
+  Stats.reset(); clearSave();
+  gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
+  prevState={};initialState={};
+  document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
+  currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
+  // Mettre à jour l'indicateur de sauvegarde
+  document.getElementById('save-info').style.display='none';
 }
 
 function replayGame() {
