@@ -7,7 +7,7 @@ Utilise la date actuelle 2026 et les événements réels pour une introduction c
 Rappelle que le jeu est en bêta et que l'IA peut faire des erreurs.
 
 II. OBJECTIF
-Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total). l'IA doit faire en sorte que le joueur n'y arrive pas.
+Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total). L'IA doit faire en sorte que le joueur n'y arrive pas
 Crée des obstacles réalistes : crises économiques, scandales, mouvements sociaux, pression internationale, catastrophes.
 
 III. CONFIGURATION
@@ -87,7 +87,8 @@ RÈGLES GÉNÉRALES :
 - TOUJOURS compléter tes réponses — ne jamais laisser une phrase inachevée`;
 
 const MAX_HISTORY_MESSAGES = 10;
-const MAX_RETRIES = 2; // Nombre de tentatives max
+const MAX_RETRIES = 2;
+const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 function trimHistory(messages) {
   if (messages.length <= MAX_HISTORY_MESSAGES) return messages;
@@ -96,21 +97,18 @@ function trimHistory(messages) {
   return [...first, ...recent];
 }
 
-// Détecter si c'est un appel de jeu actif (pas intro, pas bilan)
 function isGameplayCall(messages) {
   if (!messages || messages.length < 2) return false;
   const lastMsg = messages[messages.length - 1]?.content || '';
-  // Appels spéciaux → pas de validation
   if (lastMsg.includes('introduction immersive')) return false;
   if (lastMsg.includes('bilan historique')) return false;
   if (lastMsg.includes('chute du joueur')) return false;
   return true;
 }
 
-// Valider la réponse de Gemini
 function isValidResponse(text, messages) {
   if (!text || text.length < 80) return false;
-  if (!isGameplayCall(messages)) return true; // Pas de validation pour les appels spéciaux
+  if (!isGameplayCall(messages)) return true;
   const hasTable = text.includes('|');
   const hasChoices = /\n\s*[1-4]\./m.test(text);
   const hasGameOver = /\[GAME OVER\]/i.test(text);
@@ -118,25 +116,22 @@ function isValidResponse(text, messages) {
   return hasTable || hasChoices || hasGameOver || hasNego;
 }
 
-async function callGemini(apiKey, contents, systemPrompt) {
+async function callGemini(apiKey, contents, systemPrompt, model) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
-        generationConfig: {
-          maxOutputTokens: 2000,
-          temperature: 0.65
-        }
+        generationConfig: { maxOutputTokens: 2000, temperature: 0.65 }
       })
     }
   );
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || 'Erreur API Gemini ' + response.status);
+    throw { status: response.status, message: err.error?.message || 'Erreur API ' + response.status };
   }
   const data = await response.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -160,38 +155,43 @@ export default async function handler(req, res) {
   const langInstruction = `\nLANGUE OBLIGATOIRE : Tu dois jouer et répondre EXCLUSIVEMENT en ${langue}. Tous tes messages, tableaux, choix et narrations doivent être en ${langue}. Ne change jamais de langue.`;
 
   const trimmed = trimHistory(messages);
-
   const contents = trimmed.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
+  const systemPrompt = SYSTEM_PROMPT + langInstruction;
 
-  try {
-    const systemPrompt = SYSTEM_PROMPT + langInstruction;
-    let text = '';
-    let attempts = 0;
+  let lastError = null;
 
-    while (attempts < MAX_RETRIES) {
-      attempts++;
-      text = await callGemini(apiKey, contents, systemPrompt);
+  for (const model of MODELS) {
+    try {
+      let text = '';
 
-      if (isValidResponse(text, trimmed)) break;
-
-      // Réponse invalide — on réessaie avec un rappel
-      if (attempts < MAX_RETRIES) {
-        const retryContents = [
-          ...contents,
-          { role: 'model', parts: [{ text }] },
-          { role: 'user', parts: [{ text: 'Ta réponse semble incomplète ou incorrecte. Recommence en respectant strictement le format demandé — Phase 1 avec les deux tableaux uniquement, ou Phase 2 avec narration et 4 choix.' }] }
-        ];
-        text = await callGemini(apiKey, retryContents, systemPrompt);
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        text = await callGemini(apiKey, contents, systemPrompt, model);
         if (isValidResponse(text, trimmed)) break;
+
+        if (attempt < MAX_RETRIES) {
+          const retryContents = [
+            ...contents,
+            { role: 'model', parts: [{ text }] },
+            { role: 'user', parts: [{ text: 'Ta réponse semble incomplète. Recommence en respectant le format — Phase 1 avec les deux tableaux uniquement, ou Phase 2 avec narration et 4 choix.' }] }
+          ];
+          text = await callGemini(apiKey, retryContents, systemPrompt, model);
+          if (isValidResponse(text, trimmed)) break;
+        }
       }
+
+      if (text) return res.status(200).json({ text });
+
+    } catch (err) {
+      lastError = err;
+      // Surcharge ou rate limit → essayer le modèle suivant
+      if (err.status === 503 || err.status === 429 || err.status === 500) continue;
+      // Autre erreur → abandonner
+      break;
     }
-
-    return res.status(200).json({ text });
-
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
   }
+
+  return res.status(500).json({ error: lastError?.message || 'Erreur inconnue' });
 }
