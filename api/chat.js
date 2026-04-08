@@ -180,11 +180,14 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
 
-  const { messages, lang } = req.body;
+  const { messages, lang, situation } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const situationInstruction = situation
+    ? `\nSITUATION EN COURS (OBLIGATOIRE) : La situation suivante est toujours active et non résolue — tu DOIS continuer à la développer dans la Phase 2 : "${situation}". Ne démarre PAS une nouvelle situation tant que celle-ci n'est pas explicitement résolue.`
+    : '';
   const langInstruction = `\nLANGUE OBLIGATOIRE : Tu dois jouer et répondre EXCLUSIVEMENT en ${langue}. Tous tes messages, tableaux, choix et narrations doivent être en ${langue}. Ne change jamais de langue.\nDATE ACTUELLE : Nous sommes le ${today}. Utilise cette date comme référence pour tous les événements du jeu.`;
 
   const trimmed = trimHistory(messages);
@@ -192,7 +195,7 @@ export default async function handler(req, res) {
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
-  const systemPrompt = SYSTEM_PROMPT + langInstruction;
+  const systemPrompt = SYSTEM_PROMPT + situationInstruction + langInstruction;
 
   let lastError = null;
 
