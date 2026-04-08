@@ -1274,7 +1274,7 @@ let conversationHistory = [], isLoading = false;
 function saveGame() {
   try {
     localStorage.setItem('president_history',JSON.stringify(conversationHistory));
-    localStorage.setItem('president_hud',JSON.stringify({country:document.getElementById('hud-country').textContent,date:document.getElementById('hud-date').textContent,diff:document.getElementById('hud-diff').textContent}));
+    localStorage.setItem('president_hud',JSON.stringify({country:document.getElementById('hud-country').textContent,date:document.getElementById('hud-date').textContent,diff:document.getElementById('hud-diff').textContent,turn:currentTurn,maxTurn:maxTurns}));
     var ind=document.getElementById('save-indicator');if(ind){ind.classList.add('show');setTimeout(function(){ind.classList.remove('show');},2000);}
   }catch(e){}
 }
@@ -1312,10 +1312,13 @@ function _doResumeGame() {
     document.getElementById('landing').style.display='none';
     document.getElementById('game').classList.add('active');
     conversationHistory=save.history; applyHUD(save.hud); gamePhase='playing';
+    // Restaurer le compteur de tours
+    if(save.hud && save.hud.turn) { currentTurn = save.hud.turn; maxTurns = save.hud.maxTurn || 36; updateTurnCounter(); }
     var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
     conversationHistory.forEach(function(m){
       if(m.role==='user'){var div=document.createElement('div');div.className='msg user';var h=document.createElement('div');h.className='msg-header';h.textContent='▶ VOUS';var b=document.createElement('div');b.className='msg-body';b.textContent=m.content;div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
-      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){Stats.record(b,'');enrichTables(b, false);detectAudioMode(b);renderChoices(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
+      // NE PAS appeler Stats.record au rechargement — les stats sont déjà dans localStorage
+      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){enrichTables(b, false);detectAudioMode(b);renderChoices(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
     });
     container.scrollTop=container.scrollHeight;
   },1500);
