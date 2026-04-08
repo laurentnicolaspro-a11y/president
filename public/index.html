@@ -1335,7 +1335,10 @@ async function callAPI(initMessage,isInit) {
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    addMessage('ai',text);updateHUD(text);saveGame();
+    addMessage('ai',text);updateHUD(text);
+    // Mettre à jour la situation en cours après chaque réponse
+    currentSituation = extractSituation(text);
+    saveGame();
   }catch(err){addMessage('ai','⚠ Erreur : '+err.message+'\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.');}
   setLoading(false);
 }
@@ -1440,9 +1443,13 @@ function getArrow(key, newVal) {
 var currentSituation = '';
 
 function extractSituation(text) {
+  // Si le texte contient des marqueurs de résolution → reset
+  if (/résolu|terminé|accord signé|crise écartée|situation normalis|retour au calme/i.test(text)) {
+    return '';
+  }
   // Cherche la première phrase courte qui résume la situation (avant les choix)
   var lines = text.split('\n').filter(function(l){ return l.trim() && !l.match(/^\|/) && !l.match(/^\d\./) && !l.match(/^\[/); });
-  if (!lines.length) return '';
+  if (!lines.length) return currentSituation; // Garde l'ancienne si pas de narration (Phase 1)
   // Prend les 2 premières lignes de narration comme résumé de situation
   var summary = lines.slice(0, 2).join(' ').replace(/<[^>]+>/g, '').trim();
   // Limiter à 100 caractères
