@@ -1656,18 +1656,22 @@ const Stats=(()=>{
   function render(id,key,label,color,min,max){var canvas=document.getElementById('chart-'+id);if(!canvas)return;var vals=data[key];if(!vals||!vals.length){canvas.parentNode.innerHTML='<div class="no-data">Pas encore de données</div>';return;}var vEl=document.getElementById('val-'+id);if(vEl)vEl.textContent=vals[vals.length-1];var labels=data.labels.length>=vals.length?data.labels.slice(-vals.length):vals.map(function(_,i){return'T'+(i+1);});if(charts[id]){charts[id].destroy();delete charts[id];}charts[id]=new Chart(canvas,{type:'line',data:{labels,datasets:[{label,data:vals,borderColor:color,backgroundColor:color+'14',borderWidth:2,pointRadius:3,pointBackgroundColor:color,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false},tooltip:{backgroundColor:'#161b22',borderColor:color,borderWidth:1,titleColor:color,bodyColor:'#e6edf3',titleFont:{family:'Share Tech Mono'},bodyFont:{family:'Share Tech Mono'}}},scales:{x:{ticks:{color:'#7d8590',font:{family:'Share Tech Mono',size:9},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.04)'}},y:{min:min!=null?min:undefined,max:max!=null?max:undefined,ticks:{color:'#7d8590',font:{family:'Share Tech Mono',size:9},maxTicksLimit:5},grid:{color:'rgba(255,255,255,0.06)'}}}}});}
   return{
     record(container,turnLabel){
-      // Lire depuis gameState qui est déjà à jour après enrichTables
-      var hasData = gameState.popularite !== null || gameState.tensions !== null || gameState.coffres !== null;
-      if(hasData){
-        if(gameState.popularite !== null) data.popularite.push(gameState.popularite);
-        if(gameState.tensions   !== null) data.tensions.push(gameState.tensions);
-        if(gameState.croissance !== null) data.croissance.push(gameState.croissance);
-        if(gameState.chomage    !== null) data.chomage.push(gameState.chomage);
-        if(gameState.dette      !== null) data.dette.push(gameState.dette);
-        if(gameState.coffres    !== null) data.coffres.push(gameState.coffres);
-        var lbl=(turnLabel&&turnLabel!=='—')?turnLabel:'T'+(data.labels.length+1);
-        data.labels.push(lbl);
-      }
+      // Enregistrer uniquement si gameState a des données ET si les valeurs ont changé depuis le dernier enregistrement
+      var hasData = gameState.popularite !== null && gameState.tensions !== null;
+      if(!hasData) return;
+      // Vérifier si les valeurs sont différentes du dernier point enregistré
+      var lastPop = data.popularite[data.popularite.length-1];
+      var lastTens = data.tensions[data.tensions.length-1];
+      var unchanged = (lastPop === gameState.popularite && lastTens === gameState.tensions);
+      if(unchanged && data.labels.length > 0) return; // Pas de doublon
+      if(gameState.popularite !== null) data.popularite.push(gameState.popularite);
+      if(gameState.tensions   !== null) data.tensions.push(gameState.tensions);
+      if(gameState.croissance !== null) data.croissance.push(gameState.croissance);
+      if(gameState.chomage    !== null) data.chomage.push(gameState.chomage);
+      if(gameState.dette      !== null) data.dette.push(gameState.dette);
+      if(gameState.coffres    !== null) data.coffres.push(gameState.coffres);
+      var lbl=(turnLabel&&turnLabel!=='—')?turnLabel:'T'+(data.labels.length+1);
+      data.labels.push(lbl);
       try{localStorage.setItem('president_stats',JSON.stringify(data));}catch(e){}
     },
     load(){try{var s=localStorage.getItem('president_stats');if(s)Object.assign(data,JSON.parse(s));}catch(e){}},
