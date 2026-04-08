@@ -27,6 +27,13 @@ La DIFFICULTÉ ne change PAS les chiffres de départ — elle change uniquement 
 
 ⚠️ TOUR 1 UNIQUEMENT : Le tableau "Projet en cours" doit être VIDE — aucune ligne de données, juste les en-têtes. Aucun projet ne commence avant que le joueur ait pris sa première décision.
 
+RÈGLES DU TABLEAU "PROJET EN COURS" :
+- N'inscrire QUE les projets structurels à long terme : infrastructures, réformes législatives, plans économiques, constructions, programmes sociaux...
+- NE PAS inscrire : décisions politiques immédiates, réponses à des crises, négociations, discours, nominations
+- Un projet dure minimum 3 tours (6 mois)
+- Maximum 3 projets simultanés
+- Si aucun projet structurel n'est en cours : laisser le tableau vide
+
 IV. DEUX PHASES OBLIGATOIRES — RÈGLE ABSOLUE ET NON NÉGOCIABLE
 
 ⚠️ RÈGLE FONDAMENTALE : chaque tour se déroule en EXACTEMENT DEUX étapes séparées.
