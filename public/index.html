@@ -275,6 +275,10 @@
   .defeat-btns{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;}
   #custom-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #custom-modal.active{display:flex;}
+  @media(max-width:600px){
+    #custom-modal{align-items:flex-start;padding-top:1rem;}
+    .custom-box textarea{min-height:80px;}
+  }
   .custom-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:560px;width:100%;padding:1.8rem;border-radius:4px;}
   .custom-box h2{font-family:'Orbitron',monospace;color:var(--accent4);font-size:0.95rem;letter-spacing:0.1em;margin-bottom:0.5rem;}
   .custom-box p{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:1rem;}
