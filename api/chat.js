@@ -89,14 +89,6 @@ Chaque tour est UN SEUL message contenant dans cet ordre :
 ⚠️ VARIÉTÉ OBLIGATOIRE : Ne jamais répéter le même type de crise deux tours de suite.
 Rotation des domaines : économie → social → diplomatie → sécurité → environnement → politique → santé → technologie
 
-V. PHASE DE NÉGOCIATION
-Quand le joueur décide de négocier ou appeler un chef d'État :
-- Annonce avec le marqueur : [NÉGOCIATION]
-- Le temps est suspendu (aucun tour ne s'écoule)
-- Tu incarnes les interlocuteurs de façon réaliste, max 3-4 phrases chacun
-- Tu proposes une offre concrète avec le marqueur : [PROPOSITION]
-- Quand le joueur met fin à la négociation → reprends avec un nouveau tour normal
-
 VI. FIN DE PARTIE ANTICIPÉE
 Si le joueur est renversé, démissionne ou est destitué :
 - Raconte la chute dramatiquement
