@@ -1674,10 +1674,10 @@ var lastResultData = {};
 var DIFF_MULTIPLIERS = {'Facile':1,'Normal':1.5,'Difficile':2,'Réaliste':3,'Easy':1,'Hard':2,'Realistic':3,'Fácil':1,'Difícil':2,'Realista':3,'Leicht':1,'Schwer':2,'Realistisch':3};
 var NOTES = [
   {min:0,    key:'note0', color:'var(--muted)'},
-  {min:2000, key:'note1', color:'var(--accent4)'},
-  {min:4000, key:'note2', color:'var(--accent4)'},
-  {min:6000, key:'note3', color:'var(--accent)'},
-  {min:8000, key:'note4', color:'var(--accent3)'},
+  {min:1500, key:'note1', color:'var(--accent4)'},
+  {min:3000, key:'note2', color:'var(--accent4)'},
+  {min:5000, key:'note3', color:'var(--accent)'},
+  {min:7000, key:'note4', color:'var(--accent3)'},
   {min:10000,key:'note5', color:'var(--accent2)'}
 ];
 
@@ -1703,13 +1703,27 @@ function computeScore() {
     return Math.round(d * weight);
   }
 
-  base += delta('popularite', true,  25);
-  base += delta('tensions',   false, 20);
-  base += delta('croissance', true,  20);
-  base += delta('chomage',    false, 15);
-  base += delta('coffres',    true,  10);
-  base += delta('dette',      false, 10);
-  base += 500; // bonus mandat terminé
+  // Score basé sur les variations
+  base += delta('popularite', true,  30);
+  base += delta('tensions',   false, 25);
+  base += delta('croissance', true,  25);
+  base += delta('chomage',    false, 20);
+  base += delta('coffres',    true,  15);
+  base += delta('dette',      false, 15);
+
+  // Bonus basé sur les valeurs finales absolues
+  if (gameState.popularite !== null) {
+    if (gameState.popularite >= 60) base += 300;
+    else if (gameState.popularite >= 50) base += 150;
+  }
+  if (gameState.tensions !== null) {
+    if (gameState.tensions <= 3) base += 300;
+    else if (gameState.tensions <= 5) base += 150;
+  }
+  if (gameState.coffres !== null && gameState.coffres > 100) base += 200;
+  if (gameState.croissance !== null && gameState.croissance >= 1.5) base += 200;
+
+  base += 1000; // bonus mandat terminé (augmenté)
 
   base = Math.max(0, base);
   var total = Math.round(base * mult);
