@@ -1357,40 +1357,16 @@ function injectActionButtons(text, bodyEl) {
     return;
   }
 
-  // Bouton "CONTINUER → PHASE 2"
-  // Détection robuste : on cherche des lignes de tableau markdown avec des valeurs numériques
-  var tableLines = text.split('\n').filter(function(l){ return /^\|/.test(l.trim()); });
-  // Compter les lignes de données (pas les séparateurs ---)
-  var dataLines = tableLines.filter(function(l){ return !/^[\|\s\-:]+$/.test(l); });
-  // Une Phase 1 a au moins 4 lignes de données dans ses tableaux
-  var hasPhase1Table = dataLines.length >= 4;
-  var hasOKSignal = /\[\s*(tapez\s+ok|ok|continuer)[^\]]*\]/i.test(text)
-    || /tapez\s+(ok|continuer)/i.test(text)
-    || /pour passer à la phase 2/i.test(text)
-    || /to continue to phase 2/i.test(text)
-    || /para continuar/i.test(text)
-    || /weiter zu phase/i.test(text);
-  var isPhase1End = hasPhase1Table || hasOKSignal;
-
-  // Si on était en négociation et qu'on reçoit une Phase 1 ou Phase 2 normale → reset gamePhase
-  if (gamePhase === 'negotiation' && (isPhase1End || !isNegotiationMessage(text))) {
+  // Si on était en négociation et qu'on reçoit un message normal → reset gamePhase
+  if (gamePhase === 'negotiation' && !isNegotiationMessage(text)) {
     gamePhase = 'playing';
     document.getElementById('nego-badge').classList.remove('active');
     var oldPanel = document.querySelector('.nego-panel');
     if (oldPanel) oldPanel.remove();
   }
 
-  if (isPhase1End && gamePhase === 'playing') {
-    var existing=document.querySelector('.continue-btn');if(existing)existing.closest('.msg-actions').remove();
-    var div=document.createElement('div');div.className='msg-actions';
-    div.innerHTML='<button class="continue-btn" onclick="continueToPhase2(this)">'+t('continueBtn')+'</button>';
-    container.insertBefore(div,typing);container.scrollTop=container.scrollHeight;
-    // Masquer les <ol> parasites si l'IA a mélangé les phases
-    if (bodyEl) bodyEl.querySelectorAll('ol').forEach(function(ol){ ol.style.display='none'; });
-  }
-
   // Panneau de négociation
-  if (gamePhase === 'playing' && !isPhase1End && isNegotiationMessage(text)) {
+  if (gamePhase === 'playing' && isNegotiationMessage(text)) {
     injectNegoPanel(container, typing);
   }
 }
@@ -1443,41 +1419,25 @@ function getArrow(key, newVal) {
 var currentSituation = '';
 
 function extractSituation(text) {
-  // Si le texte contient des marqueurs de résolution → reset
-  if (/résolu|terminé|accord signé|crise écartée|situation normalis|retour au calme/i.test(text)) {
-    return '';
-  }
-  // Cherche la première phrase courte qui résume la situation (avant les choix)
+  if (/résolu|terminé|accord signé|crise écartée|situation normalis|retour au calme/i.test(text)) return '';
   var lines = text.split('\n').filter(function(l){ return l.trim() && !l.match(/^\|/) && !l.match(/^\d\./) && !l.match(/^\[/); });
-  if (!lines.length) return currentSituation; // Garde l'ancienne si pas de narration (Phase 1)
-  // Prend les 2 premières lignes de narration comme résumé de situation
+  if (!lines.length) return currentSituation;
   var summary = lines.slice(0, 2).join(' ').replace(/<[^>]+>/g, '').trim();
-  // Limiter à 100 caractères
   return summary.length > 100 ? summary.substring(0, 100) + '...' : summary;
-}
-
-function continueToPhase2(btn) {
-  btn.closest('.msg-actions').remove();
-  currentTurn++;
-  updateTurnCounter();
-  // Fin de mandat ?
-  if (maxTurns && currentTurn >= maxTurns) {
-    showResultScreen();
-    return;
-  }
-  var stateStr = buildStateString();
-  var situationStr = currentSituation ? ' [SITUATION EN COURS : ' + currentSituation + ']' : '';
-  var msgForGemini = 'OK' + (stateStr ? ' ' + stateStr : '') + situationStr;
-  addMessage('user', 'OK');
-  conversationHistory.push({role:'user', content: msgForGemini});
-  callAPI(null, false);
 }
 
 async function sendChoiceMessage(text) {
   if(isLoading)return;
-  // Extraire la situation du dernier message AI avant que le joueur choisisse
+  // Extraire la situation du dernier message AI
   var lastAI = conversationHistory.filter(function(m){ return m.role==='assistant'; });
   if(lastAI.length) currentSituation = extractSituation(lastAI[lastAI.length-1].content);
+  // Incrémenter le tour après chaque choix
+  currentTurn++;
+  updateTurnCounter();
+  if (maxTurns && currentTurn >= maxTurns) {
+    showResultScreen();
+    return;
+  }
   addMessage('user',text);
   conversationHistory.push({role:'user',content:text});
   await callAPI(null,false);
