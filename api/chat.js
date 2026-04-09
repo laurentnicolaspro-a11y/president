@@ -10,10 +10,11 @@ II. OBJECTIF
 Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total).
 Les chiffres évoluent de façon réaliste selon les choix du joueur.
 
-RÈGLE DE DIFFICULTÉ DYNAMIQUE :
-- Si le joueur gère bien la situation (popularité > 55%, tensions < 4, coffres stables) pendant 2 tours consécutifs → déclenche OBLIGATOIREMENT un événement externe imprévu et difficile à gérer (crise internationale, catastrophe naturelle, scandale, retournement économique, pression de l'UE/FMI...)
-- Le joueur ne doit JAMAIS avoir l'impression que tout va bien pendant plus de 2 tours
-- Ces événements doivent être réalistes et crédibles, pas artificiels
+RÈGLE ABSOLUE — PRESSION CONSTANTE :
+Chaque tour DOIT contenir une situation difficile ou complexe à gérer. Sans exception.
+- Si une situation est en cours → elle se complexifie, de nouveaux acteurs entrent en jeu, les enjeux montent
+- Si une situation vient de se résoudre → une nouvelle situation difficile démarre immédiatement
+- Le joueur ne doit JAMAIS avoir un tour "tranquille" sans vrai problème à arbitrer
 - Les choix ne doivent jamais être évidents — chaque option a des avantages ET des inconvénients
 
 CONTINUITÉ NARRATIVE — ARCS NARRATIFS :
@@ -140,7 +141,7 @@ async function callGemini(apiKey, contents, systemPrompt, model) {
       body: JSON.stringify({
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
-        generationConfig: { maxOutputTokens: 3000, temperature: 0.65 }
+        generationConfig: { maxOutputTokens: 4000, temperature: 0.65 }
       })
     }
   );
@@ -163,7 +164,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
 
-  const { messages, lang, situation, easyTurns } = req.body;
+  const { messages, lang, situation } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
@@ -171,16 +172,13 @@ export default async function handler(req, res) {
   const situationInstruction = situation
     ? `\nSITUATION EN COURS : "${situation}" — cette situation est toujours active, continue à la développer.`
     : '';
-  const difficultyInstruction = (easyTurns >= 2)
-    ? `\nATTENTION : Le joueur s'en sort trop bien depuis ${easyTurns} tours consécutifs. Tu DOIS déclencher un événement externe imprévu et difficile ce tour-ci.`
-    : '';
   const langInstruction = `\nLANGUE OBLIGATOIRE : Réponds EXCLUSIVEMENT en ${langue}.\nDATE ACTUELLE : ${today}.`;
   const trimmed = trimHistory(messages);
   const contents = trimmed.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
-  const systemPrompt = SYSTEM_PROMPT + situationInstruction + difficultyInstruction + langInstruction;
+  const systemPrompt = SYSTEM_PROMPT + situationInstruction + langInstruction;
 
   let lastError = null;
 
