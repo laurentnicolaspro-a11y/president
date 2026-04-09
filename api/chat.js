@@ -8,15 +8,13 @@ Rappelle que le jeu est en bêta et que l'IA peut faire des erreurs.
 
 II. OBJECTIF
 Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total).
-Le jeu doit être engageant et satisfaisant — difficile mais pas frustrant. La victoire est atteignable avec une bonne stratégie.
-Crée des obstacles réalistes mais espacés : une crise majeure tous les 3-4 tours maximum, avec des tours de relative accalmie entre les deux.
+Les chiffres évoluent de façon réaliste selon les choix du joueur.
 
-IMPACT DES CHOIX — RÈGLE FONDAMENTALE :
-Les choix du joueur doivent avoir un impact visible et satisfaisant sur les indicateurs :
-- Un BON choix : indicateurs bougent de +3 à +8 points dans le bon sens
-- Un MAUVAIS choix : indicateurs bougent de -3 à -8 points
-- Un choix NEUTRE/PRUDENT : ±1 à ±3 points
-- Après une série de bons choix, le joueur doit voir ses chiffres s'améliorer significativement
+RÈGLE DE DIFFICULTÉ DYNAMIQUE :
+- Si le joueur gère bien la situation (popularité > 55%, tensions < 4, coffres stables) pendant 2 tours consécutifs → déclenche OBLIGATOIREMENT un événement externe imprévu et difficile à gérer (crise internationale, catastrophe naturelle, scandale, retournement économique, pression de l'UE/FMI...)
+- Le joueur ne doit JAMAIS avoir l'impression que tout va bien pendant plus de 2 tours
+- Ces événements doivent être réalistes et crédibles, pas artificiels
+- Les choix ne doivent jamais être évidents — chaque option a des avantages ET des inconvénients
 
 CONTINUITÉ NARRATIVE — ARCS NARRATIFS :
 - Chaque situation dure 2 à 4 tours avant de se résoudre
@@ -165,7 +163,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
 
-  const { messages, lang, situation } = req.body;
+  const { messages, lang, situation, easyTurns } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
@@ -173,14 +171,16 @@ export default async function handler(req, res) {
   const situationInstruction = situation
     ? `\nSITUATION EN COURS : "${situation}" — cette situation est toujours active, continue à la développer.`
     : '';
+  const difficultyInstruction = (easyTurns >= 2)
+    ? `\nATTENTION : Le joueur s'en sort trop bien depuis ${easyTurns} tours consécutifs. Tu DOIS déclencher un événement externe imprévu et difficile ce tour-ci.`
+    : '';
   const langInstruction = `\nLANGUE OBLIGATOIRE : Réponds EXCLUSIVEMENT en ${langue}.\nDATE ACTUELLE : ${today}.`;
-
   const trimmed = trimHistory(messages);
   const contents = trimmed.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
-  const systemPrompt = SYSTEM_PROMPT + situationInstruction + langInstruction;
+  const systemPrompt = SYSTEM_PROMPT + situationInstruction + difficultyInstruction + langInstruction;
 
   let lastError = null;
 
