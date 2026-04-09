@@ -1330,7 +1330,7 @@ async function callAPI(initMessage,isInit) {
   var messages=isInit?[{role:'user',content:initMessage}]:conversationHistory;
   var langNames={'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
   try {
-    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français', situation: currentSituation||''})});
+    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français', situation: currentSituation||'', easyTurns: easyTurnsCount})});
     if(!response.ok){var err=await response.json().catch(function(){return{};});throw new Error(err.error||'Erreur HTTP '+response.status);}
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
@@ -1338,6 +1338,14 @@ async function callAPI(initMessage,isInit) {
     addMessage('ai',text);updateHUD(text);
     // Mettre à jour la situation en cours après chaque réponse
     currentSituation = extractSituation(text);
+    // Tracker les tours faciles (popularité > 55 ET tensions < 4)
+    if (gameState.popularite !== null && gameState.tensions !== null) {
+      if (gameState.popularite > 55 && gameState.tensions < 4) {
+        easyTurnsCount++;
+      } else {
+        easyTurnsCount = 0;
+      }
+    }
     saveGame();
   }catch(err){addMessage('ai','⚠ Erreur : '+err.message+'\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.');}
   setLoading(false);
@@ -1417,6 +1425,7 @@ function getArrow(key, newVal) {
 
 // ===== TRACKING SITUATION EN COURS =====
 var currentSituation = '';
+var easyTurnsCount = 0; // Nombre de tours consécutifs où le joueur s'en sort bien
 
 function extractSituation(text) {
   if (/résolu|terminé|accord signé|crise écartée|situation normalis|retour au calme/i.test(text)) return '';
