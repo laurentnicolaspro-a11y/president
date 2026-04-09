@@ -47,9 +47,7 @@ IV. FORMAT D'UN TOUR — UN SEUL MESSAGE PAR TOUR
 
 Chaque tour est UN SEUL message contenant dans cet ordre :
 
-1. UNE phrase de contexte (max 50 mots) résumant la conséquence du choix précédent — UNIQUEMENT à partir du tour 2
-
-2. Le titre ## Mois Année
+1. Le titre ## Mois Année
 
 3. Les deux tableaux :
 
