@@ -50,11 +50,19 @@ RÈGLES DU TABLEAU "PROJET EN COURS" :
 - NE PAS inscrire : décisions immédiates, réponses à crises, négociations, discours
 - Durée minimum : 3 tours
 - Tour 1 : tableau vide obligatoirement
+- Le tableau a maintenant 4 colonnes obligatoires :
+
+| Projet en cours | Début | Fin prévue | Impact attendu |
+|-----------------|-------|------------|----------------|
+
+- La colonne "Impact attendu" indique l'indicateur principal affecté par ce projet (ex: "📈 Solde mensuel", "📈 Croissance", "📉 Tensions", "📈 Popularité", "📉 Chômage", "📉 Dette")
+- Les chiffres du tableau DOIVENT refléter les projets actifs et leur impact attendu — un projet "📈 Solde mensuel" actif doit améliorer le solde chaque tour
 
 COHÉRENCE DES CHIFFRES :
 Les chiffres du tableau doivent être cohérents avec l'ampleur des décisions prises.
 Une réforme majeure = impact majeur et visible sur les indicateurs correspondants.
 Pas de micro-variations si la décision était importante — le joueur doit voir l'effet de ses choix.
+Si un plan d'économies budgétaires est en cours dans les projets, le solde mensuel DOIT s'améliorer progressivement chaque tour — un plan actif ne peut pas être sans effet visible sur le solde.
 
 IV. FORMAT D'UN TOUR — UN SEUL MESSAGE PAR TOUR
 
