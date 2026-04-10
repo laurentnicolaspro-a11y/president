@@ -1220,10 +1220,31 @@ function submitCustomChoice() {
 
   // Si le texte contient des mots clés de négociation → on envoie à Gemini avec instruction d'ouvrir une négociation
   if (checkNegoKeywords(text)) {
-    var negoInstruction = ' [INSTRUCTION SYSTÈME : Le joueur veut négocier. Réponds UNIQUEMENT avec le marqueur [NÉGOCIATION: Nom complet, Titre/Rôle] suivi de ta première réplique courte de 2-3 phrases en tant que cet interlocuteur.]';
     addMessage('user', text);
-    conversationHistory.push({role:'user', content: text + negoInstruction});
-    callAPI(null, false);
+    conversationHistory.push({role:'user', content: text});
+    // Envoyer flag nego séparément
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        messages: conversationHistory,
+        lang: ({'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang]||'français'),
+        situation: currentSituation||'',
+        forceNego: true
+      })
+    }).then(function(r){ return r.json(); }).then(function(data){
+      var text = data.text || '';
+      conversationHistory.push({role:'assistant', content: text});
+      addMessage('ai', text);
+      updateHUD(text);
+      currentSituation = extractSituation(text);
+      saveGame();
+      setLoading(false);
+    }).catch(function(e){
+      addMessage('ai','⚠ Erreur négociation');
+      setLoading(false);
+    });
+    setLoading(true);
   } else {
     sendChoiceMessage(text);
   }
