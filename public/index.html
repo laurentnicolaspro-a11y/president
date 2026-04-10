@@ -1517,7 +1517,7 @@ async function sendNegoMessage() {
 
   // Appel API
   var langNames = {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
-  var negoSystemPrompt = 'Tu incarnes ' + negoInterlocutor + ' dans une négociation avec le président. Réponds en 2-3 phrases MAXIMUM, style dialogue direct et réaliste. Pas de blabla. Reste TOUJOURS dans le personnage. Réponds UNIQUEMENT en tant que ' + negoInterlocutor + ' — jamais de tableaux, jamais de tours, jamais de narration externe. Si le président demande une analyse ou des données, ' + negoInterlocutor + ' répond oralement dans la discussion.';
+  var negoSystemPrompt = 'Tu incarnes ' + negoInterlocutor + ' dans une négociation directe avec le président français. RÈGLES STRICTES : 1) Réponds en 2-3 phrases MAX, dialogue direct et réaliste. 2) Reste TOUJOURS dans le personnage — jamais de tableaux, jamais de tours, jamais de narration. 3) Si le président demande des chiffres ou une analyse, tu les donnes ORALEMENT dans ta réponse avec des données précises et réalistes. 4) Tu défends tes propres intérêts avec des arguments concrets. 5) Sois direct, parfois difficile, jamais complaisant.';
 
   try {
     var messages = negoHistory.slice();
