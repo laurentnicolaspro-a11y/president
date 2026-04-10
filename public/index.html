@@ -1411,6 +1411,29 @@ function updateGameState(key, val) {
   gameState[key] = val;
 }
 
+function buildProjectsString() {
+  // Lire les projets actifs depuis le dernier tableau de projets dans le chat
+  var projects = [];
+  var allTables = document.querySelectorAll('.msg-body table');
+  // Prendre le dernier tableau qui a 4 colonnes (projets)
+  for (var i = allTables.length - 1; i >= 0; i--) {
+    var headers = allTables[i].querySelectorAll('th');
+    if (headers.length >= 3 && headers[0].textContent.toLowerCase().includes('projet')) {
+      var rows = allTables[i].querySelectorAll('tr');
+      rows.forEach(function(row) {
+        var cells = row.querySelectorAll('td');
+        if (cells.length >= 3) {
+          var nom = cells[0].textContent.trim();
+          var impact = cells[3] ? cells[3].textContent.trim() : '';
+          if (nom) projects.push(nom + (impact ? ' (' + impact + ')' : ''));
+        }
+      });
+      break;
+    }
+  }
+  return projects.length ? '[PROJETS ACTIFS : ' + projects.join(' | ') + ' → Ces projets doivent avoir un impact visible sur les indicateurs correspondants]' : '';
+}
+
 function buildStateString() {
   var parts = [];
   if (gameState.coffres   !== null) parts.push('Coffres: ' + gameState.coffres + ' Mds');
@@ -1420,7 +1443,9 @@ function buildStateString() {
   if (gameState.popularite!== null) parts.push('Popularité: ' + gameState.popularite + '%');
   if (gameState.tensions  !== null) parts.push('Tensions: ' + gameState.tensions + '/10');
   if (gameState.chomage   !== null) parts.push('Chômage: ' + gameState.chomage + '%');
-  return parts.length ? '[ÉTAT ACTUEL : ' + parts.join(' | ') + ']' : '';
+  var stateStr = parts.length ? '[ÉTAT ACTUEL : ' + parts.join(' | ') + ']' : '';
+  var projectsStr = buildProjectsString();
+  return [stateStr, projectsStr].filter(Boolean).join(' ');
 }
 
 function getArrow(key, newVal) {
