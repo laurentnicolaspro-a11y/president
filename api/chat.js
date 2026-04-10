@@ -177,7 +177,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
 
-  const { messages, lang, situation, negoMode, negoPrompt } = req.body;
+  const { messages, lang, situation, negoMode, negoPrompt, forceNego } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
@@ -212,7 +212,10 @@ export default async function handler(req, res) {
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
-  const systemPrompt = SYSTEM_PROMPT + situationInstruction + langInstruction;
+  const forceNegoInstruction = forceNego
+    ? `\nINSTRUCTION PRIORITAIRE : Le joueur veut ouvrir une négociation. Tu DOIS répondre UNIQUEMENT avec le marqueur [NÉGOCIATION: Nom complet, Titre/Rôle] suivi immédiatement de ta première réplique courte (2-3 phrases max) en incarnant cet interlocuteur. Aucun tableau, aucun tour, juste le marqueur et la réplique.`
+    : '';
+  const systemPrompt = SYSTEM_PROMPT + situationInstruction + forceNegoInstruction + langInstruction;
 
   let lastError = null;
 
