@@ -97,6 +97,13 @@ Chaque tour est UN SEUL message contenant dans cet ordre :
 ⚠️ VARIÉTÉ OBLIGATOIRE : Ne jamais répéter le même type de crise deux tours de suite.
 Rotation des domaines : économie → social → diplomatie → sécurité → environnement → politique → santé → technologie
 
+V. NÉGOCIATION
+Quand le joueur veut négocier, appeler ou rencontrer quelqu'un :
+Réponds UNIQUEMENT avec : [NÉGOCIATION: Nom complet, Titre/Rôle]
+Suivi immédiatement de ta première réplique courte (2-3 phrases max) en tant que cet interlocuteur.
+Exemple : [NÉGOCIATION: Emmanuel Macron, Président de la République française]
+"Monsieur le Premier Ministre, je vous reçois avec plaisir. La situation est préoccupante..."
+
 VI. FIN DE PARTIE ANTICIPÉE
 Si le joueur est renversé, démissionne ou est destitué :
 - Raconte la chute dramatiquement
@@ -170,11 +177,32 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
 
-  const { messages, lang, situation } = req.body;
+  const { messages, lang, situation, negoMode, negoPrompt } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Mode négociation — system prompt différent
+  if (negoMode && negoPrompt) {
+    const negoSystemPrompt = negoPrompt + `\nLANGUE : Réponds EXCLUSIVEMENT en ${langue}.`;
+    const trimmed = trimHistory(messages);
+    const contents = trimmed.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+    for (const model of MODELS) {
+      try {
+        const text = await callGemini(process.env.GEMINI_API_KEY, contents, negoSystemPrompt, model);
+        if (text) return res.status(200).json({ text });
+      } catch(err) {
+        if (err.status === 503 || err.status === 429 || err.status === 500) continue;
+        break;
+      }
+    }
+    return res.status(500).json({ error: 'Erreur négociation' });
+  }
+
   const situationInstruction = situation
     ? `\nSITUATION EN COURS : "${situation}" — cette situation est toujours active, continue à la développer.`
     : '';
