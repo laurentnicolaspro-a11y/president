@@ -1607,11 +1607,11 @@ async function confirmWithWho() {
   setLoading(true);
   var langNames = {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
   try {
-    // Appel séparé avec un message dédié — ne pollue pas l'historique principal
-    var negoMessages = conversationHistory.concat([{
+    // Appel minimal — juste le nécessaire pour ouvrir la négociation
+    var negoMessages = [{
       role: 'user',
-      content: 'Le président souhaite ouvrir une négociation avec : ' + who + '. Incarne immédiatement cet interlocuteur.'
-    }]);
+      content: 'Tu incarnes ' + who + '. Présente-toi en 2-3 phrases et attends la réponse du président français. Commence par [NÉGOCIATION: ' + who + ', ton titre]'
+    }];
     var resp = await fetch('/api/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
