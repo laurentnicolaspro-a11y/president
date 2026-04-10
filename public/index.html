@@ -290,7 +290,30 @@
   .custom-cancel{padding:0.6rem 1.2rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;border-radius:4px;transition:all 0.2s;}
   .custom-cancel:hover{border-color:var(--red);color:var(--red);}
 
-  /* Modales système */
+  /* ===== MODALE NÉGOCIATION ===== */
+  #nego-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.98);z-index:400;flex-direction:column;}
+  #nego-modal.active{display:flex;}
+  .nego-modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(251,188,4,0.3);background:rgba(251,188,4,0.05);}
+  .nego-modal-identity{display:flex;flex-direction:column;gap:0.2rem;}
+  .nego-modal-badge{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent4);letter-spacing:0.2em;text-transform:uppercase;}
+  .nego-modal-name{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:0.05em;}
+  .nego-modal-role{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);}
+  .nego-end-btn{padding:0.6rem 1.4rem;background:transparent;border:2px solid var(--accent2);color:var(--accent2);font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;border-radius:4px;transition:all 0.3s;}
+  .nego-end-btn:hover{background:var(--accent2);color:#fff;}
+  .nego-messages{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-height:0;}
+  .nego-messages::-webkit-scrollbar{width:3px;}.nego-messages::-webkit-scrollbar-thumb{background:rgba(251,188,4,0.3);}
+  .nego-msg{max-width:80%;padding:0.8rem 1.1rem;border-radius:8px;font-size:0.92rem;line-height:1.6;animation:msgIn 0.3s ease-out;}
+  .nego-msg.player{align-self:flex-end;background:rgba(66,133,244,0.1);border:1px solid rgba(66,133,244,0.25);border-right:3px solid var(--accent);}
+  .nego-msg.interlocutor{align-self:flex-start;background:rgba(251,188,4,0.06);border:1px solid rgba(251,188,4,0.2);border-left:3px solid var(--accent4);}
+  .nego-msg-name{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--accent4);letter-spacing:0.1em;margin-bottom:0.3rem;}
+  .nego-typing{align-self:flex-start;display:none;padding:0.6rem 1rem;background:rgba(251,188,4,0.06);border:1px solid rgba(251,188,4,0.2);border-left:3px solid var(--accent4);border-radius:8px;}
+  .nego-typing.active{display:flex;gap:4px;align-items:center;}
+  .nego-input-area{padding:1rem 1.5rem;border-top:1px solid rgba(251,188,4,0.2);display:flex;gap:0.8rem;align-items:flex-end;background:rgba(251,188,4,0.03);}
+  .nego-input{flex:1;background:var(--surface2);border:1px solid rgba(251,188,4,0.3);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:0.95rem;padding:0.7rem 1rem;border-radius:6px;outline:none;resize:none;min-height:44px;max-height:120px;transition:border-color 0.3s;}
+  .nego-input:focus{border-color:var(--accent4);}
+  .nego-send-btn{padding:0.7rem 1.2rem;background:var(--accent4);border:none;color:#000;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;border-radius:6px;transition:all 0.2s;white-space:nowrap;}
+  .nego-send-btn:hover{background:#ffd040;}
+  .nego-send-btn:disabled{opacity:0.4;cursor:not-allowed;}
   #report-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #report-modal.active{display:flex;}
   .report-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);max-width:500px;width:100%;padding:1.8rem;border-radius:4px;}
@@ -606,6 +629,27 @@
       <button class="custom-cancel" onclick="closeCustomModal()">ANNULER</button>
       <button class="custom-confirm" onclick="submitCustomChoice()">CONFIRMER</button>
     </div>
+  </div>
+</div>
+
+<!-- MODALE NÉGOCIATION -->
+<div id="nego-modal">
+  <div class="nego-modal-header">
+    <div class="nego-modal-identity">
+      <div class="nego-modal-badge">🤝 NÉGOCIATION EN COURS</div>
+      <div class="nego-modal-name" id="nego-interlocutor-name">—</div>
+      <div class="nego-modal-role" id="nego-interlocutor-role"></div>
+    </div>
+    <button class="nego-end-btn" onclick="endNegotiation()">⛔ TERMINER LA NÉGOCIATION</button>
+  </div>
+  <div class="nego-messages" id="nego-messages">
+    <div class="nego-typing" id="nego-typing">
+      <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+    </div>
+  </div>
+  <div class="nego-input-area">
+    <textarea class="nego-input" id="nego-input" placeholder="Votre réponse..." rows="1"></textarea>
+    <button class="nego-send-btn" id="nego-send-btn" onclick="sendNegoMessage()">ENVOYER</button>
   </div>
 </div>
 
@@ -1174,8 +1218,10 @@ function submitCustomChoice() {
   if (!text) return;
   closeCustomModal();
 
-  if (customModalCallback && typeof customModalCallback === 'object' && customModalCallback.context === 'nego') {
-    sendNegoChoice(customModalCallback.btn || document.createElement('button'), text);
+  // Si le texte contient des mots clés de négociation → on envoie à Gemini avec instruction d'ouvrir une négociation
+  if (checkNegoKeywords(text)) {
+    var negoText = text + ' [Lance une négociation avec le bon interlocuteur en répondant UNIQUEMENT avec le marqueur [NÉGOCIATION: Nom, Titre/Rôle] suivi de ta première réplique courte de 2-3 phrases.]';
+    sendChoiceMessage(negoText);
   } else {
     sendChoiceMessage(text);
   }
@@ -1331,7 +1377,137 @@ function getArrow(key, newVal) {
   return better[key] ? ' ▲' : ' ▼';
 }
 
-// ===== TRACKING SITUATION EN COURS =====
+// ===== SYSTÈME DE NÉGOCIATION =====
+var negoHistory = []; // Historique de la négociation en cours
+var negoInterlocutor = ''; // Nom de l'interlocuteur
+var negoActive = false;
+
+// Mots clés qui déclenchent une négociation depuis le choix personnalisé
+var NEGO_KEYWORDS = /\b(appel|appelle|appeler|contact|contacter|convoque|convoquer|rencontr|négoci|parler à|discuter avec|réunion avec|sommet avec|téléphone|téléphoner)\b/i;
+
+function detectAndOpenNego(text) {
+  // Détection marqueur explicite [NÉGOCIATION: Nom]
+  var match = text.match(/\[N[ÉE]GOCIATION\s*:\s*([^\]]+)\]/i);
+  if (match) {
+    var parts = match[1].split(',');
+    var name = parts[0].trim();
+    var role = parts[1] ? parts[1].trim() : '';
+    openNegoModal(name, role, text.replace(match[0], '').trim());
+    return true;
+  }
+  return false;
+}
+
+function openNegoModal(name, role, firstMessage) {
+  negoActive = true;
+  negoInterlocutor = name;
+  negoHistory = [];
+  gamePhase = 'negotiation';
+
+  document.getElementById('nego-interlocutor-name').textContent = name;
+  document.getElementById('nego-interlocutor-role').textContent = role;
+  document.getElementById('nego-messages').innerHTML = '<div class="nego-typing" id="nego-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  document.getElementById('nego-input').value = '';
+  document.getElementById('nego-modal').classList.add('active');
+
+  if (firstMessage) {
+    addNegoMessage('interlocutor', name, firstMessage);
+    negoHistory.push({role:'assistant', content: firstMessage});
+  }
+
+  // Auto-resize textarea
+  var input = document.getElementById('nego-input');
+  input.addEventListener('input', function(){
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendNegoMessage(); }
+  });
+  setTimeout(() => input.focus(), 100);
+}
+
+function addNegoMessage(type, name, text) {
+  var container = document.getElementById('nego-messages');
+  var typing = document.getElementById('nego-typing');
+  var div = document.createElement('div');
+  div.className = 'nego-msg ' + type;
+  if (type === 'interlocutor') {
+    div.innerHTML = '<div class="nego-msg-name">' + name + '</div>' + text;
+  } else {
+    div.textContent = text;
+  }
+  container.insertBefore(div, typing);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendNegoMessage() {
+  var input = document.getElementById('nego-input');
+  var text = input.value.trim();
+  if (!text || isLoading) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('nego-send-btn').disabled = true;
+
+  addNegoMessage('player', 'Vous', text);
+  negoHistory.push({role:'user', content: text});
+
+  // Afficher le typing
+  var typing = document.getElementById('nego-typing');
+  typing.classList.add('active');
+
+  // Appel API
+  var langNames = {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
+  var negoSystemPrompt = 'Tu incarnes ' + negoInterlocutor + ' dans une négociation avec le président. Réponds en 2-3 phrases MAXIMUM, style dialogue direct et réaliste. Pas de blabla. Reste dans le personnage. Tu as tes propres intérêts à défendre.';
+
+  try {
+    var messages = negoHistory.slice();
+    var resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        messages,
+        lang: langNames[selectedLang] || 'français',
+        negoMode: true,
+        negoPrompt: negoSystemPrompt
+      })
+    });
+    var data = await resp.json();
+    var reply = data.text || '';
+    typing.classList.remove('active');
+    addNegoMessage('interlocutor', negoInterlocutor, reply);
+    negoHistory.push({role:'assistant', content: reply});
+  } catch(e) {
+    typing.classList.remove('active');
+    addNegoMessage('interlocutor', negoInterlocutor, 'La communication est perturbée...');
+  }
+
+  document.getElementById('nego-send-btn').disabled = false;
+  setTimeout(() => document.getElementById('nego-input').focus(), 100);
+}
+
+async function endNegotiation() {
+  document.getElementById('nego-modal').classList.remove('active');
+  negoActive = false;
+  gamePhase = 'playing';
+
+  // Construire le résumé de la négociation
+  var summary = negoHistory.map(function(m){
+    return (m.role === 'user' ? 'Président' : negoInterlocutor) + ': ' + m.content;
+  }).join('\n');
+
+  var endMsg = '[FIN DE NÉGOCIATION avec ' + negoInterlocutor + ']\nRésumé des échanges :\n' + summary + '\n\nTiens compte de cette négociation pour le tour suivant. Génère le tour complet normalement.';
+
+  addMessage('user', '🤝 Fin de négociation avec ' + negoInterlocutor);
+  conversationHistory.push({role:'user', content: endMsg});
+  await callAPI(null, false);
+}
+
+// Détecter si le choix personnalisé déclenche une négociation
+function checkNegoKeywords(text) {
+  return NEGO_KEYWORDS.test(text);
+}
 var currentSituation = '';
 
 function extractSituation(text) {
@@ -1383,6 +1559,8 @@ function addMessage(role,content){
         setTimeout(function(){ showDefeatScreen(); }, 1500);
         return;
       }
+      // Détecter ouverture négociation
+      if(detectAndOpenNego(content)) return;
       injectActionButtons(content, body);
       renderChoices(body);
     },50);
