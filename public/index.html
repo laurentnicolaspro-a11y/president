@@ -1155,7 +1155,6 @@ function confirmCountry() {
   addMessage('user', msg);
   conversationHistory.push({ role: 'user', content: msg });
   gamePhase = 'playing';
-  saveInitialState();
   callAPI(null, false);
 }
 
@@ -1718,6 +1717,8 @@ function addMessage(role,content){
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
       enrichTables(body, true);
+      // Sauvegarder l'état initial après le premier tour (quand les vrais chiffres arrivent)
+      if (currentTurn <= 1 && gameState.popularite !== null) saveInitialState();
       Stats.record(body,dateLabel);
       detectAudioMode(body);
       // Détecter GAME OVER
