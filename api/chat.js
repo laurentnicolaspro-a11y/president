@@ -213,7 +213,11 @@ export default async function handler(req, res) {
     parts: [{ text: m.content }]
   }));
   const forceNegoInstruction = forceNego
-    ? `\nINSTRUCTION PRIORITAIRE : Le joueur veut ouvrir une négociation. Tu DOIS répondre UNIQUEMENT avec le marqueur [NÉGOCIATION: Nom complet, Titre/Rôle] suivi immédiatement de ta première réplique courte (2-3 phrases max) en incarnant cet interlocuteur. Aucun tableau, aucun tour, juste le marqueur et la réplique.`
+    ? `\nINSTRUCTION ABSOLUE PRIORITAIRE : Le joueur ouvre une négociation. Tu DOIS incarner immédiatement l'interlocuteur demandé et répondre UNIQUEMENT avec :
+1. Le marqueur [NÉGOCIATION: Nom complet, Titre/Rôle]
+2. Ta première réplique courte (2-3 phrases MAX) en tant que cet interlocuteur
+RIEN D'AUTRE. Pas de tableau. Pas de tour. Pas de narration. Pas de choix. Juste le marqueur et la réplique.
+Si des données ou analyses sont demandées pendant la négociation, l'interlocuteur les donne ORALEMENT dans la discussion — jamais de tableaux.`
     : '';
   const systemPrompt = SYSTEM_PROMPT + situationInstruction + forceNegoInstruction + langInstruction;
 
