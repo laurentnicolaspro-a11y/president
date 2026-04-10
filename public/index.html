@@ -1602,18 +1602,21 @@ async function confirmWithWho() {
     withWhoBtn.innerHTML = '<strong style="pointer-events:none">5.</strong> <span style="pointer-events:none">🤝 Négociation avec ' + who + '</span>';
   }
 
-  var msg = 'Je souhaite ouvrir une négociation avec : ' + who;
-  addMessage('user', msg);
-  conversationHistory.push({role:'user', content: msg});
+  addMessage('user', '🤝 Ouverture d\'une négociation avec ' + who);
 
   setLoading(true);
   var langNames = {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
   try {
+    // Appel séparé avec un message dédié — ne pollue pas l'historique principal
+    var negoMessages = conversationHistory.concat([{
+      role: 'user',
+      content: 'Le président souhaite ouvrir une négociation avec : ' + who + '. Incarne immédiatement cet interlocuteur.'
+    }]);
     var resp = await fetch('/api/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        messages: conversationHistory,
+        messages: negoMessages,
         lang: langNames[selectedLang]||'français',
         situation: currentSituation||'',
         forceNego: true
@@ -1621,11 +1624,19 @@ async function confirmWithWho() {
     });
     var data = await resp.json();
     var text = data.text || '';
-    conversationHistory.push({role:'assistant', content: text});
-    addMessage('ai', text);
+    // On ajoute à l'historique principal seulement si la négociation s'est bien ouverte
+    if (detectAndOpenNego(text)) {
+      conversationHistory.push({role:'user', content: '🤝 Ouverture d\'une négociation avec ' + who});
+      conversationHistory.push({role:'assistant', content: text});
+      saveGame();
+    } else {
+      // Gemini n'a pas ouvert la négo — on affiche quand même le message
+      addMessage('ai', text);
+      conversationHistory.push({role:'user', content: '🤝 Ouverture d\'une négociation avec ' + who});
+      conversationHistory.push({role:'assistant', content: text});
+    }
     updateHUD(text);
     currentSituation = extractSituation(text);
-    saveGame();
   } catch(e) {
     addMessage('ai', '⚠ Erreur lors de l\'ouverture de la négociation.');
   }
