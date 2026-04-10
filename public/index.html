@@ -147,9 +147,22 @@
   .choice-btn span,.choice-btn strong{position:relative;z-index:1;}
   .choice-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
   .choice-btn.chosen{border-color:rgba(52,168,83,0.5);border-left-color:var(--accent3);background:linear-gradient(135deg,rgba(52,168,83,0.1),rgba(52,168,83,0.04));color:#fff;opacity:1!important;box-shadow:0 0 15px rgba(52,168,83,0.1);}
-  .choice-btn.custom{border-left-color:rgba(251,188,4,0.6);background:linear-gradient(135deg,rgba(251,188,4,0.06),rgba(251,188,4,0.02));color:rgba(251,188,4,0.9);}
-  .choice-btn.custom::before{background:linear-gradient(90deg,rgba(251,188,4,0.12),transparent);}
-  .choice-btn.custom:hover{border-color:rgba(251,188,4,0.6);border-left-color:var(--accent4);color:#fff;box-shadow:0 0 20px rgba(251,188,4,0.12);}
+  .choice-btn.nego{border-left-color:rgba(251,188,4,0.8);background:linear-gradient(135deg,rgba(251,188,4,0.08),rgba(251,188,4,0.03));color:var(--accent4);}
+  .choice-btn.nego::before{background:linear-gradient(90deg,rgba(251,188,4,0.15),transparent);}
+  .choice-btn.nego:hover{border-color:rgba(251,188,4,0.8);border-left-color:var(--accent4);color:#fff;box-shadow:0 0 20px rgba(251,188,4,0.15);}
+  /* Modale with-who */
+  #withwho-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:350;align-items:center;justify-content:center;padding:1.5rem;}
+  #withwho-modal.active{display:flex;}
+  .withwho-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent4);max-width:480px;width:100%;padding:1.8rem;border-radius:4px;animation:modalIn 0.3s ease-out;}
+  .withwho-box h2{font-family:'Orbitron',monospace;color:var(--accent4);font-size:0.95rem;letter-spacing:0.1em;margin-bottom:0.5rem;}
+  .withwho-box p{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:1rem;}
+  .withwho-input{width:100%;background:var(--surface2);border:1px solid rgba(251,188,4,0.3);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;padding:0.7rem 1rem;border-radius:4px;outline:none;margin-bottom:1rem;transition:border-color 0.3s;}
+  .withwho-input:focus{border-color:var(--accent4);}
+  .withwho-confirm{width:100%;padding:0.8rem;background:var(--accent4);border:none;color:#000;font-family:'Orbitron',monospace;font-size:0.82rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;border-radius:4px;transition:all 0.2s;}
+  .withwho-confirm:hover{background:#ffd040;}
+  .withwho-confirm:disabled{opacity:0.35;cursor:not-allowed;}
+  .withwho-cancel{width:100%;margin-top:0.5rem;padding:0.6rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',monospace;font-size:0.75rem;letter-spacing:0.08em;cursor:pointer;border-radius:4px;transition:all 0.2s;}
+  .withwho-cancel:hover{border-color:var(--red);color:var(--red);}
 
   /* ===== BOUTONS NÉGOCIATION ===== */
   .nego-panel{background:rgba(251,188,4,0.04);border:1px solid rgba(251,188,4,0.3);border-left:3px solid var(--accent4);border-radius:4px;padding:0.9rem 1rem;margin-top:0.5rem;animation:msgIn 0.3s ease-out;}
@@ -629,6 +642,19 @@
       <button class="custom-cancel" onclick="closeCustomModal()">ANNULER</button>
       <button class="custom-confirm" onclick="submitCustomChoice()">CONFIRMER</button>
     </div>
+  </div>
+</div>
+
+<!-- MODALE AVEC QUI NÉGOCIER -->
+<div id="withwho-modal">
+  <div class="withwho-box">
+    <h2>🤝 OUVRIR UNE NÉGOCIATION</h2>
+    <p>Avec qui souhaitez-vous négocier ?</p>
+    <input type="text" class="withwho-input" id="withwho-input" placeholder="Ex: les syndicats, Ursula von der Leyen, le FMI..." autocomplete="off"
+      oninput="document.getElementById('withwho-confirm').disabled=!this.value.trim()"
+      onkeydown="if(event.key==='Enter'&&this.value.trim())confirmWithWho()"/>
+    <button class="withwho-confirm" id="withwho-confirm" onclick="confirmWithWho()" disabled>▶ LANCER LA NÉGOCIATION</button>
+    <button class="withwho-cancel" onclick="document.getElementById('withwho-modal').classList.remove('active')">ANNULER</button>
   </div>
 </div>
 
@@ -1170,7 +1196,6 @@ function renderChoices(container) {
       var isCustom = text.toLowerCase().includes('personnalis') || num === 4;
       var btn = document.createElement('button');
       btn.className = 'choice-btn' + (isCustom ? ' custom' : '');
-      // Style pointer-events sur les enfants pour éviter que <strong> capture le clic
       btn.innerHTML = '<strong style="pointer-events:none">' + num + '.</strong> <span style="pointer-events:none">' + text + '</span>';
       btn.addEventListener('click', (function(n, t, b, w, isC) {
         return function() {
@@ -1187,6 +1212,16 @@ function renderChoices(container) {
       })(num, text, btn, wrap, isCustom));
       wrap.appendChild(btn);
     });
+    // Bouton 5 — Négociation
+    var negoBtn = document.createElement('button');
+    negoBtn.className = 'choice-btn nego';
+    negoBtn.innerHTML = '<strong style="pointer-events:none">5.</strong> <span style="pointer-events:none">🤝 Ouvrir une négociation</span>';
+    negoBtn.addEventListener('click', function() {
+      if (negoBtn.disabled) return;
+      wrap.querySelectorAll('.choice-btn').forEach(function(x){ x.disabled = true; });
+      openWithWhoModal(wrap, negoBtn);
+    });
+    wrap.appendChild(negoBtn);
     ol.replaceWith(wrap);
   });
 }
@@ -1531,6 +1566,60 @@ async function endNegotiation() {
 function checkNegoKeywords(text) {
   return NEGO_KEYWORDS.test(text);
 }
+// ===== MODALE AVEC QUI NÉGOCIER =====
+var withWhoWrap = null;
+var withWhoBtn = null;
+
+function openWithWhoModal(wrap, btn) {
+  withWhoWrap = wrap;
+  withWhoBtn = btn;
+  document.getElementById('withwho-input').value = '';
+  document.getElementById('withwho-confirm').disabled = true;
+  document.getElementById('withwho-modal').classList.add('active');
+  setTimeout(function(){ document.getElementById('withwho-input').focus(); }, 100);
+}
+
+async function confirmWithWho() {
+  var who = document.getElementById('withwho-input').value.trim();
+  if (!who) return;
+  document.getElementById('withwho-modal').classList.remove('active');
+
+  if (withWhoBtn) {
+    withWhoBtn.classList.add('chosen');
+    withWhoBtn.innerHTML = '<strong style="pointer-events:none">5.</strong> <span style="pointer-events:none">🤝 Négociation avec ' + who + '</span>';
+  }
+
+  var msg = 'Je souhaite ouvrir une négociation avec : ' + who;
+  addMessage('user', msg);
+  conversationHistory.push({role:'user', content: msg});
+
+  setLoading(true);
+  var langNames = {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
+  try {
+    var resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        messages: conversationHistory,
+        lang: langNames[selectedLang]||'français',
+        situation: currentSituation||'',
+        forceNego: true
+      })
+    });
+    var data = await resp.json();
+    var text = data.text || '';
+    conversationHistory.push({role:'assistant', content: text});
+    addMessage('ai', text);
+    updateHUD(text);
+    currentSituation = extractSituation(text);
+    saveGame();
+  } catch(e) {
+    addMessage('ai', '⚠ Erreur lors de l\'ouverture de la négociation.');
+  }
+  setLoading(false);
+  withWhoWrap = null; withWhoBtn = null;
+}
+
 var currentSituation = '';
 
 function extractSituation(text) {
