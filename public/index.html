@@ -1220,8 +1220,10 @@ function submitCustomChoice() {
 
   // Si le texte contient des mots clés de négociation → on envoie à Gemini avec instruction d'ouvrir une négociation
   if (checkNegoKeywords(text)) {
-    var negoText = text + ' [Lance une négociation avec le bon interlocuteur en répondant UNIQUEMENT avec le marqueur [NÉGOCIATION: Nom, Titre/Rôle] suivi de ta première réplique courte de 2-3 phrases.]';
-    sendChoiceMessage(negoText);
+    var negoInstruction = ' [INSTRUCTION SYSTÈME : Le joueur veut négocier. Réponds UNIQUEMENT avec le marqueur [NÉGOCIATION: Nom complet, Titre/Rôle] suivi de ta première réplique courte de 2-3 phrases en tant que cet interlocuteur.]';
+    addMessage('user', text);
+    conversationHistory.push({role:'user', content: text + negoInstruction});
+    callAPI(null, false);
   } else {
     sendChoiceMessage(text);
   }
