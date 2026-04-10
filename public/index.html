@@ -381,7 +381,7 @@
   .audio-btn.playing .audio-bar:nth-child(3),.audio-btn.tension .audio-bar:nth-child(3),.audio-btn.crisis .audio-bar:nth-child(3){animation:barBounce 0.8s ease-in-out infinite 0.3s;}
   .audio-btn.tension .audio-bar{animation-duration:0.5s!important;}.audio-btn.crisis .audio-bar{animation-duration:0.28s!important;}
   @keyframes barBounce{0%,100%{height:3px}50%{height:12px}}
-  #news-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:#0d0d0d;border-top:2px solid var(--accent2);height:36px;overflow:hidden;flex-direction:row;align-items:center;}
+  #news-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:#0d0d0d;border-top:2px solid var(--accent2);height:36px;overflow:hidden;flex-direction:row;align-items:center;}
   #news-banner.active{display:flex;}
   .news-label{flex-shrink:0;background:var(--accent2);color:#fff;font-family:'Orbitron',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;padding:0 0.9rem;height:100%;display:flex;align-items:center;white-space:nowrap;}
   .news-label::after{content:'▶';margin-left:0.5rem;font-size:0.5rem;}
@@ -654,7 +654,7 @@
       oninput="document.getElementById('withwho-confirm').disabled=!this.value.trim()"
       onkeydown="if(event.key==='Enter'&&this.value.trim())confirmWithWho()"/>
     <button class="withwho-confirm" id="withwho-confirm" onclick="confirmWithWho()" disabled>▶ LANCER LA NÉGOCIATION</button>
-    <button class="withwho-cancel" onclick="document.getElementById('withwho-modal').classList.remove('active')">ANNULER</button>
+    <button class="withwho-cancel" onclick="cancelWithWho()">ANNULER</button>
   </div>
 </div>
 
@@ -1517,7 +1517,7 @@ async function sendNegoMessage() {
 
   // Appel API
   var langNames = {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
-  var negoSystemPrompt = 'Tu incarnes ' + negoInterlocutor + ' dans une négociation avec le président. Réponds en 2-3 phrases MAXIMUM, style dialogue direct et réaliste. Pas de blabla. Reste dans le personnage. Tu as tes propres intérêts à défendre.';
+  var negoSystemPrompt = 'Tu incarnes ' + negoInterlocutor + ' dans une négociation avec le président. Réponds en 2-3 phrases MAXIMUM, style dialogue direct et réaliste. Pas de blabla. Reste TOUJOURS dans le personnage. Réponds UNIQUEMENT en tant que ' + negoInterlocutor + ' — jamais de tableaux, jamais de tours, jamais de narration externe. Si le président demande une analyse ou des données, ' + negoInterlocutor + ' répond oralement dans la discussion.';
 
   try {
     var messages = negoHistory.slice();
@@ -1550,12 +1550,16 @@ async function endNegotiation() {
   negoActive = false;
   gamePhase = 'playing';
 
-  // Construire le résumé de la négociation
+  // Incrémenter le tour
+  currentTurn++;
+  updateTurnCounter();
+  if (maxTurns && currentTurn >= maxTurns) { showResultScreen(); return; }
+
   var summary = negoHistory.map(function(m){
     return (m.role === 'user' ? 'Président' : negoInterlocutor) + ': ' + m.content;
   }).join('\n');
 
-  var endMsg = '[FIN DE NÉGOCIATION avec ' + negoInterlocutor + ']\nRésumé des échanges :\n' + summary + '\n\nTiens compte de cette négociation pour le tour suivant. Génère le tour complet normalement.';
+  var endMsg = '[FIN DE NÉGOCIATION avec ' + negoInterlocutor + ']\nRésumé :\n' + summary + '\n\nTiens compte de cette négociation et génère le tour suivant normalement.';
 
   addMessage('user', '🤝 Fin de négociation avec ' + negoInterlocutor);
   conversationHistory.push({role:'user', content: endMsg});
@@ -1577,6 +1581,15 @@ function openWithWhoModal(wrap, btn) {
   document.getElementById('withwho-confirm').disabled = true;
   document.getElementById('withwho-modal').classList.add('active');
   setTimeout(function(){ document.getElementById('withwho-input').focus(); }, 100);
+}
+
+function cancelWithWho() {
+  document.getElementById('withwho-modal').classList.remove('active');
+  // Réactiver tous les boutons du wrap
+  if (withWhoWrap) {
+    withWhoWrap.querySelectorAll('.choice-btn').forEach(function(x){ x.disabled = false; });
+  }
+  withWhoWrap = null; withWhoBtn = null;
 }
 
 async function confirmWithWho() {
