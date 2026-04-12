@@ -1806,13 +1806,16 @@ function addMessage(role,content){
   var body=document.createElement('div');body.className='msg-body';
   if(role==='ai'){
     var cleaned=extractAndShowNews(content);
-    // Injecter le tableau indicateurs depuis gameState (sauf tour 1 où Gemini génère les valeurs initiales)
-    var indicatorsHtml = '';
-    if (gameState.popularite !== null && Object.keys(initialState).length > 0) {
-      indicatorsHtml = buildIndicatorsTable();
+    // Tour 1 : Gemini génère le tableau → on le parse et affiche normalement
+    // Tour 2+ : on affiche le tableau depuis gameState + le reste du contenu Gemini
+    var isFirstTurn = Object.keys(initialState).length === 0;
+    if (!isFirstTurn && gameState.popularite !== null) {
+      // Retirer le tableau indicateurs du contenu Gemini s'il en a généré un par erreur
+      var cleanedContent = cleaned.replace(/\|\s*Indicateur[\s\S]*?\|\s*Taux de chômage[^\n]*\n?/gi, '');
+      body.innerHTML = buildIndicatorsTable() + window.marked.parse(cleanedContent);
+    } else {
+      body.innerHTML = window.marked.parse(cleaned);
     }
-    body.innerHTML = indicatorsHtml + window.marked.parse(cleaned);
-    // Petit bouton discret pour relancer si bug
     var retryBtn=document.createElement('button');
     retryBtn.className='retry-btn';
     retryBtn.textContent=t('retryBtn');
@@ -1822,16 +1825,13 @@ function addMessage(role,content){
     setTimeout(function(){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
       enrichTables(body, true);
-      // Sauvegarder l'état initial après le premier tour (quand les vrais chiffres arrivent)
       if (Object.keys(initialState).length === 0 && gameState.popularite !== null) saveInitialState();
       Stats.record(body,dateLabel);
       detectAudioMode(body);
-      // Détecter GAME OVER
       if(/\[GAME OVER\]/i.test(content)) {
         setTimeout(function(){ showDefeatScreen(); }, 1500);
         return;
       }
-      // Détecter ouverture négociation
       if(detectAndOpenNego(content)) return;
       injectActionButtons(content, body);
       renderChoices(body);
