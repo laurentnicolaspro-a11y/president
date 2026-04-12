@@ -286,6 +286,10 @@
   .defeat-stat-label{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;}
   .defeat-divider{width:100%;border:none;border-top:1px solid rgba(255,59,92,0.15);}
   .defeat-btns{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;}
+  .projects-toggle{width:100%;background:rgba(66,133,244,0.05);border:none;border-top:1px solid rgba(66,133,244,0.15);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.5rem;cursor:pointer;text-align:center;letter-spacing:0.08em;transition:all 0.2s;}
+  .projects-toggle:hover{background:rgba(66,133,244,0.1);color:var(--accent);}
+  .projects-extra{display:none;}
+  .projects-extra.open{display:table-row-group;}
   #custom-modal{display:none;position:fixed;inset:0;background:rgba(3,7,18,0.96);z-index:300;align-items:center;justify-content:center;padding:1.5rem;}
   #custom-modal.active{display:flex;}
   @media(max-width:600px){
@@ -1370,15 +1374,24 @@ async function callAPI(initMessage,isInit) {
   var messages=isInit?[{role:'user',content:initMessage}]:conversationHistory;
   var langNames={'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
   try {
-    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français', situation: currentSituation||''})});
+    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français', situation: currentSituation||'', situationHistory: situationHistory})});
     if(!response.ok){var err=await response.json().catch(function(){return{};});throw new Error(err.error||'Erreur HTTP '+response.status);}
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    addMessage('ai',text);updateHUD(text);
-    currentSituation = extractSituation(text);
+    // Détecter et appliquer le marqueur [IMPACT]
+    var impact = parseImpactMarker(text);
+    if (impact && !isInit) {
+      processPendingImpacts(); // Appliquer les impacts dégressifs des tours précédents
+      addNewImpact(impact.niveau, impact.indicateurs); // Appliquer le nouvel impact
+    }
+    // Retirer le marqueur [IMPACT] du texte affiché
+    var displayText = text.replace(/\[IMPACT:[^\]]+\]/gi, '').trim();
+    addMessage('ai', displayText); updateHUD(displayText);
+    currentSituation = extractSituation(displayText);
+    addToSituationHistory(currentSituation);
     saveGame();
-  }catch(err){addMessage('ai','⚠ Erreur : '+err.message+'\n\nVérifiez que la variable GEMINI_API_KEY est bien configurée dans Vercel.');}
+  }catch(err){addMessage('ai','⚠ Les communications sont temporairement perturbées. Cliquez sur relancer pour reprendre.');}
   setLoading(false);
 }
 
@@ -1673,14 +1686,100 @@ async function confirmWithWho() {
   withWhoWrap = null; withWhoBtn = null;
 }
 
+function buildIndicatorsTable() {
+  if (gameState.popularite === null) return '';
+  var rows = [
+    ['Coffres de l\'État', gameState.coffres !== null ? gameState.coffres + ' Mds €' : '—'],
+    ['Solde mensuel', gameState.solde !== null ? (gameState.solde >= 0 ? '+' : '') + gameState.solde + ' M€' : '—'],
+    ['Croissance', gameState.croissance !== null ? gameState.croissance + '%' : '—'],
+    ['Dette', gameState.dette !== null ? gameState.dette + '% du PIB' : '—'],
+    ['Popularité', gameState.popularite !== null ? gameState.popularite + '%' : '—'],
+    ['Tensions sociales', gameState.tensions !== null ? gameState.tensions + '/10' : '—'],
+    ['Taux de chômage', gameState.chomage !== null ? gameState.chomage + '%' : '—'],
+  ];
+  var html = '<table><thead><tr><th>INDICATEUR</th><th>VALEUR</th></tr></thead><tbody>';
+  rows.forEach(function(row) {
+    html += '<tr><td>' + row[0] + '</td><td>' + row[1] + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+// ===== TRACKING SITUATION EN COURS =====
+const IMPACT_VALUES = {
+  TresMauvais: { popularite:-8, tensions:3, croissance:-0.6, chomage:1.5, coffres:-20, solde:-500, dette:3 },
+  Mauvais:     { popularite:-4, tensions:1.5, croissance:-0.3, chomage:0.8, coffres:-10, solde:-250, dette:1.5 },
+  Bien:        { popularite:4, tensions:-1.5, croissance:0.3, chomage:-0.8, coffres:10, solde:250, dette:-1.5 },
+  TresBien:    { popularite:8, tensions:-3, croissance:0.6, chomage:-1.5, coffres:20, solde:500, dette:-3 }
+};
+var pendingImpacts = [];
+
+function parseImpactMarker(text) {
+  var match = text.match(/\[IMPACT:\s*(TresBien|TresMauvais|Bien|Mauvais)\s*\|\s*([^\]]+)\]/i);
+  if (!match) return null;
+  var niveau = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+  // Normaliser TresMauvais/TresBien
+  if (/tres\s*mauvais/i.test(match[1])) niveau = 'TresMauvais';
+  if (/tres\s*bien/i.test(match[1])) niveau = 'TresBien';
+  var indicateurs = match[2].split(',').map(function(s){ return s.trim().toLowerCase(); });
+  return { niveau: niveau, indicateurs: indicateurs };
+}
+
+function applyImpact(niveau, indicateurs, multiplier) {
+  var values = IMPACT_VALUES[niveau];
+  if (!values) return;
+  indicateurs.forEach(function(ind) {
+    var key = ind.replace(/é/g,'e').replace(/ô/g,'o').replace(/â/g,'a');
+    // Mapping noms français → clés gameState
+    var keyMap = {'popularite':'popularite','popularité':'popularite','tensions':'tensions','croissance':'croissance','chomage':'chomage','chômage':'chomage','coffres':'coffres','solde':'solde','dette':'dette'};
+    var stateKey = keyMap[ind] || keyMap[key] || ind;
+    if (gameState[stateKey] === null || gameState[stateKey] === undefined) return;
+    var delta = (values[stateKey] || 0) * multiplier;
+    if (delta === 0) return;
+    var newVal = Math.round((gameState[stateKey] + delta) * 10) / 10;
+    if (stateKey === 'popularite') newVal = Math.max(5, Math.min(95, newVal));
+    if (stateKey === 'tensions') newVal = Math.max(0, Math.min(10, newVal));
+    if (stateKey === 'croissance') newVal = Math.max(-5, Math.min(8, newVal));
+    if (stateKey === 'chomage') newVal = Math.max(2, Math.min(25, newVal));
+    if (stateKey === 'dette') newVal = Math.max(20, Math.min(200, newVal));
+    updateGameState(stateKey, newVal);
+  });
+}
+
+function processPendingImpacts() {
+  pendingImpacts = pendingImpacts.filter(function(impact) {
+    impact.toursRestants--;
+    if (impact.toursRestants <= 0) return false;
+    var mult = impact.toursRestants === 2 ? 0.5 : 0.25;
+    applyImpact(impact.niveau, impact.indicateurs, mult);
+    return true;
+  });
+}
+
+function addNewImpact(niveau, indicateurs) {
+  applyImpact(niveau, indicateurs, 1.0);
+  pendingImpacts.push({ niveau: niveau, indicateurs: indicateurs, toursRestants: 3 });
+}
+
 var currentSituation = '';
+var situationHistory = []; // Historique résumé des situations passées
 
 function extractSituation(text) {
   if (/résolu|terminé|accord signé|crise écartée|situation normalis|retour au calme/i.test(text)) return '';
-  var lines = text.split('\n').filter(function(l){ return l.trim() && !l.match(/^\|/) && !l.match(/^\d\./) && !l.match(/^\[/); });
+  var lines = text.split('\n').filter(function(l){ return l.trim() && !l.match(/^\|/) && !l.match(/^\d\./) && !l.match(/^\[/) && !l.match(/^#+/); });
   if (!lines.length) return currentSituation;
-  var summary = lines.slice(0, 2).join(' ').replace(/<[^>]+>/g, '').trim();
-  return summary.length > 100 ? summary.substring(0, 100) + '...' : summary;
+  var summary = lines.slice(0, 1).join(' ').replace(/<[^>]+>/g, '').trim();
+  return summary.length > 80 ? summary.substring(0, 80) + '...' : summary;
+}
+
+function addToSituationHistory(situation) {
+  if (!situation || situation.length < 10) return;
+  // Garder seulement les 8 dernières situations
+  var short = situation.substring(0, 60);
+  if (situationHistory[situationHistory.length-1] !== short) {
+    situationHistory.push(short);
+    if (situationHistory.length > 8) situationHistory.shift();
+  }
 }
 
 async function sendChoiceMessage(text) {
@@ -1706,7 +1805,13 @@ function addMessage(role,content){
   var header=document.createElement('div');header.className='msg-header';header.textContent=role==='ai'?t('aiHeader'):t('userHeader');
   var body=document.createElement('div');body.className='msg-body';
   if(role==='ai'){
-    var cleaned=extractAndShowNews(content);body.innerHTML=window.marked.parse(cleaned);
+    var cleaned=extractAndShowNews(content);
+    // Injecter le tableau indicateurs depuis gameState (sauf tour 1 où Gemini génère les valeurs initiales)
+    var indicatorsHtml = '';
+    if (gameState.popularite !== null && Object.keys(initialState).length > 0) {
+      indicatorsHtml = buildIndicatorsTable();
+    }
+    body.innerHTML = indicatorsHtml + window.marked.parse(cleaned);
     // Petit bouton discret pour relancer si bug
     var retryBtn=document.createElement('button');
     retryBtn.className='retry-btn';
@@ -1718,7 +1823,7 @@ function addMessage(role,content){
       var dateEl=document.getElementById('hud-date');var dateLabel=dateEl?dateEl.textContent:'';
       enrichTables(body, true);
       // Sauvegarder l'état initial après le premier tour (quand les vrais chiffres arrivent)
-      if (currentTurn <= 1 && gameState.popularite !== null) saveInitialState();
+      if (Object.keys(initialState).length === 0 && gameState.popularite !== null) saveInitialState();
       Stats.record(body,dateLabel);
       detectAudioMode(body);
       // Détecter GAME OVER
@@ -1848,6 +1953,34 @@ function enrichTables(container, isLatest){
 
       if(cls) valCell.innerHTML='<span class="'+cls+'">'+display+arrow+'</span>';
     });
+
+    // Accordéon sur le tableau projets (2ème tableau — celui avec "Projet en cours")
+    var headers = table.querySelectorAll('th');
+    var isProjectTable = headers.length >= 3 && headers[0] && headers[0].textContent.toLowerCase().includes('projet');
+    if (isProjectTable) {
+      var dataRows = table.querySelectorAll('tbody tr, tr:not(:first-child)');
+      var realRows = Array.from(dataRows).filter(function(r){ return r.querySelectorAll('td').length >= 2; });
+      if (realRows.length > 3) {
+        // Masquer les lignes au-delà des 3 dernières
+        var extraRows = realRows.slice(0, realRows.length - 3);
+        var tbody = table.querySelector('tbody') || table;
+        // Créer un tbody pour les lignes cachées
+        var extraTbody = document.createElement('tbody');
+        extraTbody.className = 'projects-extra';
+        extraRows.forEach(function(row){ extraTbody.appendChild(row.cloneNode(true)); row.remove(); });
+        table.insertBefore(extraTbody, table.querySelector('tbody') || table.firstChild.nextSibling);
+        // Bouton toggle
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'projects-toggle';
+        var total = realRows.length;
+        toggleBtn.textContent = '▼ voir tous les projets (' + total + ')';
+        toggleBtn.addEventListener('click', function(){
+          var isOpen = extraTbody.classList.toggle('open');
+          toggleBtn.textContent = isOpen ? '▲ réduire' : '▼ voir tous les projets (' + total + ')';
+        });
+        table.parentNode.insertBefore(toggleBtn, table.nextSibling);
+      }
+    }
   });
 }
 
@@ -1939,7 +2072,7 @@ function resetGame(){
   if(!confirm(t('abandonConfirm')))return;
   AudioPlayer.stop();Stats.reset();clearSave();gamePhase='init';
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
-  prevState={};currentSituation="";
+  prevState={};currentSituation="";situationHistory=[];
   document.getElementById('nego-badge').classList.remove('active');
   document.getElementById('game').classList.remove('active');document.getElementById('landing').style.display='';
   document.getElementById('save-info').style.display='none';
@@ -2224,7 +2357,7 @@ function goHome() {
   document.getElementById('landing').style.display = '';
   Stats.reset(); clearSave();
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
-  prevState={};initialState={};currentSituation="";
+  prevState={};initialState={};currentSituation="";situationHistory=[];
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
   currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
@@ -2238,7 +2371,7 @@ function replayGame() {
   document.getElementById('landing').style.display = '';
   Stats.reset();clearSave();
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
-  prevState={};initialState={};currentSituation="";
+  prevState={};initialState={};currentSituation="";situationHistory=[];
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
   currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
