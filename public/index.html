@@ -1379,13 +1379,14 @@ async function callAPI(initMessage,isInit) {
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    // Appliquer l'impact via le marqueur [IMPACT]
+    // Appliquer l'impact via le marqueur [IMPACT] ET les flèches du tableau projets
     var impact = parseImpactMarker(text);
-    if (impact && !isInit) {
-      processPendingImpacts();
-      addNewImpact(impact.niveau, impact.indicateurs);
+    if (!isInit) {
+      // Parser les flèches du tableau projets directement depuis le texte
+      parseAndApplyProjectFlèches(text);
+      if (impact) { processPendingImpacts(); addNewImpact(impact.niveau, impact.indicateurs); }
     }
-    // Sauvegarder initialState si ce n'est pas encore fait et qu'on a des données
+    // Sauvegarder initialState si ce n'est pas encore fait
     if (Object.keys(initialState).length === 0 && gameState.popularite !== null) saveInitialState();
     // Retirer le marqueur [IMPACT] du texte affiché
     var displayText = text.replace(/\[IMPACT:[^\]]+\]/gi, '').trim();
@@ -1772,6 +1773,35 @@ function processPendingImpacts() {
 function addNewImpact(niveau, indicateurs) {
   applyImpact(niveau, indicateurs, 1.0);
   pendingImpacts.push({ niveau: niveau, indicateurs: indicateurs, toursRestants: 3 });
+}
+
+// Parser les flèches du tableau projets depuis le texte brut et appliquer les impacts
+function parseAndApplyProjectFlèches(text) {
+  var lines = text.split('\n');
+  var inProjectTable = false;
+  lines.forEach(function(line) {
+    if (/projet en cours/i.test(line)) { inProjectTable = true; return; }
+    if (inProjectTable && line.trim().startsWith('|') && !line.includes('---')) {
+      var cells = line.split('|').map(function(c){ return c.trim(); }).filter(Boolean);
+      if (cells.length < 4) return;
+      var impactCell = cells[3];
+      if (!impactCell) return;
+      var parts = impactCell.split('·');
+      parts.forEach(function(part) {
+        part = part.trim();
+        var match = part.match(/^(.+?)\s*(⬆⬆|⬇⬇|⬆|⬇)\s*$/);
+        if (!match) return;
+        var indName = match[1].trim().toLowerCase();
+        var arrow = match[2].trim();
+        var niveau = ARROW_TO_LEVEL[arrow];
+        var stateKey = IND_MAP[indName];
+        if (!niveau || !stateKey) return;
+        var delta = (IMPACT_VALUES[niveau][stateKey] || 0) * 0.25;
+        if (delta !== 0) applyDelta(stateKey, delta);
+      });
+    }
+    if (inProjectTable && !line.trim().startsWith('|') && line.trim() !== '') inProjectTable = false;
+  });
 }
 
 // Coloriser les flèches du tableau projets (visuel uniquement - pas de calcul)
