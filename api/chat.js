@@ -25,30 +25,28 @@ III. CONFIGURATION
 - Tous les 12 tours : crise mondiale majeure (pandémie, crash, conflit...)
 - La DIFFICULTÉ change l'intensité des crises : Facile → légères | Normal → équilibré | Difficile → sévères | Réaliste → fatales
 
-TABLEAU PROJETS EN COURS — 4 colonnes obligatoires :
-| Projet en cours | Début | Fin prévue | Impact attendu |
-- N'inscrire QUE les projets structurels à long terme
-- NE PAS inscrire : décisions immédiates, crises, négociations
-- Durée minimum 3 tours. Tour 1 : tableau vide
-- Impact attendu : ex "📈 Popularité", "📉 Tensions", "📈 Croissance"
-
 IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 
 1. ## Mois Année
 
-2. Le tableau projets EN PREMIER :
+2. Le tableau projets EN PREMIER (toujours, même vide au tour 1) :
+
 | Projet en cours | Début | Fin prévue | Impact attendu |
 |-----------------|-------|------------|----------------|
 
-RÈGLE OBLIGATOIRE : Si le joueur prend une décision avec un impact visible → l'ajouter dans ce tableau.
-- La colonne Impact attendu est OBLIGATOIRE si le projet est inscrit :
+RÈGLES du tableau projets :
+- À partir du tour 2 : inscrire CHAQUE décision du joueur ayant un impact sur les indicateurs
+- La colonne "Impact attendu" est OBLIGATOIRE avec ce format exact :
+  NomIndicateur ⬆⬆ · AutreIndicateur ⬇
   ⬆⬆ = très bénéfique · ⬆ = bénéfique · ⬇ = négatif · ⬇⬇ = très négatif
-  Format : NomIndicateur ⬆⬆ · AutreIndicateur ⬇
   Indicateurs : Coffres · Solde · Croissance · Dette · Popularité · Tensions · Chômage
+  Exemple : Coffres ⬆⬆ · Solde ⬆ · Tensions ⬇
+- Si aucun impact → laisser la cellule vide
+- Tour 1 : tableau vide obligatoirement
 
-3. Le tableau indicateurs ENSUITE :
-⚠️ TOUR 1 UNIQUEMENT : génère ce tableau avec les valeurs initiales réalistes.
-À partir du tour 2 : NE GÉNÈRE PLUS ce tableau — le code s'en charge.
+3. Le tableau indicateurs (TOUR 1 UNIQUEMENT) :
+⚠️ TOUR 1 SEULEMENT : génère ce tableau avec les valeurs initiales réalistes du pays.
+À partir du tour 2 : NE GÉNÈRE PLUS jamais ce tableau.
 
 | Indicateur        | Valeur       |
 |-------------------|--------------|
@@ -63,13 +61,6 @@ RÈGLE OBLIGATOIRE : Si le joueur prend une décision avec un impact visible →
 4. Narration (3-5 phrases) :
 - Conséquence du choix précédent (2-3 phrases)
 - ⚡ NOUVELLE SITUATION : urgence qui découle logiquement de la situation
-
-5. Le marqueur d'impact (sur une ligne seule, invisible au joueur) :
-[IMPACT: Niveau | Indicateur1, Indicateur2]
-- Niveau = TresMauvais | Mauvais | Bien | TresBien
-- Indicateurs concernés par le choix parmi : popularite, tensions, croissance, chomage, coffres, solde, dette
-- Exemple : [IMPACT: Bien | popularite, tensions]
-- Exemple : [IMPACT: TresMauvais | coffres, solde, dette]
 
 5. Les 4 choix :
 1. [choix]
@@ -99,16 +90,13 @@ const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 function trimHistory(messages) {
   if (messages.length <= 4) return messages;
-  // Garder : message 2 (choix du pays) + tous les messages joueur récents + dernier message Gemini
-  const countryChoice = messages.slice(1, 2); // Message 2 = choix du pays
-  const lastAI = messages.filter(m => m.role === 'assistant').slice(-1); // Dernier message Gemini
-  const recentPlayer = messages.filter(m => m.role === 'user').slice(-5); // 5 derniers choix joueur
-  // Dédupliquer et remettre dans l'ordre
+  const countryChoice = messages.slice(1, 2);
+  const lastAI = messages.filter(m => m.role === 'assistant').slice(-1);
+  const recentPlayer = messages.filter(m => m.role === 'user').slice(-5);
   var combined = [...countryChoice, ...recentPlayer, ...lastAI];
-  // Supprimer les doublons en gardant l'ordre original
   var seen = new Set();
   var result = [];
-  messages.forEach(function(m, i) {
+  messages.forEach(function(m) {
     var id = m.role + ':' + m.content.slice(0, 50);
     if (combined.includes(m) && !seen.has(id)) {
       seen.add(id);
@@ -174,7 +162,6 @@ export default async function handler(req, res) {
   const langue = lang || 'français';
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Mode négociation
   if (negoMode && negoPrompt) {
     const negoSystemPrompt = negoPrompt + `\nLANGUE : Réponds EXCLUSIVEMENT en ${langue}.`;
     const trimmed = trimHistory(messages);
@@ -200,13 +187,13 @@ export default async function handler(req, res) {
   const historyInstruction = situationHistory && situationHistory.length
     ? `\nHISTORIQUE DES SITUATIONS (ne pas répéter) : ${situationHistory.join(' | ')}`
     : '';
+  const stateInstruction = stateStr
+    ? `\nÉTAT ACTUEL : ${stateStr} — la narration doit être cohérente avec ces chiffres.`
+    : '';
   const forceNegoInstruction = forceNego
-    ? `\nINSTRUCTION ABSOLUE : Le joueur ouvre une négociation. Réponds UNIQUEMENT avec [NÉGOCIATION: Nom complet, Titre/Rôle] suivi de ta première réplique (2-3 phrases). Rien d'autre.`
+    ? `\nINSTRUCTION ABSOLUE : Réponds UNIQUEMENT avec [NÉGOCIATION: Nom complet, Titre/Rôle] suivi de ta première réplique (2-3 phrases). Rien d'autre.`
     : '';
   const langInstruction = `\nLANGUE : Réponds EXCLUSIVEMENT en ${langue}.\nDATE : ${today}.`;
-  const stateInstruction = stateStr
-    ? `\nÉTAT ACTUEL DES INDICATEURS : ${stateStr} — La nouvelle situation DOIT être cohérente avec ces chiffres. Pas de grève si tensions < 3, pas de crise budgétaire si coffres > 100 Mds, etc.`
-    : '';
   const systemPrompt = SYSTEM_PROMPT + situationInstruction + historyInstruction + stateInstruction + forceNegoInstruction + langInstruction;
 
   const trimmed = trimHistory(messages);
@@ -227,7 +214,7 @@ export default async function handler(req, res) {
           const retryContents = [
             ...contents,
             { role: 'model', parts: [{ text }] },
-            { role: 'user', parts: [{ text: 'Ta réponse semble incomplète. Recommence avec le format : tableau projets + narration + [IMPACT] + 4 choix + [NEWS].' }] }
+            { role: 'user', parts: [{ text: 'Ta réponse semble incomplète. Recommence avec le format complet.' }] }
           ];
           text = await callGemini(apiKey, retryContents, systemPrompt, model);
           if (isValidResponse(text, trimmed)) break;
@@ -243,4 +230,3 @@ export default async function handler(req, res) {
 
   return res.status(500).json({ error: lastError?.message || 'Erreur inconnue' });
 }
-
