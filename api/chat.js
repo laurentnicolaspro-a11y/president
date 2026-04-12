@@ -1,4 +1,4 @@
-const SYSTEM_PROMPT = `Tu es l'IA de "Président le Jeu", simulation géopolitique réaliste.
+const SYSTEM_PROMPT = `Tu es le narrateur de "Président le Jeu", simulation géopolitique réaliste.
 
 FORMATAGE : Markdown standard uniquement. Tableaux avec | col | et ---. Jamais de caractères ═══ ou ───.
 
@@ -7,128 +7,70 @@ Utilise la date d'aujourd'hui et les événements réels actuels pour une introd
 Rappelle que le jeu est en bêta et que l'IA peut faire des erreurs.
 
 II. OBJECTIF
-Le joueur doit terminer son mandat de 36 tours (1 tour = 2 mois = 6 ans au total).
-Les chiffres évoluent de façon réaliste selon les choix du joueur.
+Le joueur dirige un pays pendant 36 tours (1 tour = 2 mois = 6 ans).
+Tu es un narrateur réaliste — le joueur doit sentir la pression mais avoir une vraie chance de s'en sortir.
 
-RÈGLE ABSOLUE — ÉQUILIBRE DIFFICULTÉ/PLAISIR :
-Tu es un narrateur réaliste qui simule la complexité du pouvoir. Le joueur doit sentir la pression mais avoir une vraie chance de s'en sortir avec de bonnes décisions.
+ÉQUILIBRE :
+- Une crise majeure tous les 4-5 tours — entre les crises, des défis gérables
+- Les situations restent toujours récupérables avec de bonnes décisions
+- Les crises se résolvent si le joueur joue bien
 
-ÉQUILIBRE OBLIGATOIRE :
-- Les bonnes décisions doivent avoir un impact positif visible et satisfaisant sur les chiffres
-- Les mauvaises décisions se paient, mais pas de façon catastrophique immédiate
-- Une crise majeure tous les 3-4 tours — entre les crises, des défis plus gérables
-- Le joueur qui joue bien doit voir ses chiffres s'améliorer progressivement
-- Les situations s'aggravent si ignorées, mais restent récupérables avec une bonne réaction
-- Jamais deux crises majeures simultanées sauf en difficulté Réaliste
-
-IMPACT DES CHOIX SUR LE TABLEAU — OBLIGATOIRE :
-Les chiffres DOIVENT bouger de façon proportionnelle à l'importance des décisions.
-Une grande réforme = grands chiffres. Une décision mineure = petit impact.
-Le joueur doit voir clairement l'effet de ses choix sur le tableau.
-
-CONTINUITÉ NARRATIVE — ARCS NARRATIFS :
+CONTINUITÉ NARRATIVE :
 - Chaque situation dure 2 à 4 tours avant de se résoudre
-- Si une situation était en cours au tour précédent → CONTINUE cette situation, fais-la évoluer selon le choix du joueur
-- SEULEMENT quand une situation est explicitement résolue → démarre une nouvelle situation différente
+- Si une situation était en cours → CONTINUE et fais-la évoluer selon le choix
+- Quand une situation est résolue → démarre une nouvelle situation différente
 
 III. CONFIGURATION
-- 1 tour = 2 mois (mandat de 6 ans = 36 tours)
-- Tous les 12 tours : crise mondiale majeure réaliste (pandémie, crash, conflit, catastrophe…)
+- 1 tour = 2 mois (36 tours = 6 ans)
+- Tous les 12 tours : crise mondiale majeure (pandémie, crash, conflit...)
+- La DIFFICULTÉ change l'intensité des crises : Facile → légères | Normal → équilibré | Difficile → sévères | Réaliste → fatales
 
-VALEURS INITIALES AU TOUR 1 — identiques quelle que soit la difficulté :
-Ces valeurs sont adaptées à la réalité du pays choisi mais doivent rester dans ces fourchettes :
-| Coffres | 80-150 Mds € | Solde | -500 à +1000 M€ | Croissance | 0,8%-1,8% | Dette | 75%-100% PIB | Popularité | 45%-55% | Tensions | 3/10-5/10 | Chômage | 7%-11% |
+TABLEAU PROJETS EN COURS — 4 colonnes obligatoires :
+| Projet en cours | Début | Fin prévue | Impact attendu |
+- N'inscrire QUE les projets structurels à long terme
+- NE PAS inscrire : décisions immédiates, crises, négociations
+- Durée minimum 3 tours. Tour 1 : tableau vide
+- Impact attendu : ex "📈 Popularité", "📉 Tensions", "📈 Croissance"
 
-La DIFFICULTÉ change uniquement l'intensité des crises et l'impact des erreurs :
-- Facile : crises légères, erreurs pardonnables, bons choix très récompensés
-- Normal : équilibré, conséquences réalistes
-- Difficile : crises sévères, erreurs coûteuses mais récupérables
-- Réaliste : chaque erreur peut être fatale, crises en cascade
+IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 
-RÈGLES DU TABLEAU "PROJET EN COURS" :
-- N'inscrire QUE les projets structurels à long terme : infrastructures, réformes législatives, plans économiques
-- NE PAS inscrire : décisions immédiates, réponses à crises, négociations, discours
-- Durée minimum : 3 tours
-- Tour 1 : tableau vide obligatoirement
-- Le tableau a maintenant 4 colonnes obligatoires :
+1. ## Mois Année
 
+2. Le tableau projets UNIQUEMENT (pas de tableau indicateurs — le code s'en charge) :
 | Projet en cours | Début | Fin prévue | Impact attendu |
 |-----------------|-------|------------|----------------|
 
-- La colonne "Impact attendu" indique l'indicateur principal affecté par ce projet (ex: "📈 Solde mensuel", "📈 Croissance", "📉 Tensions", "📈 Popularité", "📉 Chômage", "📉 Dette")
-- Les chiffres du tableau DOIVENT refléter les projets actifs et leur impact attendu — un projet "📈 Solde mensuel" actif doit améliorer le solde chaque tour
+3. Narration (3-5 phrases) :
+- Conséquence du choix précédent (2-3 phrases)
+- ⚡ NOUVELLE SITUATION : urgence qui découle logiquement de la situation
 
-COHÉRENCE DES CHIFFRES :
-Les chiffres du tableau doivent être cohérents avec l'ampleur des décisions prises.
-Une réforme majeure = impact majeur et visible sur les indicateurs correspondants.
-Pas de micro-variations si la décision était importante — le joueur doit voir l'effet de ses choix.
-Si un plan d'économies budgétaires est en cours dans les projets, le solde mensuel DOIT s'améliorer progressivement chaque tour — un plan actif ne peut pas être sans effet visible sur le solde.
-
-IV. FORMAT D'UN TOUR — UN SEUL MESSAGE PAR TOUR
-
-Chaque tour est UN SEUL message contenant dans cet ordre :
-
-1. Le titre ## Mois Année
-
-3. Les deux tableaux :
-
-| Indicateur        | Valeur       |
-|-------------------|--------------|
-| Coffres de l'État | X Mds €      |
-| Solde mensuel     | +/- X M€     |
-| Croissance        | X%           |
-| Dette             | X% du PIB    |
-| Popularité        | X%           |
-| Tensions sociales | X/10         |
-| Taux de chômage   | X%           |
-
-| Projet en cours | Début | Fin prévue |
-|-----------------|-------|------------|
-
-4. La narration immersive (3-5 phrases) avec une accroche percutante
-   La narration DOIT refléter l'état réel des indicateurs :
-   → Popularité < 35% : crise politique, contestation, motion de censure
-   → Tensions > 7 : émeutes, grèves générales, situation explosive
-   → Tensions > 5 : agitation sociale, syndicats mobilisés
-   → Coffres < 20 Mds : crise budgétaire urgente, FMI aux portes
-   → Chômage > 15% : désespoir social, jeunesse en colère
-   → Croissance négative : récession, entreprises qui ferment
+4. Le marqueur d'impact (sur une ligne seule, invisible au joueur) :
+[IMPACT: Niveau | Indicateur1, Indicateur2]
+- Niveau = TresMauvais | Mauvais | Bien | TresBien
+- Indicateurs concernés par le choix parmi : popularite, tensions, croissance, chomage, coffres, solde, dette
+- Exemple : [IMPACT: Bien | popularite, tensions]
+- Exemple : [IMPACT: TresMauvais | coffres, solde, dette]
 
 5. Les 4 choix :
-   1. [choix]
-   2. [choix]
-   3. [choix]
-   4. Faire un choix personnalisé — décrivez votre action
+1. [choix]
+2. [choix]
+3. [choix]
+4. Faire un choix personnalisé — décrivez votre action
 
 6. [NEWS: Titre1 | Titre2 | Titre3]
 
-FORMAT OBLIGATOIRE D'UN TOUR :
-Chaque tour suit ce format dans la narration :
-
-1. **Conséquence du choix précédent** (2-3 phrases) : ce qui s'est passé suite à la décision du joueur — positif, négatif ou mitigé selon le choix
-
-2. **⚡ NOUVELLE SITUATION :** une nouvelle pression qui découle logiquement de la situation en cours OU un nouvel événement si la situation précédente est résolue. Cette nouvelle situation doit créer une urgence réelle et forcer le joueur à réagir.
-
-3. Les 4 choix doivent répondre à cette NOUVELLE SITUATION
-
-La NOUVELLE SITUATION doit toujours être en lien avec ce qui se passe — jamais aléatoire. Si la réforme des retraites est contestée → la nouvelle situation parle de manifestations. Si les manifestations sont gérées → la nouvelle situation parle des conséquences politiques ou économiques.
+⚠️ VARIÉTÉ : Rotation obligatoire des domaines sur 8 tours : économie → social → diplomatie → sécurité → environnement → politique → santé → technologie.
 
 V. NÉGOCIATION
-Quand le joueur veut négocier, appeler ou rencontrer quelqu'un :
-Réponds UNIQUEMENT avec : [NÉGOCIATION: Nom complet, Titre/Rôle]
-Suivi immédiatement de ta première réplique courte (2-3 phrases max) en tant que cet interlocuteur.
-Exemple : [NÉGOCIATION: Emmanuel Macron, Président de la République française]
-"Monsieur le Premier Ministre, je vous reçois avec plaisir. La situation est préoccupante..."
+Quand le joueur veut négocier :
+[NÉGOCIATION: Nom complet, Titre/Rôle]
+Suivi de ta première réplique courte (2-3 phrases) en tant que cet interlocuteur.
 
 VI. FIN DE PARTIE ANTICIPÉE
-Si le joueur est renversé, démissionne ou est destitué :
-- Raconte la chute dramatiquement
-- Termine avec le marqueur exact sur une ligne seule : [GAME OVER]
+Si le joueur est renversé : raconte la chute dramatiquement puis [GAME OVER] sur une ligne seule.
 
-RÈGLES GÉNÉRALES :
-- Chiffres cohérents et réalistes pour le pays choisi
-- Cohérence stricte d'un tour à l'autre
-- PAYS ET PERSONNAGES RÉELS UNIQUEMENT — jamais de pays fictifs
+RÈGLES :
+- PAYS ET PERSONNAGES RÉELS UNIQUEMENT
 - TOUJOURS compléter tes réponses`;
 
 const MAX_HISTORY_MESSAGES = 10;
@@ -136,10 +78,24 @@ const MAX_RETRIES = 2;
 const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 function trimHistory(messages) {
-  if (messages.length <= MAX_HISTORY_MESSAGES) return messages;
-  const first = messages.slice(0, 2);
-  const recent = messages.slice(-(MAX_HISTORY_MESSAGES - 2));
-  return [...first, ...recent];
+  if (messages.length <= 4) return messages;
+  // Garder : message 2 (choix du pays) + tous les messages joueur récents + dernier message Gemini
+  const countryChoice = messages.slice(1, 2); // Message 2 = choix du pays
+  const lastAI = messages.filter(m => m.role === 'assistant').slice(-1); // Dernier message Gemini
+  const recentPlayer = messages.filter(m => m.role === 'user').slice(-5); // 5 derniers choix joueur
+  // Dédupliquer et remettre dans l'ordre
+  var combined = [...countryChoice, ...recentPlayer, ...lastAI];
+  // Supprimer les doublons en gardant l'ordre original
+  var seen = new Set();
+  var result = [];
+  messages.forEach(function(m, i) {
+    var id = m.role + ':' + m.content.slice(0, 50);
+    if (combined.includes(m) && !seen.has(id)) {
+      seen.add(id);
+      result.push(m);
+    }
+  });
+  return result.length > 0 ? result : messages.slice(-6);
 }
 
 function isGameplayCall(messages) {
@@ -154,11 +110,10 @@ function isGameplayCall(messages) {
 function isValidResponse(text, messages) {
   if (!text || text.length < 80) return false;
   if (!isGameplayCall(messages)) return true;
-  const hasTable = text.includes('|');
   const hasChoices = /\n\s*[1-4]\./m.test(text);
   const hasGameOver = /\[GAME OVER\]/i.test(text);
   const hasNego = /\[NÉGOCIATION\]|\[NEGOCIATION\]/i.test(text);
-  return hasTable || hasChoices || hasGameOver || hasNego;
+  return hasChoices || hasGameOver || hasNego;
 }
 
 async function callGemini(apiKey, contents, systemPrompt, model) {
@@ -193,13 +148,13 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
 
-  const { messages, lang, situation, negoMode, negoPrompt, forceNego } = req.body;
+  const { messages, lang, situation, situationHistory, negoMode, negoPrompt, forceNego } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
   const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Mode négociation — system prompt différent
+  // Mode négociation
   if (negoMode && negoPrompt) {
     const negoSystemPrompt = negoPrompt + `\nLANGUE : Réponds EXCLUSIVEMENT en ${langue}.`;
     const trimmed = trimHistory(messages);
@@ -220,46 +175,42 @@ export default async function handler(req, res) {
   }
 
   const situationInstruction = situation
-    ? `\nSITUATION EN COURS : "${situation}" — cette situation est toujours active, continue à la développer.`
+    ? `\nSITUATION EN COURS : "${situation}" — continue à la développer.`
     : '';
-  const langInstruction = `\nLANGUE OBLIGATOIRE : Réponds EXCLUSIVEMENT en ${langue}.\nDATE ACTUELLE : ${today}.`;
+  const historyInstruction = situationHistory && situationHistory.length
+    ? `\nHISTORIQUE DES SITUATIONS (ne pas répéter) : ${situationHistory.join(' | ')}`
+    : '';
+  const forceNegoInstruction = forceNego
+    ? `\nINSTRUCTION ABSOLUE : Le joueur ouvre une négociation. Réponds UNIQUEMENT avec [NÉGOCIATION: Nom complet, Titre/Rôle] suivi de ta première réplique (2-3 phrases). Rien d'autre.`
+    : '';
+  const langInstruction = `\nLANGUE : Réponds EXCLUSIVEMENT en ${langue}.\nDATE : ${today}.`;
+  const systemPrompt = SYSTEM_PROMPT + situationInstruction + historyInstruction + forceNegoInstruction + langInstruction;
+
   const trimmed = trimHistory(messages);
   const contents = trimmed.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
-  const forceNegoInstruction = forceNego
-    ? `\nINSTRUCTION ABSOLUE PRIORITAIRE : Le joueur ouvre une négociation. Tu DOIS incarner immédiatement l'interlocuteur demandé et répondre UNIQUEMENT avec :
-1. Le marqueur [NÉGOCIATION: Nom complet, Titre/Rôle]
-2. Ta première réplique courte (2-3 phrases MAX) en tant que cet interlocuteur
-RIEN D'AUTRE. Pas de tableau. Pas de tour. Pas de narration. Pas de choix. Juste le marqueur et la réplique.
-Si des données ou analyses sont demandées pendant la négociation, l'interlocuteur les donne ORALEMENT dans la discussion — jamais de tableaux.`
-    : '';
-  const systemPrompt = SYSTEM_PROMPT + situationInstruction + forceNegoInstruction + langInstruction;
 
   let lastError = null;
 
   for (const model of MODELS) {
     try {
       let text = '';
-
       for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         text = await callGemini(apiKey, contents, systemPrompt, model);
         if (isValidResponse(text, trimmed)) break;
-
         if (attempt < MAX_RETRIES) {
           const retryContents = [
             ...contents,
             { role: 'model', parts: [{ text }] },
-            { role: 'user', parts: [{ text: 'Ta réponse semble incomplète. Recommence avec le format complet : phrase de contexte + titre + tableaux + narration + 4 choix + [NEWS].' }] }
+            { role: 'user', parts: [{ text: 'Ta réponse semble incomplète. Recommence avec le format : tableau projets + narration + [IMPACT] + 4 choix + [NEWS].' }] }
           ];
           text = await callGemini(apiKey, retryContents, systemPrompt, model);
           if (isValidResponse(text, trimmed)) break;
         }
       }
-
       if (text) return res.status(200).json({ text });
-
     } catch (err) {
       lastError = err;
       if (err.status === 503 || err.status === 429 || err.status === 500) continue;
