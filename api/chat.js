@@ -163,7 +163,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Clé API GEMINI_API_KEY non configurée.' });
 
-  const { messages, lang, situation, situationHistory, negoMode, negoPrompt, forceNego } = req.body;
+  const { messages, lang, situation, situationHistory, stateStr, negoMode, negoPrompt, forceNego } = req.body;
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages invalides.' });
 
   const langue = lang || 'français';
@@ -199,7 +199,10 @@ export default async function handler(req, res) {
     ? `\nINSTRUCTION ABSOLUE : Le joueur ouvre une négociation. Réponds UNIQUEMENT avec [NÉGOCIATION: Nom complet, Titre/Rôle] suivi de ta première réplique (2-3 phrases). Rien d'autre.`
     : '';
   const langInstruction = `\nLANGUE : Réponds EXCLUSIVEMENT en ${langue}.\nDATE : ${today}.`;
-  const systemPrompt = SYSTEM_PROMPT + situationInstruction + historyInstruction + forceNegoInstruction + langInstruction;
+  const stateInstruction = stateStr
+    ? `\nÉTAT ACTUEL DES INDICATEURS : ${stateStr} — La nouvelle situation DOIT être cohérente avec ces chiffres. Pas de grève si tensions < 3, pas de crise budgétaire si coffres > 100 Mds, etc.`
+    : '';
+  const systemPrompt = SYSTEM_PROMPT + situationInstruction + historyInstruction + stateInstruction + forceNegoInstruction + langInstruction;
 
   const trimmed = trimHistory(messages);
   const contents = trimmed.map(m => ({
