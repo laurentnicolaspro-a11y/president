@@ -1379,12 +1379,14 @@ async function callAPI(initMessage,isInit) {
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    // Détecter et appliquer le marqueur [IMPACT]
+    // Détecter et appliquer le marqueur [IMPACT] pour les décisions ponctuelles
     var impact = parseImpactMarker(text);
     if (impact && !isInit) {
-      processPendingImpacts(); // Appliquer les impacts dégressifs des tours précédents
-      addNewImpact(impact.niveau, impact.indicateurs); // Appliquer le nouvel impact
+      processPendingImpacts();
+      addNewImpact(impact.niveau, impact.indicateurs);
     }
+    // Appliquer les impacts continus des projets actifs
+    if (!isInit) applyProjectsImpact();
     // Retirer le marqueur [IMPACT] du texte affiché
     var displayText = text.replace(/\[IMPACT:[^\]]+\]/gi, '').trim();
     addMessage('ai', displayText); updateHUD(displayText);
@@ -1712,15 +1714,34 @@ const IMPACT_VALUES = {
   Bien:        { popularite:4, tensions:-1.5, croissance:0.3, chomage:-0.8, coffres:10, solde:250, dette:-1.5 },
   TresBien:    { popularite:8, tensions:-3, croissance:0.6, chomage:-1.5, coffres:20, solde:500, dette:-3 }
 };
+
+const ARROW_TO_LEVEL = {'⬆⬆':'TresBien','⬆':'Bien','⬇':'Mauvais','⬇⬇':'TresMauvais'};
+
+const IND_MAP = {
+  'coffres':'coffres','solde':'solde','croissance':'croissance','dette':'dette',
+  'popularité':'popularite','popularite':'popularite',
+  'tensions':'tensions','chômage':'chomage','chomage':'chomage'
+};
+
 var pendingImpacts = [];
+
+function applyDelta(stateKey, delta) {
+  if (gameState[stateKey] === null || gameState[stateKey] === undefined) return;
+  var newVal = Math.round((gameState[stateKey] + delta) * 10) / 10;
+  if (stateKey === 'popularite') newVal = Math.max(5, Math.min(95, newVal));
+  if (stateKey === 'tensions')   newVal = Math.max(0, Math.min(10, newVal));
+  if (stateKey === 'croissance') newVal = Math.max(-5, Math.min(8, newVal));
+  if (stateKey === 'chomage')    newVal = Math.max(2, Math.min(25, newVal));
+  if (stateKey === 'dette')      newVal = Math.max(20, Math.min(200, newVal));
+  updateGameState(stateKey, newVal);
+}
 
 function parseImpactMarker(text) {
   var match = text.match(/\[IMPACT:\s*(TresBien|TresMauvais|Bien|Mauvais)\s*\|\s*([^\]]+)\]/i);
   if (!match) return null;
-  var niveau = match[1].charAt(0).toUpperCase() + match[1].slice(1);
-  // Normaliser TresMauvais/TresBien
+  var niveau = match[1];
   if (/tres\s*mauvais/i.test(match[1])) niveau = 'TresMauvais';
-  if (/tres\s*bien/i.test(match[1])) niveau = 'TresBien';
+  if (/tres\s*bien/i.test(match[1]))    niveau = 'TresBien';
   var indicateurs = match[2].split(',').map(function(s){ return s.trim().toLowerCase(); });
   return { niveau: niveau, indicateurs: indicateurs };
 }
@@ -1729,20 +1750,9 @@ function applyImpact(niveau, indicateurs, multiplier) {
   var values = IMPACT_VALUES[niveau];
   if (!values) return;
   indicateurs.forEach(function(ind) {
-    var key = ind.replace(/é/g,'e').replace(/ô/g,'o').replace(/â/g,'a');
-    // Mapping noms français → clés gameState
-    var keyMap = {'popularite':'popularite','popularité':'popularite','tensions':'tensions','croissance':'croissance','chomage':'chomage','chômage':'chomage','coffres':'coffres','solde':'solde','dette':'dette'};
-    var stateKey = keyMap[ind] || keyMap[key] || ind;
-    if (gameState[stateKey] === null || gameState[stateKey] === undefined) return;
+    var stateKey = IND_MAP[ind.toLowerCase()] || ind;
     var delta = (values[stateKey] || 0) * multiplier;
-    if (delta === 0) return;
-    var newVal = Math.round((gameState[stateKey] + delta) * 10) / 10;
-    if (stateKey === 'popularite') newVal = Math.max(5, Math.min(95, newVal));
-    if (stateKey === 'tensions') newVal = Math.max(0, Math.min(10, newVal));
-    if (stateKey === 'croissance') newVal = Math.max(-5, Math.min(8, newVal));
-    if (stateKey === 'chomage') newVal = Math.max(2, Math.min(25, newVal));
-    if (stateKey === 'dette') newVal = Math.max(20, Math.min(200, newVal));
-    updateGameState(stateKey, newVal);
+    if (delta !== 0) applyDelta(stateKey, delta);
   });
 }
 
@@ -1759,6 +1769,38 @@ function processPendingImpacts() {
 function addNewImpact(niveau, indicateurs) {
   applyImpact(niveau, indicateurs, 1.0);
   pendingImpacts.push({ niveau: niveau, indicateurs: indicateurs, toursRestants: 3 });
+}
+
+// Lire le tableau projets et appliquer les impacts continus à chaque tour
+function applyProjectsImpact() {
+  var allTables = document.querySelectorAll('.msg-body table');
+  for (var i = allTables.length - 1; i >= 0; i--) {
+    var headers = allTables[i].querySelectorAll('th');
+    if (headers.length >= 3 && headers[0] && headers[0].textContent.toLowerCase().includes('projet')) {
+      var rows = allTables[i].querySelectorAll('tbody tr, tr:not(:first-child)');
+      rows.forEach(function(row) {
+        var cells = row.querySelectorAll('td');
+        if (cells.length < 4) return;
+        var impactCell = cells[3].textContent.trim();
+        if (!impactCell) return;
+        var parts = impactCell.split('·');
+        parts.forEach(function(part) {
+          part = part.trim();
+          var match = part.match(/^(.+?)\s*(⬆⬆|⬆|⬇⬇|⬇)\s*$/);
+          if (!match) return;
+          var indName = match[1].trim().toLowerCase();
+          var arrow = match[2].trim();
+          var niveau = ARROW_TO_LEVEL[arrow];
+          var stateKey = IND_MAP[indName];
+          if (!niveau || !stateKey) return;
+          // Impact continu = 25% de la valeur normale par tour
+          var delta = (IMPACT_VALUES[niveau][stateKey] || 0) * 0.25;
+          if (delta !== 0) applyDelta(stateKey, delta);
+        });
+      });
+      break;
+    }
+  }
 }
 
 var currentSituation = '';
@@ -1897,7 +1939,7 @@ function enrichTables(container, isLatest){
       // POPULARITÉ
       if(label.includes('popularit')){
         arrow=getArrowLocal('popularite',n);
-        if(isLatest && Object.keys(initialState).length === 0) updateGameState('popularite',n);
+        if(Object.keys(initialState).length === 0) updateGameState('popularite',n);
         if(n>=55){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=40){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1905,7 +1947,7 @@ function enrichTables(container, isLatest){
       // TENSIONS SOCIALES
       else if(label.includes('tension') && (label.includes('social') || label === 'tensions sociales' || label === 'tensions')){
         arrow=getArrowLocal('tensions',n);
-        if(isLatest && Object.keys(initialState).length === 0) updateGameState('tensions',n);
+        if(Object.keys(initialState).length === 0) updateGameState('tensions',n);
         if(n<=4){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=7){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1913,7 +1955,7 @@ function enrichTables(container, isLatest){
       // CROISSANCE
       else if(label.includes('croissance')){
         arrow=getArrowLocal('croissance',n);
-        if(isLatest && Object.keys(initialState).length === 0) updateGameState('croissance',n);
+        if(Object.keys(initialState).length === 0) updateGameState('croissance',n);
         if(n>=1){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1921,7 +1963,7 @@ function enrichTables(container, isLatest){
       // CHÔMAGE
       else if(label.includes('ch'+'ômage')||label.includes('chomage')){
         arrow=getArrowLocal('chomage',n);
-        if(isLatest && Object.keys(initialState).length === 0) updateGameState('chomage',n);
+        if(Object.keys(initialState).length === 0) updateGameState('chomage',n);
         if(n<5){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=10){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1929,7 +1971,7 @@ function enrichTables(container, isLatest){
       // DETTE
       else if(label.includes('dette')){
         arrow=getArrowLocal('dette',n);
-        if(isLatest && Object.keys(initialState).length === 0) updateGameState('dette',n);
+        if(Object.keys(initialState).length === 0) updateGameState('dette',n);
         if(n<60){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=90){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1937,7 +1979,7 @@ function enrichTables(container, isLatest){
       // COFFRES
       else if(label.includes('coffre')){
         arrow=getArrowLocal('coffres',n);
-        if(isLatest && Object.keys(initialState).length === 0) updateGameState('coffres',n);
+        if(Object.keys(initialState).length === 0) updateGameState('coffres',n);
         if(n>100){cls='ind-ok';row.classList.add('row-good');}
         else if(n>0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1945,7 +1987,7 @@ function enrichTables(container, isLatest){
       // SOLDE MENSUEL
       else if(label.includes('solde')){
         arrow=getArrowLocal('solde',n);
-        if(isLatest && Object.keys(initialState).length === 0) updateGameState('solde',n);
+        if(Object.keys(initialState).length === 0) updateGameState('solde',n);
         if(n>0){cls='ind-ok';row.classList.add('row-good');}
         else if(n===0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
