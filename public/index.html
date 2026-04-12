@@ -1699,7 +1699,7 @@ function buildIndicatorsTable() {
   ];
   var html = '<table><thead><tr><th>INDICATEUR</th><th>VALEUR</th></tr></thead><tbody>';
   rows.forEach(function(row) {
-    html += '<tr><td>' + row[0] + '</td><td>' + row[1] + '</td></tr>';
+    html += '<tr><td>' + row[0] + '</td><td id="ind-' + row[0].toLowerCase().replace(/\s+/g,'-') + '">' + row[1] + '</td></tr>';
   });
   html += '</tbody></table>';
   return html;
@@ -1897,7 +1897,7 @@ function enrichTables(container, isLatest){
       // POPULARITÉ
       if(label.includes('popularit')){
         arrow=getArrowLocal('popularite',n);
-        updateGameState('popularite',n);
+        if(isLatest && Object.keys(initialState).length === 0) updateGameState('popularite',n);
         if(n>=55){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=40){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1905,7 +1905,7 @@ function enrichTables(container, isLatest){
       // TENSIONS SOCIALES
       else if(label.includes('tension') && (label.includes('social') || label === 'tensions sociales' || label === 'tensions')){
         arrow=getArrowLocal('tensions',n);
-        updateGameState('tensions',n);
+        if(isLatest && Object.keys(initialState).length === 0) updateGameState('tensions',n);
         if(n<=4){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=7){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1913,7 +1913,7 @@ function enrichTables(container, isLatest){
       // CROISSANCE
       else if(label.includes('croissance')){
         arrow=getArrowLocal('croissance',n);
-        updateGameState('croissance',n);
+        if(isLatest && Object.keys(initialState).length === 0) updateGameState('croissance',n);
         if(n>=1){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1921,7 +1921,7 @@ function enrichTables(container, isLatest){
       // CHÔMAGE
       else if(label.includes('ch'+'ômage')||label.includes('chomage')){
         arrow=getArrowLocal('chomage',n);
-        updateGameState('chomage',n);
+        if(isLatest && Object.keys(initialState).length === 0) updateGameState('chomage',n);
         if(n<5){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=10){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1929,7 +1929,7 @@ function enrichTables(container, isLatest){
       // DETTE
       else if(label.includes('dette')){
         arrow=getArrowLocal('dette',n);
-        updateGameState('dette',n);
+        if(isLatest && Object.keys(initialState).length === 0) updateGameState('dette',n);
         if(n<60){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=90){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1937,7 +1937,7 @@ function enrichTables(container, isLatest){
       // COFFRES
       else if(label.includes('coffre')){
         arrow=getArrowLocal('coffres',n);
-        updateGameState('coffres',n);
+        if(isLatest && Object.keys(initialState).length === 0) updateGameState('coffres',n);
         if(n>100){cls='ind-ok';row.classList.add('row-good');}
         else if(n>0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1945,7 +1945,7 @@ function enrichTables(container, isLatest){
       // SOLDE MENSUEL
       else if(label.includes('solde')){
         arrow=getArrowLocal('solde',n);
-        updateGameState('solde',n);
+        if(isLatest && Object.keys(initialState).length === 0) updateGameState('solde',n);
         if(n>0){cls='ind-ok';row.classList.add('row-good');}
         else if(n===0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
