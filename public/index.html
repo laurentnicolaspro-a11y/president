@@ -1381,14 +1381,17 @@ async function callAPI(initMessage,isInit) {
     else{conversationHistory.push({role:'assistant',content:text});}
     // Retirer le marqueur [IMPACT] du texte affiché
     var displayText = text.replace(/\[IMPACT:[^\]]+\]/gi, '').trim();
-    addMessage('ai', displayText); updateHUD(displayText);
-    // Appliquer les impacts APRÈS que le tableau est affiché
+    // Appliquer les impacts des projets actifs (tour précédent) AVANT d'afficher
     var impact = parseImpactMarker(text);
     if (!isInit) {
-      setTimeout(function() {
-        if (impact) { processPendingImpacts(); addNewImpact(impact.niveau, impact.indicateurs); }
-        applyProjectsImpact();
-      }, 100);
+      if (impact) { processPendingImpacts(); addNewImpact(impact.niveau, impact.indicateurs); }
+      // Appliquer l'impact des projets du tour précédent
+      applyProjectsImpactFromPreviousMsg();
+    }
+    addMessage('ai', displayText); updateHUD(displayText);
+    // Après affichage, appliquer l'impact des nouveaux projets de CE tour
+    if (!isInit) {
+      setTimeout(function() { applyProjectsImpact(); }, 150);
     }
     currentSituation = extractSituation(displayText);
     addToSituationHistory(currentSituation);
@@ -1774,10 +1777,25 @@ function addNewImpact(niveau, indicateurs) {
   pendingImpacts.push({ niveau: niveau, indicateurs: indicateurs, toursRestants: 3 });
 }
 
-// Lire le tableau projets et appliquer les impacts continus à chaque tour
+// Appliquer les impacts depuis le dernier tableau projets affiché (tour précédent)
+function applyProjectsImpactFromPreviousMsg() {
+  var allMsgs = document.querySelectorAll('.msg.ai .msg-body');
+  if (!allMsgs.length) return;
+  var lastMsg = allMsgs[allMsgs.length - 1];
+  applyProjectsImpactFromContainer(lastMsg);
+}
+
+// Appliquer les impacts depuis le nouveau tableau (ce tour)
 function applyProjectsImpact() {
-  var allTables = document.querySelectorAll('.msg-body table');
-  for (var i = allTables.length - 1; i >= 0; i--) {
+  var allMsgs = document.querySelectorAll('.msg.ai .msg-body');
+  if (!allMsgs.length) return;
+  var lastMsg = allMsgs[allMsgs.length - 1];
+  applyProjectsImpactFromContainer(lastMsg);
+}
+
+function applyProjectsImpactFromContainer(container) {
+  var allTables = container.querySelectorAll('table');
+  for (var i = 0; i < allTables.length; i++) {
     var headers = allTables[i].querySelectorAll('th');
     if (headers.length >= 3 && headers[0] && headers[0].textContent.toLowerCase().includes('projet')) {
       var rows = allTables[i].querySelectorAll('tbody tr, tr:not(:first-child)');
@@ -1787,26 +1805,18 @@ function applyProjectsImpact() {
         var impactCell = cells[3].innerText.trim();
         if (!impactCell) return;
         var parts = impactCell.split('·');
-        var coloredParts = [];
         parts.forEach(function(part) {
           part = part.trim();
-          // ⬇⬇ avant ⬇ pour éviter le mauvais match
           var match = part.match(/^(.+?)\s*(⬆⬆|⬇⬇|⬆|⬇)\s*$/);
-          if (!match) { coloredParts.push(part); return; }
+          if (!match) return;
           var indName = match[1].trim().toLowerCase();
           var arrow = match[2].trim();
           var niveau = ARROW_TO_LEVEL[arrow];
           var stateKey = IND_MAP[indName];
-          // Colorier la flèche
-          var color = ARROW_COLORS[arrow] || '';
-          var coloredArrow = color ? '<span style="color:' + color + ';font-weight:bold">' + arrow + '</span>' : arrow;
-          coloredParts.push(match[1].trim() + ' ' + coloredArrow);
           if (!niveau || !stateKey) return;
           var delta = (IMPACT_VALUES[niveau][stateKey] || 0) * 0.25;
           if (delta !== 0) applyDelta(stateKey, delta);
         });
-        // Mettre à jour visuellement la cellule avec les flèches colorées
-        cells[3].innerHTML = coloredParts.join(' · ');
       });
       break;
     }
