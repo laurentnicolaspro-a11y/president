@@ -51,9 +51,19 @@ IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 
 À partir du tour 2 : NE GÉNÈRE PLUS ce tableau — le code s'en charge.
 
-Toujours le tableau projets :
+Toujours le tableau projets avec ce format EXACT pour la colonne Impact attendu :
 | Projet en cours | Début | Fin prévue | Impact attendu |
 |-----------------|-------|------------|----------------|
+
+La colonne "Impact attendu" doit lister UNIQUEMENT les indicateurs concernés avec des flèches colorées :
+- ⬆⬆ = très bénéfique pour cet indicateur
+- ⬆ = bénéfique
+- ⬇ = négatif
+- ⬇⬇ = très négatif
+Format : NomIndicateur ⬆⬆ · AutreIndicateur ⬇
+Indicateurs disponibles : Coffres · Solde · Croissance · Dette · Popularité · Tensions · Chômage
+Si un indicateur n'est pas concerné par le projet → ne pas le mentionner
+Exemple : "Coffres ⬆⬆ · Tensions ⬇⬇ · Solde ⬆⬆"
 
 3. Narration (3-5 phrases) :
 - Conséquence du choix précédent (2-3 phrases)
