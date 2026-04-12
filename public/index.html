@@ -1374,7 +1374,7 @@ async function callAPI(initMessage,isInit) {
   var messages=isInit?[{role:'user',content:initMessage}]:conversationHistory;
   var langNames={'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
   try {
-    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français', situation: currentSituation||'', situationHistory: situationHistory})});
+    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français', situation: currentSituation||'', situationHistory: situationHistory, stateStr: buildStateString()})});
     if(!response.ok){var err=await response.json().catch(function(){return{};});throw new Error(err.error||'Erreur HTTP '+response.status);}
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
