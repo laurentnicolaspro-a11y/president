@@ -1379,17 +1379,17 @@ async function callAPI(initMessage,isInit) {
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    // Détecter et appliquer le marqueur [IMPACT] pour les décisions ponctuelles
-    var impact = parseImpactMarker(text);
-    if (impact && !isInit) {
-      processPendingImpacts();
-      addNewImpact(impact.niveau, impact.indicateurs);
-    }
-    // Appliquer les impacts continus des projets actifs
-    if (!isInit) applyProjectsImpact();
     // Retirer le marqueur [IMPACT] du texte affiché
     var displayText = text.replace(/\[IMPACT:[^\]]+\]/gi, '').trim();
     addMessage('ai', displayText); updateHUD(displayText);
+    // Appliquer les impacts APRÈS que le tableau est affiché
+    var impact = parseImpactMarker(text);
+    if (!isInit) {
+      setTimeout(function() {
+        if (impact) { processPendingImpacts(); addNewImpact(impact.niveau, impact.indicateurs); }
+        applyProjectsImpact();
+      }, 100);
+    }
     currentSituation = extractSituation(displayText);
     addToSituationHistory(currentSituation);
     saveGame();
@@ -1784,7 +1784,7 @@ function applyProjectsImpact() {
       rows.forEach(function(row) {
         var cells = row.querySelectorAll('td');
         if (cells.length < 4) return;
-        var impactCell = cells[3].textContent.trim();
+        var impactCell = cells[3].innerText.trim();
         if (!impactCell) return;
         var parts = impactCell.split('·');
         var coloredParts = [];
@@ -1880,6 +1880,23 @@ function addMessage(role,content){
       if (Object.keys(initialState).length === 0 && gameState.popularite !== null) saveInitialState();
       Stats.record(body,dateLabel);
       detectAudioMode(body);
+      // Coloriser les flèches du tableau projets
+      body.querySelectorAll('table').forEach(function(table) {
+        var headers = table.querySelectorAll('th');
+        if (headers.length >= 3 && headers[0] && headers[0].textContent.toLowerCase().includes('projet')) {
+          table.querySelectorAll('tbody tr, tr:not(:first-child)').forEach(function(row) {
+            var cells = row.querySelectorAll('td');
+            if (cells.length < 4) return;
+            var txt = cells[3].innerText.trim();
+            if (!txt) return;
+            var colored = txt.replace(/(⬆⬆|⬇⬇|⬆|⬇)/g, function(arrow) {
+              var color = ARROW_COLORS[arrow] || '';
+              return color ? '<span style="color:' + color + ';font-weight:bold">' + arrow + '</span>' : arrow;
+            });
+            cells[3].innerHTML = colored;
+          });
+        }
+      });
       if(/\[GAME OVER\]/i.test(content)) {
         setTimeout(function(){ showDefeatScreen(); }, 1500);
         return;
