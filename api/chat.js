@@ -55,15 +55,15 @@ Toujours le tableau projets avec ce format EXACT pour la colonne Impact attendu 
 | Projet en cours | Début | Fin prévue | Impact attendu |
 |-----------------|-------|------------|----------------|
 
-La colonne "Impact attendu" doit lister UNIQUEMENT les indicateurs concernés avec des flèches colorées :
-- ⬆⬆ = très bénéfique pour cet indicateur
-- ⬆ = bénéfique
-- ⬇ = négatif
-- ⬇⬇ = très négatif
-Format : NomIndicateur ⬆⬆ · AutreIndicateur ⬇
-Indicateurs disponibles : Coffres · Solde · Croissance · Dette · Popularité · Tensions · Chômage
-Si un indicateur n'est pas concerné par le projet → ne pas le mentionner
-Exemple : "Coffres ⬆⬆ · Tensions ⬇⬇ · Solde ⬆⬆"
+RÈGLE OBLIGATOIRE : Si le joueur prend une décision avec un impact visible sur les indicateurs → l'ajouter IMMÉDIATEMENT dans ce tableau avec les flèches correspondantes, même si c'est une mesure temporaire ou ponctuelle.
+- N'inscrire QUE les décisions avec un impact réel sur au moins un indicateur
+- Si aucun impact → ne pas l'inscrire
+- Durée minimum 1 tour pour les mesures ponctuelles, 3+ tours pour les réformes
+- La colonne Impact attendu est OBLIGATOIRE si le projet est inscrit :
+  ⬆⬆ = très bénéfique · ⬆ = bénéfique · ⬇ = négatif · ⬇⬇ = très négatif
+  Format : NomIndicateur ⬆⬆ · AutreIndicateur ⬇
+  Indicateurs : Coffres · Solde · Croissance · Dette · Popularité · Tensions · Chômage
+  Exemple : "Coffres ⬆⬆ · Solde ⬆⬆ · Dette ⬇"
 
 3. Narration (3-5 phrases) :
 - Conséquence du choix précédent (2-3 phrases)
