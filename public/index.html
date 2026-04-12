@@ -1715,7 +1715,10 @@ const IMPACT_VALUES = {
   TresBien:    { popularite:8, tensions:-3, croissance:0.6, chomage:-1.5, coffres:20, solde:500, dette:-3 }
 };
 
-const ARROW_TO_LEVEL = {'⬆⬆':'TresBien','⬆':'Bien','⬇':'Mauvais','⬇⬇':'TresMauvais'};
+const ARROW_TO_LEVEL = {'⬆⬆':'TresBien','⬆':'Bien','⬇⬇':'TresMauvais','⬇':'Mauvais'};
+
+// Couleurs des flèches dans le tableau projets
+const ARROW_COLORS = {'⬆⬆':'#34a853','⬆':'#34a853','⬇':'#ea4335','⬇⬇':'#ea4335'};
 
 const IND_MAP = {
   'coffres':'coffres','solde':'solde','croissance':'croissance','dette':'dette',
@@ -1784,19 +1787,26 @@ function applyProjectsImpact() {
         var impactCell = cells[3].textContent.trim();
         if (!impactCell) return;
         var parts = impactCell.split('·');
+        var coloredParts = [];
         parts.forEach(function(part) {
           part = part.trim();
-          var match = part.match(/^(.+?)\s*(⬆⬆|⬆|⬇⬇|⬇)\s*$/);
-          if (!match) return;
+          // ⬇⬇ avant ⬇ pour éviter le mauvais match
+          var match = part.match(/^(.+?)\s*(⬆⬆|⬇⬇|⬆|⬇)\s*$/);
+          if (!match) { coloredParts.push(part); return; }
           var indName = match[1].trim().toLowerCase();
           var arrow = match[2].trim();
           var niveau = ARROW_TO_LEVEL[arrow];
           var stateKey = IND_MAP[indName];
+          // Colorier la flèche
+          var color = ARROW_COLORS[arrow] || '';
+          var coloredArrow = color ? '<span style="color:' + color + ';font-weight:bold">' + arrow + '</span>' : arrow;
+          coloredParts.push(match[1].trim() + ' ' + coloredArrow);
           if (!niveau || !stateKey) return;
-          // Impact continu = 25% de la valeur normale par tour
           var delta = (IMPACT_VALUES[niveau][stateKey] || 0) * 0.25;
           if (delta !== 0) applyDelta(stateKey, delta);
         });
+        // Mettre à jour visuellement la cellule avec les flèches colorées
+        cells[3].innerHTML = coloredParts.join(' · ');
       });
       break;
     }
