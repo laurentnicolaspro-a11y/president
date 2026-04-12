@@ -36,7 +36,22 @@ IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 
 1. ## Mois Année
 
-2. Le tableau projets UNIQUEMENT (pas de tableau indicateurs — le code s'en charge) :
+2. Les tableaux :
+⚠️ TOUR 1 UNIQUEMENT : génère le tableau indicateurs complet avec les valeurs initiales réalistes pour le pays choisi :
+
+| Indicateur        | Valeur       |
+|-------------------|--------------|
+| Coffres de l'État | X Mds €      |
+| Solde mensuel     | +/- X M€     |
+| Croissance        | X%           |
+| Dette             | X% du PIB    |
+| Popularité        | X%           |
+| Tensions sociales | X/10         |
+| Taux de chômage   | X%           |
+
+À partir du tour 2 : NE GÉNÈRE PLUS ce tableau — le code s'en charge.
+
+Toujours le tableau projets :
 | Projet en cours | Début | Fin prévue | Impact attendu |
 |-----------------|-------|------------|----------------|
 
