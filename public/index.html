@@ -1385,6 +1385,8 @@ async function callAPI(initMessage,isInit) {
       processPendingImpacts();
       addNewImpact(impact.niveau, impact.indicateurs);
     }
+    // Sauvegarder initialState si ce n'est pas encore fait et qu'on a des données
+    if (Object.keys(initialState).length === 0 && gameState.popularite !== null) saveInitialState();
     // Retirer le marqueur [IMPACT] du texte affiché
     var displayText = text.replace(/\[IMPACT:[^\]]+\]/gi, '').trim();
     addMessage('ai', displayText); updateHUD(displayText);
