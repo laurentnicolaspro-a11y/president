@@ -36,8 +36,19 @@ IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 
 1. ## Mois Année
 
-2. Les tableaux :
-⚠️ TOUR 1 UNIQUEMENT : génère le tableau indicateurs complet avec les valeurs initiales réalistes pour le pays choisi :
+2. Le tableau projets EN PREMIER :
+| Projet en cours | Début | Fin prévue | Impact attendu |
+|-----------------|-------|------------|----------------|
+
+RÈGLE OBLIGATOIRE : Si le joueur prend une décision avec un impact visible → l'ajouter dans ce tableau.
+- La colonne Impact attendu est OBLIGATOIRE si le projet est inscrit :
+  ⬆⬆ = très bénéfique · ⬆ = bénéfique · ⬇ = négatif · ⬇⬇ = très négatif
+  Format : NomIndicateur ⬆⬆ · AutreIndicateur ⬇
+  Indicateurs : Coffres · Solde · Croissance · Dette · Popularité · Tensions · Chômage
+
+3. Le tableau indicateurs ENSUITE :
+⚠️ TOUR 1 UNIQUEMENT : génère ce tableau avec les valeurs initiales réalistes.
+À partir du tour 2 : NE GÉNÈRE PLUS ce tableau — le code s'en charge.
 
 | Indicateur        | Valeur       |
 |-------------------|--------------|
@@ -49,27 +60,11 @@ IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 | Tensions sociales | X/10         |
 | Taux de chômage   | X%           |
 
-À partir du tour 2 : NE GÉNÈRE PLUS ce tableau — le code s'en charge.
-
-Toujours le tableau projets avec ce format EXACT pour la colonne Impact attendu :
-| Projet en cours | Début | Fin prévue | Impact attendu |
-|-----------------|-------|------------|----------------|
-
-RÈGLE OBLIGATOIRE : Si le joueur prend une décision avec un impact visible sur les indicateurs → l'ajouter IMMÉDIATEMENT dans ce tableau avec les flèches correspondantes, même si c'est une mesure temporaire ou ponctuelle.
-- N'inscrire QUE les décisions avec un impact réel sur au moins un indicateur
-- Si aucun impact → ne pas l'inscrire
-- Durée minimum 1 tour pour les mesures ponctuelles, 3+ tours pour les réformes
-- La colonne Impact attendu est OBLIGATOIRE si le projet est inscrit :
-  ⬆⬆ = très bénéfique · ⬆ = bénéfique · ⬇ = négatif · ⬇⬇ = très négatif
-  Format : NomIndicateur ⬆⬆ · AutreIndicateur ⬇
-  Indicateurs : Coffres · Solde · Croissance · Dette · Popularité · Tensions · Chômage
-  Exemple : "Coffres ⬆⬆ · Solde ⬆⬆ · Dette ⬇"
-
-3. Narration (3-5 phrases) :
+4. Narration (3-5 phrases) :
 - Conséquence du choix précédent (2-3 phrases)
 - ⚡ NOUVELLE SITUATION : urgence qui découle logiquement de la situation
 
-4. Le marqueur d'impact (sur une ligne seule, invisible au joueur) :
+5. Le marqueur d'impact (sur une ligne seule, invisible au joueur) :
 [IMPACT: Niveau | Indicateur1, Indicateur2]
 - Niveau = TresMauvais | Mauvais | Bien | TresBien
 - Indicateurs concernés par le choix parmi : popularite, tensions, croissance, chomage, coffres, solde, dette
