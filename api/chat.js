@@ -89,6 +89,10 @@ IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 - ⚡ NOUVELLE SITUATION : 1-2 phrases max, percutantes
 
 4. Les 4 choix (1 phrase chacun, pas de longues explications) :
+1. [choix]
+2. [choix]
+3. [choix]
+4. Faire un choix personnalisé — décrivez votre action
 
 5. [NEWS: Titre1 | Titre2 | Titre3]
 
