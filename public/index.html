@@ -1379,13 +1379,8 @@ async function callAPI(initMessage,isInit) {
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    // Parser le tableau projets depuis le texte pour mettre à jour gameState
-    if (!isInit) parseProjectTableFromText(text);
-    // Sauvegarder initialState après le premier tour
-    if (Object.keys(initialState).length === 0 && gameState.popularite !== null) saveInitialState();
-    var displayText = text.replace(/\[IMPACT:[^\]]+\]/gi, '').trim();
-    addMessage('ai', displayText); updateHUD(displayText);
-    currentSituation = extractSituation(displayText);
+    addMessage('ai',text); updateHUD(text);
+    currentSituation = extractSituation(text);
     addToSituationHistory(currentSituation);
     saveGame();
   }catch(err){addMessage('ai','⚠ Les communications sont temporairement perturbées. Cliquez sur relancer pour reprendre.');}
@@ -1853,14 +1848,7 @@ function addMessage(role,content){
   var body=document.createElement('div');body.className='msg-body';
   if(role==='ai'){
     var cleaned=extractAndShowNews(content);
-    var isFirstTurn = Object.keys(initialState).length === 0;
-    if (!isFirstTurn && gameState.popularite !== null) {
-      // Retirer le tableau indicateurs si Gemini en a généré un par erreur
-      var cleanedContent = cleaned.replace(/\|\s*Indicateur[\s\S]*?\|\s*Taux de ch[^\n]*\n?/gi, '');
-      body.innerHTML = buildIndicatorsTable() + window.marked.parse(cleanedContent);
-    } else {
-      body.innerHTML = window.marked.parse(cleaned);
-    }
+    body.innerHTML=window.marked.parse(cleaned);
     var retryBtn=document.createElement('button');
     retryBtn.className='retry-btn';
     retryBtn.textContent=t('retryBtn');
@@ -1959,7 +1947,7 @@ function enrichTables(container, isLatest){
       // POPULARITÉ
       if(label.includes('popularit')){
         arrow=getArrowLocal('popularite',n);
-        if(Object.keys(initialState).length === 0) updateGameState('popularite',n);
+        updateGameState('popularite',n);
         if(n>=55){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=40){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1967,7 +1955,7 @@ function enrichTables(container, isLatest){
       // TENSIONS SOCIALES
       else if(label.includes('tension') && (label.includes('social') || label === 'tensions sociales' || label === 'tensions')){
         arrow=getArrowLocal('tensions',n);
-        if(Object.keys(initialState).length === 0) updateGameState('tensions',n);
+        updateGameState('tensions',n);
         if(n<=4){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=7){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1975,7 +1963,7 @@ function enrichTables(container, isLatest){
       // CROISSANCE
       else if(label.includes('croissance')){
         arrow=getArrowLocal('croissance',n);
-        if(Object.keys(initialState).length === 0) updateGameState('croissance',n);
+        updateGameState('croissance',n);
         if(n>=1){cls='ind-ok';row.classList.add('row-good');}
         else if(n>=0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1983,7 +1971,7 @@ function enrichTables(container, isLatest){
       // CHÔMAGE
       else if(label.includes('ch'+'ômage')||label.includes('chomage')){
         arrow=getArrowLocal('chomage',n);
-        if(Object.keys(initialState).length === 0) updateGameState('chomage',n);
+        updateGameState('chomage',n);
         if(n<5){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=10){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1991,7 +1979,7 @@ function enrichTables(container, isLatest){
       // DETTE
       else if(label.includes('dette')){
         arrow=getArrowLocal('dette',n);
-        if(Object.keys(initialState).length === 0) updateGameState('dette',n);
+        updateGameState('dette',n);
         if(n<60){cls='ind-ok';row.classList.add('row-good');}
         else if(n<=90){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -1999,7 +1987,7 @@ function enrichTables(container, isLatest){
       // COFFRES
       else if(label.includes('coffre')){
         arrow=getArrowLocal('coffres',n);
-        if(Object.keys(initialState).length === 0) updateGameState('coffres',n);
+        updateGameState('coffres',n);
         if(n>100){cls='ind-ok';row.classList.add('row-good');}
         else if(n>0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
@@ -2007,7 +1995,7 @@ function enrichTables(container, isLatest){
       // SOLDE MENSUEL
       else if(label.includes('solde')){
         arrow=getArrowLocal('solde',n);
-        if(Object.keys(initialState).length === 0) updateGameState('solde',n);
+        updateGameState('solde',n);
         if(n>0){cls='ind-ok';row.classList.add('row-good');}
         else if(n===0){cls='ind-warn';row.classList.add('row-warn');}
         else{cls='ind-crit';row.classList.add('row-crit');}
