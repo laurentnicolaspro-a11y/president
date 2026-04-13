@@ -161,7 +161,7 @@ async function callGemini(apiKey, contents, systemPrompt, model) {
       body: JSON.stringify({
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
-        generationConfig: { maxOutputTokens: 4000, temperature: 0.80, thinkingConfig: { thinkingBudget: 0 } }
+        generationConfig: { maxOutputTokens: 2500, temperature: 0.80, thinkingConfig: { thinkingBudget: 0 } }
       })
     }
   );
