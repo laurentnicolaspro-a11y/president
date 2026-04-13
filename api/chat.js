@@ -53,9 +53,17 @@ Le tableau a 4 colonnes :
 | Projet en cours | Début | Fin prévue | Impact attendu |
 - Impact attendu : ex "📈 Solde mensuel", "📈 Croissance", "📉 Tensions"
 
-COHÉRENCE DES CHIFFRES :
-Les chiffres doivent être cohérents avec les décisions prises.
-Une grande réforme = impact majeur visible.
+COHÉRENCE DES CHIFFRES — RÈGLE ABSOLUE :
+Les chiffres du tableau DOIVENT bouger de façon significative et visible selon les décisions :
+- Popularité : minimum ±3% par tour selon le choix
+- Tensions : minimum ±0.5 par tour
+- Croissance : minimum ±0.2% par tour
+- Chômage : minimum ±0.3% par tour
+- Coffres : minimum ±5 Mds selon l'ampleur
+- Solde mensuel : minimum ±100 M€ selon l'ampleur
+- Dette : minimum ±0.5% du PIB
+
+Une grande réforme = grands chiffres. JAMAIS de variation de 0 ou quasi nulle si une décision a été prise.
 
 IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 
