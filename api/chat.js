@@ -213,7 +213,7 @@ export default async function handler(req, res) {
     ? `\nSITUATION EN COURS : "${situation}" — continue à la développer.`
     : '';
   const historyInstruction = situationHistory && situationHistory.length
-    ? `\nHISTORIQUE DES SITUATIONS (ne pas répéter) : ${situationHistory.join(' | ')}`
+    ? `\n⛔ SITUATIONS DÉJÀ UTILISÉES — INTERDIT DE RÉPÉTER CES THÈMES : ${situationHistory.join(' | ')}`
     : '';
   const stateInstruction = stateStr
     ? `\nÉTAT ACTUEL : ${stateStr} — la narration doit être cohérente avec ces chiffres.`
