@@ -103,7 +103,7 @@ JAMAIS plus de 2 phrases. Pas d'explication supplémentaire.
 ⚠️ VARIÉTÉ : Rotation obligatoire des domaines sur 8 tours : économie → social → diplomatie → sécurité → environnement → politique → santé → technologie.
 
 COHÉRENCE AVEC LES INDICATEURS — RÈGLES ABSOLUES :
-→ Tensions < 3 : INTERDIT de créer grève, émeutes, troubles sociaux, manifestations
+→ Tensions < 6 : INTERDIT de créer grève, émeutes, troubles sociaux, manifestations
 → Tensions > 7 : OBLIGATOIRE d'avoir une situation sociale explosive
 → Popularité > 65% : INTERDIT motion de censure, contestation politique majeure
 → Popularité < 30% : OBLIGATOIRE crise politique, opposition offensive
