@@ -84,9 +84,10 @@ IV. FORMAT D'UN TOUR — UN SEUL MESSAGE
 | Projet en cours | Début | Fin prévue | Impact attendu |
 |-----------------|-------|------------|----------------|
 
-3. Narration COURTE (maximum 4 phrases au total) :
-- Conséquence du choix précédent : 1-2 phrases max
-- ⚡ NOUVELLE SITUATION : 1-2 phrases max, percutantes
+3. Narration STRICTEMENT 2 phrases maximum au total :
+- 1 phrase : conséquence du choix précédent
+- 1 phrase : ⚡ NOUVELLE SITUATION
+JAMAIS plus de 2 phrases. Pas d'explication supplémentaire.
 
 4. Les 4 choix (1 phrase chacun, pas de longues explications) :
 1. [choix]
