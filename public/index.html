@@ -1202,6 +1202,7 @@ function renderChoices(container) {
       var text = li.textContent.trim();
       var num = idx + 1;
       var isCustom = text.toLowerCase().includes('personnalis') || num === 4;
+      if (num === 4) text = 'Faire un choix personnalisé — décrivez votre action';
       var btn = document.createElement('button');
       btn.className = 'choice-btn' + (isCustom ? ' custom' : '');
       btn.innerHTML = '<strong style="pointer-events:none">' + num + '.</strong> <span style="pointer-events:none">' + text + '</span>';
@@ -1379,7 +1380,7 @@ async function callAPI(initMessage,isInit) {
     var data=await response.json();var text=data.text||'';
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    addMessage('ai',text); updateHUD(text);
+    addMessage('ai',text.replace(/\[THEME:[^\]]+\]/gi,'').trim()); updateHUD(text);
     currentSituation = extractSituation(text);
     addToSituationHistory(currentSituation);
     saveGame();
@@ -1807,11 +1808,13 @@ var currentSituation = '';
 var situationHistory = []; // Historique résumé des situations passées
 
 function extractSituation(text) {
-  if (/résolu|terminé|accord signé|crise écartée|situation normalis|retour au calme/i.test(text)) return '';
-  var lines = text.split('\n').filter(function(l){ return l.trim() && !l.match(/^\|/) && !l.match(/^\d\./) && !l.match(/^\[/) && !l.match(/^#+/); });
-  if (!lines.length) return currentSituation;
-  var summary = lines.slice(0, 1).join(' ').replace(/<[^>]+>/g, '').trim();
-  return summary.length > 80 ? summary.substring(0, 80) + '...' : summary;
+  // Chercher le tag [THEME: xxx]
+  var themeMatch = text.match(/\[THEME:\s*([^\]]+)\]/i);
+  if (themeMatch) return themeMatch[1].trim().toLowerCase();
+  // Fallback — chercher NOUVELLE SITUATION
+  var situMatch = text.match(/NOUVELLE SITUATION\s*:?\s*([^\n.!?]+)/i);
+  if (situMatch) return situMatch[1].trim().substring(0, 60);
+  return currentSituation;
 }
 
 function addToSituationHistory(situation) {
