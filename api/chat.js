@@ -97,7 +97,19 @@ JAMAIS plus de 2 phrases. Pas d'explication supplémentaire.
 
 5. [NEWS: Titre1 | Titre2 | Titre3]
 
+6. Sur une ligne seule, le thème de cette nouvelle situation :
+[THEME: mot-clé] (ex: greve, diplomatie, budget, securite, environnement, scandale, election, sante, technologie)
+
 ⚠️ VARIÉTÉ : Rotation obligatoire des domaines sur 8 tours : économie → social → diplomatie → sécurité → environnement → politique → santé → technologie.
+
+COHÉRENCE AVEC LES INDICATEURS — RÈGLES ABSOLUES :
+→ Tensions < 3 : INTERDIT de créer grève, émeutes, troubles sociaux, manifestations
+→ Tensions > 7 : OBLIGATOIRE d'avoir une situation sociale explosive
+→ Popularité > 65% : INTERDIT motion de censure, contestation politique majeure
+→ Popularité < 30% : OBLIGATOIRE crise politique, opposition offensive
+→ Coffres > 150 Mds : INTERDIT crise budgétaire, FMI, dette incontrôlable
+→ Coffres < 20 Mds : OBLIGATOIRE pression budgétaire urgente
+→ Chômage < 5% : INTERDIT crise de l'emploi, fermetures massives
 
 V. NÉGOCIATION
 Quand le joueur veut négocier :
@@ -214,7 +226,7 @@ export default async function handler(req, res) {
     ? `\nSITUATION EN COURS : "${situation}" — continue à la développer.`
     : '';
   const historyInstruction = situationHistory && situationHistory.length
-    ? `\n⛔ SITUATIONS DÉJÀ UTILISÉES — INTERDIT DE RÉPÉTER CES THÈMES : ${situationHistory.join(' | ')}`
+    ? `\n⛔ THÈMES DÉJÀ UTILISÉS — INTERDIT DE RÉPÉTER : ${situationHistory.join(' | ')} — Choisir un thème DIFFÉRENT obligatoirement.`
     : '';
   const stateInstruction = stateStr
     ? `\nÉTAT ACTUEL : ${stateStr} — la narration doit être cohérente avec ces chiffres.`
