@@ -420,14 +420,59 @@
   .reset-btn:hover{border-color:var(--red);color:var(--red);}
   .retry-btn{background:none;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:0.62rem;padding:0.15rem 0.4rem;cursor:pointer;opacity:0.4;transition:opacity 0.2s;letter-spacing:0.05em;}
   .retry-btn:hover{opacity:1;color:var(--accent);}
-  @media(max-width:600px){.title-main{font-size:1.8rem;}.hud-center{display:none;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}.diff-grid{grid-template-columns:repeat(2,1fr);}
+  @media(max-width:600px){.title-main{font-size:1.8rem;}.play-btn{padding:0.85rem 2rem;font-size:0.85rem;}.diff-grid{grid-template-columns:repeat(2,1fr);}
     #game{padding:0.4rem;}
     .hud{padding:0.4rem 0.6rem;}
     .chat-messages{padding:0.6rem;}
     .msg{max-width:100%;}
     .msg-body{padding:0.7rem 0.8rem;font-size:0.88rem;}
     .bottom-bar{padding:0 0.1rem;}
+
+    /* Le pays, la date et la difficulté étaient purement masqués : sur téléphone, on
+       dirigeait un pays anonyme à une date inconnue. Ils passent sur une ligne dédiée. */
+    .hud-center{display:flex;order:3;width:100%;gap:0.9rem;justify-content:space-between;
+      font-size:0.7rem;border-top:1px solid var(--border);padding-top:0.35rem;}
+    .hud-center span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+    /* Raccourcis clavier et plein écran : sans objet sur mobile, et ils écrasaient
+       le compteur de tours dans la barre du bas. */
+    .hint{display:none;}
+    #fs-btn{display:none;}
+    .bottom-bar{justify-content:space-between;gap:0.5rem;}
+    #turn-counter{font-size:0.8rem;white-space:nowrap;}
+
+    /* Cibles tactiles : 44 px est le minimum recommandé, on en était à 17-24 px. */
+    .stat-btn,.report-hud-btn,.audio-btn{min-height:44px;padding:0.5rem 0.9rem;font-size:0.72rem;}
+    .reset-btn{min-height:44px;padding:0.5rem 1rem;font-size:0.72rem;}
+    .retry-btn{min-height:44px;padding:0.6rem 0.8rem;font-size:0.7rem;opacity:0.6;}
+    .choice-btn{min-height:48px;}
+
+    /* Le texte des tableaux tombait à 9,3 px. */
+    .msg-body table th{font-size:0.72rem;}
+    .msg-body table td{font-size:0.76rem;}
+    .msg-body table:nth-of-type(2) th{font-size:0.7rem;}
+    .msg-body table:nth-of-type(2) td{font-size:0.74rem;}
+
+    /* Les cartes de graphiques débordaient de 12 px de leur conteneur. */
+    .stats-grid{gap:0.8rem;}
+    .chart-card{padding:0.7rem;min-width:0;}
+    .chart-wrap{height:130px;}
   }
+/* Bloc de causalité : pourquoi les indicateurs ont bougé ce tour-ci */
+.cause-bloc{margin:0.1rem 0 0.9rem;padding:0.5rem 0.65rem;border-left:2px solid var(--accent);
+  background:rgba(66,133,244,0.05);border-radius:0 4px 4px 0;}
+.cause-titre{font-size:0.66rem;color:var(--muted);letter-spacing:0.03em;margin-bottom:0.35rem;}
+.cause-chips{display:flex;flex-wrap:wrap;gap:0.3rem;}
+.cause-chip{font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:0.12rem 0.4rem;
+  border-radius:3px;border:1px solid transparent;white-space:nowrap;}
+.cause-bon{color:#34a853;border-color:rgba(52,168,83,0.35);background:rgba(52,168,83,0.08);}
+.cause-mauvais{color:#ff3b5c;border-color:rgba(255,59,92,0.35);background:rgba(255,59,92,0.08);}
+/* Placé après .cause-bloc pour que ces surcharges mobiles ne soient pas écrasées. */
+@media(max-width:600px){
+  .cause-bloc{padding:0.55rem 0.7rem;}
+  .cause-titre{font-size:0.74rem;line-height:1.45;}
+  .cause-chip{font-size:0.76rem;padding:0.22rem 0.5rem;}
+}
 </style>
 </head>
 <body>
@@ -772,6 +817,7 @@ let selectedLang = 'fr';
 
 const TRANSLATIONS = {
   fr: {
+    introText: "**Vous allez prendre la tête d'un pays.**\n\nSix ans de mandat, 36 tours, deux mois par tour. Chaque décision déplace vos indicateurs — et rien ne s'annule.\n\n_Jeu en bêta : l'IA écrit la situation, le moteur calcule les conséquences._",
     play: '▶ JOUER', legal: 'MENTIONS LÉGALES', resume: '↺ REPRENDRE LA PARTIE',
     leaderboard: '🏆 CLASSEMENT',
     titleSub: 'Simulation géopolitique IA',
@@ -837,6 +883,7 @@ const TRANSLATIONS = {
     lbColRank: '#', lbColName: 'PSEUDO', lbColNote: 'NOTE', lbColDiff: 'DIFF.', lbColScore: 'SCORE',
   },
   en: {
+    introText: "**You are about to take charge of a country.**\n\nA six-year term, 36 turns, two months per turn. Every decision moves your indicators — and nothing gets undone.\n\n_Beta: the AI writes the situation, the engine computes the consequences._",
     play: '▶ PLAY', legal: 'LEGAL NOTICE', resume: '↺ RESUME GAME',
     leaderboard: '🏆 LEADERBOARD',
     titleSub: 'AI Geopolitical Simulation',
@@ -896,6 +943,7 @@ const TRANSLATIONS = {
     lbColRank: '#', lbColName: 'USERNAME', lbColNote: 'TITLE', lbColDiff: 'DIFF.', lbColScore: 'SCORE',
   },
   es: {
+    introText: "**Vas a ponerte al frente de un país.**\n\nSeis años de mandato, 36 turnos, dos meses por turno. Cada decisión mueve tus indicadores — y nada se deshace.\n\n_Beta: la IA escribe la situación, el motor calcula las consecuencias._",
     play: '▶ JUGAR', legal: 'AVISO LEGAL', resume: '↺ CONTINUAR PARTIDA',
     leaderboard: '🏆 CLASIFICACIÓN',
     titleSub: 'Simulación Geopolítica IA',
@@ -955,6 +1003,7 @@ const TRANSLATIONS = {
     lbColRank: '#', lbColName: 'APODO', lbColNote: 'TÍTULO', lbColDiff: 'DIF.', lbColScore: 'PUNTOS',
   },
   de: {
+    introText: "**Sie übernehmen die Führung eines Landes.**\n\nSechs Jahre Amtszeit, 36 Züge, zwei Monate pro Zug. Jede Entscheidung bewegt Ihre Indikatoren — nichts wird rückgängig gemacht.\n\n_Beta: Die KI schreibt die Lage, die Engine berechnet die Folgen._",
     play: '▶ SPIELEN', legal: 'IMPRESSUM', resume: '↺ SPIEL FORTSETZEN',
     leaderboard: '🏆 BESTENLISTE',
     titleSub: 'KI-Geopolitik-Simulation',
@@ -1016,6 +1065,13 @@ const TRANSLATIONS = {
 };
 
 function t(key) { return (TRANSLATIONS[selectedLang] || TRANSLATIONS['fr'])[key] || TRANSLATIONS['fr'][key] || key; }
+
+// Tout contenu venant du classement ou saisi par le joueur passe par ici avant innerHTML.
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 
 function selectLang(btn) {
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
@@ -1153,6 +1209,17 @@ function confirmCountry() {
   currentTurn = 0;
   maxTurns = MANDATE_DURATIONS[country] || MANDATE_DURATIONS['défaut'];
   updateTurnCounter();
+  // Le moteur tire l'état de départ selon le profil du pays — le LLM ne l'invente plus.
+  gameState = rollInitialState(country);
+  prevState = {};
+  pendingImpacts = [];
+  stateLog = [];
+  causeLog = [];
+  dossier = [];
+  ageProjets = {};
+  dernierTourNego = -99;
+  prochainImpactMajore = 1;
+  saveInitialState();
   const pickerAction = document.querySelector('.country-picker-btn');
   if (pickerAction) pickerAction.closest('.msg-actions').remove();
   const msg = `Je souhaite diriger ${country} en difficulté ${selectedDiff}.`;
@@ -1224,7 +1291,13 @@ function renderChoices(container) {
     // Bouton 5 — Négociation
     var negoBtn = document.createElement('button');
     negoBtn.className = 'choice-btn nego';
-    negoBtn.innerHTML = '<strong style="pointer-events:none">5.</strong> <span style="pointer-events:none">🤝 Ouvrir une négociation</span>';
+    var repos = DELAI_NEGO - (currentTurn - dernierTourNego);
+    var dispo = repos <= 0;
+    negoBtn.innerHTML = '<strong style="pointer-events:none">5.</strong> <span style="pointer-events:none">'
+      + (dispo ? '🤝 Ouvrir une négociation — issue à effet renforcé'
+               : '🤝 Négociation indisponible (' + repos + ' tour' + (repos > 1 ? 's' : '') + ')')
+      + '</span>';
+    if (!dispo) { negoBtn.disabled = true; negoBtn.style.opacity = '0.45'; }
     negoBtn.addEventListener('click', function() {
       if (negoBtn.disabled) return;
       wrap.querySelectorAll('.choice-btn').forEach(function(x){ x.disabled = true; });
@@ -1279,7 +1352,7 @@ function submitCustomChoice() {
     }).then(function(r){ return r.json(); }).then(function(data){
       var text = data.text || '';
       conversationHistory.push({role:'assistant', content: text});
-      addMessage('ai', text);
+      addMessage('ai', stripEngineArtifacts(text));
       updateHUD(text);
       currentSituation = extractSituation(text);
       saveGame();
@@ -1320,11 +1393,20 @@ function saveGame() {
   try {
     localStorage.setItem('president_history',JSON.stringify(conversationHistory));
     localStorage.setItem('president_hud',JSON.stringify({country:document.getElementById('hud-country').textContent,date:document.getElementById('hud-date').textContent,diff:document.getElementById('hud-diff').textContent,turn:currentTurn,maxTurn:maxTurns}));
+    // L'état du moteur n'est plus reconstructible depuis le DOM — il faut le sauvegarder.
+    localStorage.setItem('president_engine',JSON.stringify({
+      gameState:gameState, initialState:initialState, pendingImpacts:pendingImpacts,
+      stateLog:stateLog, causeLog:causeLog, dossier:dossier, ageProjets:ageProjets,
+      situationHistory:situationHistory, currentSituation:currentSituation,
+      dernierTourNego:dernierTourNego, prochainImpactMajore:prochainImpactMajore,
+      toursEnZoneRouge:toursEnZoneRouge,
+      diff:selectedDiff
+    }));
     var ind=document.getElementById('save-indicator');if(ind){ind.classList.add('show');setTimeout(function(){ind.classList.remove('show');},2000);}
   }catch(e){}
 }
-function loadSave(){try{var h=localStorage.getItem('president_history');var hud=localStorage.getItem('president_hud');if(!h)return null;return{history:JSON.parse(h),hud:hud?JSON.parse(hud):null};}catch(e){return null;}}
-function clearSave(){localStorage.removeItem('president_history');localStorage.removeItem('president_hud');}
+function loadSave(){try{var h=localStorage.getItem('president_history');var hud=localStorage.getItem('president_hud');var eng=localStorage.getItem('president_engine');if(!h)return null;return{history:JSON.parse(h),hud:hud?JSON.parse(hud):null,engine:eng?JSON.parse(eng):null};}catch(e){return null;}}
+function clearSave(){localStorage.removeItem('president_history');localStorage.removeItem('president_hud');localStorage.removeItem('president_engine');}
 function applyHUD(hud){if(!hud)return;if(hud.country)document.getElementById('hud-country').textContent=hud.country;if(hud.date)document.getElementById('hud-date').textContent=hud.date;if(hud.diff)document.getElementById('hud-diff').textContent=hud.diff;}
 
 window.addEventListener('DOMContentLoaded',function(){
@@ -1359,32 +1441,148 @@ function _doResumeGame() {
     conversationHistory=save.history; applyHUD(save.hud); gamePhase='playing';
     // Restaurer le compteur de tours
     if(save.hud && save.hud.turn) { currentTurn = save.hud.turn; maxTurns = save.hud.maxTurn || 36; updateTurnCounter(); }
+    // Restaurer l'état du moteur — les chiffres ne se déduisent plus du DOM.
+    if(save.engine){
+      if(save.engine.gameState) gameState = save.engine.gameState;
+      if(save.engine.initialState) initialState = save.engine.initialState;
+      pendingImpacts = save.engine.pendingImpacts || [];
+      stateLog = save.engine.stateLog || [];
+      causeLog = save.engine.causeLog || [];
+      dossier = save.engine.dossier || [];
+      ageProjets = save.engine.ageProjets || {};
+      dernierTourNego = save.engine.dernierTourNego !== undefined ? save.engine.dernierTourNego : -99;
+      prochainImpactMajore = save.engine.prochainImpactMajore || 1;
+      situationHistory = save.engine.situationHistory || [];
+      currentSituation = save.engine.currentSituation || '';
+      if(save.engine.diff) selectedDiff = save.engine.diff;
+      toursEnZoneRouge = save.engine.toursEnZoneRouge || 0;
+    }
+    gameOver = false;
     var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
+    // Les N derniers messages IA correspondent aux N entrées du journal d'état.
+    var aiTotal=conversationHistory.filter(function(m){return m.role==='assistant';}).length;
+    var logOffset=aiTotal-stateLog.length;
+    var aiSeen=0;
     conversationHistory.forEach(function(m){
-      if(m.role==='user'){var div=document.createElement('div');div.className='msg user';var h=document.createElement('div');h.className='msg-header';h.textContent='▶ VOUS';var b=document.createElement('div');b.className='msg-body';b.textContent=m.content;div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
-      // NE PAS appeler Stats.record au rechargement — les stats sont déjà dans localStorage
-      else if(m.role==='assistant'){var div=document.createElement('div');div.className='msg ai';var h=document.createElement('div');h.className='msg-header';h.textContent='✦ GEMINI · PRÉSIDENT LE JEU';var b=document.createElement('div');b.className='msg-body';b.innerHTML=window.marked.parse(m.content);setTimeout(function(){enrichTables(b, false);detectAudioMode(b);renderChoices(b);},0);div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
+      if(m.role==='user'){var div=document.createElement('div');div.className='msg user';var h=document.createElement('div');h.className='msg-header';h.textContent=t('userHeader');var b=document.createElement('div');b.className='msg-body';b.textContent=m.content;div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);}
+      // NE PAS rejouer le moteur au rechargement — on réaffiche seulement l'état déjà calculé.
+      else if(m.role==='assistant'){
+        var logIdx=aiSeen-logOffset; aiSeen++;
+        var isLast=(aiSeen===aiTotal);
+        var indHTML=(logIdx>=0&&stateLog[logIdx])
+          ? buildIndicatorsTable(stateLog[logIdx],logIdx>0?stateLog[logIdx-1]:null)
+            + renderExplication(causeLog[logIdx])
+          : '';
+        var div=document.createElement('div');div.className='msg ai';
+        var h=document.createElement('div');h.className='msg-header';h.textContent=t('aiHeader');
+        var b=document.createElement('div');b.className='msg-body';
+        b.innerHTML=indHTML+window.marked.parse(stripEngineArtifacts(m.content).replace(/\[NEWS:[^\]]*\]/gi,'').trim());
+        setTimeout((function(bb,last){return function(){enrichTables(bb,false);if(last){detectAudioMode();renderChoices(bb);}};})(b,isLast),0);
+        div.appendChild(h);div.appendChild(b);container.insertBefore(div,typing);
+      }
     });
     container.scrollTop=container.scrollHeight;
   },1500);
 }
 
 
+function corpsRequete(messages, streame) {
+  var langNames={'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
+  return JSON.stringify({
+    messages: messages,
+    lang: langNames[selectedLang]||'français',
+    situation: currentSituation||'',
+    situationHistory: situationHistory,
+    stateStr: buildStateString(),
+    country: document.getElementById('hud-country').textContent.replace('—','')||'',
+    diff: selectedDiff,
+    turn: currentTurn||undefined,
+    maxTurns: maxTurns||undefined,
+    dossier: dossier.length ? dossier : undefined,
+    crisis: estTourDeCrise(currentTurn) || undefined,
+    stream: streame || undefined
+  });
+}
+
+// Réponse suffisamment complète pour être jouée. Sert de garde-fou au mode streamé,
+// qui ne peut plus être validé côté serveur une fois les premiers octets envoyés.
+function reponseJouable(text) {
+  if (!text || text.length < 80) return false;
+  return /\n\s*[1-4]\./m.test(text) || /\[GAME OVER\]/i.test(text) || /\[N[ÉE]GOCIATION\s*:/i.test(text);
+}
+
+// Affiche le texte au fil de l'eau. Le tableau d'indicateurs, lui, ne peut arriver qu'à la
+// fin : le moteur a besoin du marqueur [IMPACT:] qui se trouve en dernier.
+async function lireFlux(response, bodyEl) {
+  var reader = response.body.getReader();
+  var decoder = new TextDecoder();
+  var complet = '';
+  for (;;) {
+    var bloc = await reader.read();
+    if (bloc.done) break;
+    complet += decoder.decode(bloc.value, { stream: true });
+    if (bodyEl) {
+      bodyEl.innerHTML = window.marked.parse(stripEngineArtifacts(complet).replace(/\[NEWS:[^\]]*\]/gi,''));
+      var c = document.getElementById('chat-messages');
+      if (c) c.scrollTop = c.scrollHeight;
+    }
+  }
+  return complet;
+}
+
 async function callAPI(initMessage,isInit) {
   setLoading(true);
   var messages=isInit?[{role:'user',content:initMessage}]:conversationHistory;
-  var langNames={'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
+  var enveloppe=null, corpsEl=null;
   try {
-    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages, lang: langNames[selectedLang]||'français', situation: currentSituation||'', situationHistory: situationHistory, stateStr: buildStateString()})});
+    var text='';
+    var response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:corpsRequete(messages, true)});
     if(!response.ok){var err=await response.json().catch(function(){return{};});throw new Error(err.error||'Erreur HTTP '+response.status);}
-    var data=await response.json();var text=data.text||'';
+
+    var typeContenu=response.headers.get('Content-Type')||'';
+    if(typeContenu.indexOf('text/plain')!==-1 && response.body && response.body.getReader){
+      enveloppe=creerBulleIA();
+      corpsEl=enveloppe.body;
+      text=await lireFlux(response, corpsEl);
+      // Le serveur a pu couper en route : on rejoue la requête sans streaming.
+      if(!reponseJouable(text)){
+        var secours=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:corpsRequete(messages, false)});
+        var dataS=await secours.json();
+        if(dataS.text) text=dataS.text;
+      }
+    } else {
+      var data=await response.json();
+      text=data.text||'';
+    }
+
     if(isInit){conversationHistory=[{role:'user',content:initMessage},{role:'assistant',content:text}];}
     else{conversationHistory.push({role:'assistant',content:text});}
-    addMessage('ai',text.replace(/\[THEME:[^\]]+\]/gi,'').trim()); updateHUD(text);
+
+    // ===== MOTEUR : c'est ici que les chiffres bougent, pas dans le texte du LLM =====
+    var indicatorsHTML='';
+    var explication=null;
+    if(gameState.popularite!==null){
+      if(currentTurn>=1 && !skipEngineNextCall){ runEngineTurn(text); explication=causeLog[causeLog.length-1]; }
+      else if(stateLog.length===0){ stateLog.push(JSON.parse(JSON.stringify(gameState))); causeLog.push(null); }
+      var idx=stateLog.length-1;
+      indicatorsHTML=buildIndicatorsTable(stateLog[idx], idx>0?stateLog[idx-1]:null)
+                   + renderExplication(explication);
+    }
+    skipEngineNextCall=false;
+    extraireBilan(text);
+
+    finaliserBulleIA(enveloppe, stripEngineArtifacts(text), indicatorsHTML);
+    updateHUD(text);
     currentSituation = extractSituation(text);
     addToSituationHistory(currentSituation);
     saveGame();
-  }catch(err){addMessage('ai','⚠ Les communications sont temporairement perturbées. Cliquez sur relancer pour reprendre.');}
+    checkEngineDefeat();
+  }catch(err){
+    if(enveloppe) enveloppe.wrapper.remove();
+    addMessage('ai','⚠ Les communications sont temporairement perturbées. Cliquez sur relancer pour reprendre.');
+  }
   setLoading(false);
 }
 
@@ -1441,7 +1639,15 @@ function buildProjectsString() {
       break;
     }
   }
-  return projects.length ? '[PROJETS ACTIFS : ' + projects.join(' | ') + ' → Ces projets doivent avoir un impact visible sur les indicateurs correspondants]' : '';
+  // Le moteur applique désormais lui-même l'effet des projets : on informe le modèle pour
+  // la narration, sans lui demander de le répercuter aussi dans son [IMPACT] — ce serait
+  // compter deux fois le même bonus.
+  return projects.length ? '[PROJETS ACTIFS (leur effet est déjà appliqué par le moteur, n\'en tiens pas compte dans [IMPACT], mentionne-les seulement si c\'est pertinent) : ' + projects.join(' | ') + ']' : '';
+}
+
+function currentCountry() {
+  var c = document.getElementById('hud-country').textContent;
+  return (c && c !== '—') ? c : 'son pays';
 }
 
 function buildStateString() {
@@ -1474,6 +1680,8 @@ function getArrow(key, newVal) {
 var negoHistory = []; // Historique de la négociation en cours
 var negoInterlocutor = ''; // Nom de l'interlocuteur
 var negoActive = false;
+var DELAI_NEGO = 3;      // tours de recharge entre deux négociations
+var dernierTourNego = -99;
 
 // Mots clés qui déclenchent une négociation depuis le choix personnalisé
 var NEGO_KEYWORDS = /\b(appel|appelle|appeler|contact|contacter|convoque|convoquer|rencontr|négoci|parler à|discuter avec|réunion avec|sommet avec|téléphone|téléphoner)\b/i;
@@ -1552,7 +1760,7 @@ async function sendNegoMessage() {
 
   // Appel API
   var langNames = {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'};
-  var negoSystemPrompt = 'Tu incarnes ' + negoInterlocutor + ' dans une négociation directe avec le président français. RÈGLES STRICTES : 1) Réponds en 2-3 phrases MAX, dialogue direct et réaliste. 2) Reste TOUJOURS dans le personnage — jamais de tableaux, jamais de tours, jamais de narration. 3) Si le président demande des chiffres ou une analyse, tu les donnes ORALEMENT dans ta réponse avec des données précises et réalistes. 4) Tu défends tes propres intérêts avec des arguments concrets. 5) Sois direct, parfois difficile, jamais complaisant.';
+  var negoSystemPrompt = 'Tu incarnes ' + negoInterlocutor + ' dans une négociation directe avec le chef de l\'État de ' + currentCountry() + '. RÈGLES STRICTES : 1) Réponds en 2-3 phrases MAX, dialogue direct et réaliste. 2) Reste TOUJOURS dans le personnage — jamais de tableaux, jamais de tours, jamais de narration. 3) Si le président demande des chiffres ou une analyse, tu les donnes ORALEMENT dans ta réponse avec des données précises et réalistes. 4) Tu défends tes propres intérêts avec des arguments concrets. 5) Sois direct, parfois difficile, jamais complaisant.';
 
   try {
     var messages = negoHistory.slice();
@@ -1588,7 +1796,12 @@ async function endNegotiation() {
   // Incrémenter le tour
   currentTurn++;
   updateTurnCounter();
-  if (maxTurns && currentTurn >= maxTurns) { showResultScreen(); return; }
+
+  // Négocier coûte un tour. Pour que ce ne soit pas un mauvais calcul, l'issue pèse plus
+  // lourd qu'une décision ordinaire : bien négocier rapporte davantage, mal négocier coûte
+  // davantage. Le délai de recharge empêche d'en faire une routine.
+  prochainImpactMajore = 1.6;
+  dernierTourNego = currentTurn;
 
   var summary = negoHistory.map(function(m){
     return (m.role === 'user' ? 'Président' : negoInterlocutor) + ': ' + m.content;
@@ -1599,6 +1812,8 @@ async function endNegotiation() {
   addMessage('user', '🤝 Fin de négociation avec ' + negoInterlocutor);
   conversationHistory.push({role:'user', content: endMsg});
   await callAPI(null, false);
+  if (gameOver) return;
+  if (maxTurns && currentTurn >= maxTurns) setTimeout(showResultScreen, 2500);
 }
 
 // Détecter si le choix personnalisé déclenche une négociation
@@ -1645,7 +1860,7 @@ async function confirmWithWho() {
     // Appel minimal — juste le nécessaire pour ouvrir la négociation
     var negoMessages = [{
       role: 'user',
-      content: 'Tu incarnes ' + who + '. Présente-toi en 2-3 phrases et attends la réponse du président français. Commence par [NÉGOCIATION: ' + who + ', ton titre]'
+      content: 'Tu incarnes ' + who + '. Présente-toi en 2-3 phrases et attends la réponse du chef de l\'État de ' + currentCountry() + '. Commence par [NÉGOCIATION: ' + who + ', ton titre]'
     }];
     var resp = await fetch('/api/chat', {
       method: 'POST',
@@ -1666,7 +1881,7 @@ async function confirmWithWho() {
       saveGame();
     } else {
       // Gemini n'a pas ouvert la négo — on affiche quand même le message
-      addMessage('ai', text);
+      addMessage('ai', stripEngineArtifacts(text));
       conversationHistory.push({role:'user', content: '🤝 Ouverture d\'une négociation avec ' + who});
       conversationHistory.push({role:'assistant', content: text});
     }
@@ -1679,32 +1894,114 @@ async function confirmWithWho() {
   withWhoWrap = null; withWhoBtn = null;
 }
 
-function buildIndicatorsTable() {
-  if (gameState.popularite === null) return '';
-  var rows = [
-    ['Coffres de l\'État', gameState.coffres !== null ? gameState.coffres + ' Mds €' : '—'],
-    ['Solde mensuel', gameState.solde !== null ? (gameState.solde >= 0 ? '+' : '') + gameState.solde + ' M€' : '—'],
-    ['Croissance', gameState.croissance !== null ? gameState.croissance + '%' : '—'],
-    ['Dette', gameState.dette !== null ? gameState.dette + '% du PIB' : '—'],
-    ['Popularité', gameState.popularite !== null ? gameState.popularite + '%' : '—'],
-    ['Tensions sociales', gameState.tensions !== null ? gameState.tensions + '/10' : '—'],
-    ['Taux de chômage', gameState.chomage !== null ? gameState.chomage + '%' : '—'],
-  ];
-  var html = '<table><thead><tr><th>INDICATEUR</th><th>VALEUR</th></tr></thead><tbody>';
-  rows.forEach(function(row) {
-    html += '<tr><td>' + row[0] + '</td><td id="ind-' + row[0].toLowerCase().replace(/\s+/g,'-') + '">' + row[1] + '</td></tr>';
+// Le tableau d'indicateurs est désormais rendu par le moteur, plus par le LLM.
+const IND_ROWS = [
+  { key:'coffres',    label:"Coffres de l'État", fmt:function(v){ return Math.round(v) + ' Mds €'; },
+    level:function(v){ return v > 100 ? 'ok' : v > 0 ? 'warn' : 'crit'; } },
+  { key:'solde',      label:'Solde mensuel',     fmt:function(v){ return (v >= 0 ? '+' : '') + Math.round(v) + ' M€'; },
+    level:function(v){ return v > 0 ? 'ok' : v === 0 ? 'warn' : 'crit'; } },
+  { key:'croissance', label:'Croissance',        fmt:function(v){ return v + '%'; },
+    level:function(v){ return v >= 1 ? 'ok' : v >= 0 ? 'warn' : 'crit'; } },
+  { key:'dette',      label:'Dette',             fmt:function(v){ return v + '% du PIB'; },
+    level:function(v){ return v < 60 ? 'ok' : v <= 90 ? 'warn' : 'crit'; } },
+  { key:'popularite', label:'Popularité',        fmt:function(v){ return v + '%'; },
+    level:function(v){ return v >= 55 ? 'ok' : v >= 40 ? 'warn' : 'crit'; } },
+  { key:'tensions',   label:'Tensions sociales', fmt:function(v){ return v + '/10'; },
+    level:function(v){ return v <= 4 ? 'ok' : v <= 7 ? 'warn' : 'crit'; } },
+  { key:'chomage',    label:'Taux de chômage',   fmt:function(v){ return v + '%'; },
+    level:function(v){ return v < 5 ? 'ok' : v <= 10 ? 'warn' : 'crit'; } }
+];
+
+function buildIndicatorsTable(state, prev) {
+  state = state || gameState;
+  if (!state || state.popularite === null || state.popularite === undefined) return '';
+  var html = '<table class="indicators-table"><thead><tr><th>INDICATEUR</th><th>VALEUR</th></tr></thead><tbody>';
+  IND_ROWS.forEach(function(row) {
+    var v = state[row.key];
+    if (v === null || v === undefined) {
+      html += '<tr><td>' + row.label + '</td><td>—</td></tr>';
+      return;
+    }
+    var lvl = row.level(v);
+    var arrow = '';
+    if (prev && prev[row.key] !== null && prev[row.key] !== undefined && prev[row.key] !== v) {
+      var improved = GOOD_IF_POSITIVE[row.key] ? v > prev[row.key] : v < prev[row.key];
+      arrow = improved ? ' ▲' : ' ▼';
+    }
+    html += '<tr class="row-' + (lvl === 'ok' ? 'good' : lvl) + '"><td>' + row.label
+      + '</td><td><span class="ind-' + lvl + '">' + row.fmt(v) + arrow + '</span></td></tr>';
   });
-  html += '</tbody></table>';
-  return html;
+  return html + '</tbody></table>';
 }
 
 // ===== TRACKING SITUATION EN COURS =====
 const IMPACT_VALUES = {
-  TresMauvais: { popularite:-8, tensions:3, croissance:-0.6, chomage:1.5, coffres:-20, solde:-500, dette:3 },
-  Mauvais:     { popularite:-4, tensions:1.5, croissance:-0.3, chomage:0.8, coffres:-10, solde:-250, dette:1.5 },
-  Bien:        { popularite:4, tensions:-1.5, croissance:0.3, chomage:-0.8, coffres:10, solde:250, dette:-1.5 },
-  TresBien:    { popularite:8, tensions:-3, croissance:0.6, chomage:-1.5, coffres:20, solde:500, dette:-3 }
+  TresMauvais: { popularite:-6, tensions:2.2, croissance:-0.5, chomage:1.1, coffres:-16, solde:-400, dette:2.2 },
+  Mauvais:     { popularite:-3, tensions:1.1, croissance:-0.25, chomage:0.55, coffres:-8, solde:-200, dette:1.1 },
+  Neutre:      { popularite:0, tensions:0, croissance:0, chomage:0, coffres:0, solde:0, dette:0 },
+  Bien:        { popularite:3, tensions:-1.1, croissance:0.25, chomage:-0.55, coffres:8, solde:200, dette:-1.1 },
+  TresBien:    { popularite:6, tensions:-2.2, croissance:0.5, chomage:-1.1, coffres:16, solde:400, dette:-2.2 }
 };
+
+// La difficulté amplifie les mauvaises décisions et amortit les bonnes.
+const DIFF_SCALING = {
+  'Facile':    { bad:0.6, good:1.3 }, 'Easy':      { bad:0.6, good:1.3 },
+  'Fácil':     { bad:0.6, good:1.3 }, 'Leicht':    { bad:0.6, good:1.3 },
+  'Normal':    { bad:1.0, good:1.0 },
+  'Difficile': { bad:1.4, good:0.85 }, 'Hard':     { bad:1.4, good:0.85 },
+  'Difícil':   { bad:1.4, good:0.85 }, 'Schwer':   { bad:1.4, good:0.85 },
+  'Réaliste':  { bad:1.8, good:0.7 },  'Realistic':{ bad:1.8, good:0.7 },
+  'Realista':  { bad:1.8, good:0.7 },  'Realistisch': { bad:1.8, good:0.7 }
+};
+
+function diffScaling() {
+  return DIFF_SCALING[selectedDiff] || DIFF_SCALING['Normal'];
+}
+
+// Profils de départ par pays — remplace les valeurs franco-centrées inventées par le LLM.
+const PROFILE_RANGES = {
+  riche:    { coffres:[140,260], solde:[-200,900],   croissance:[1.2,2.6], dette:[35,65],   popularite:[48,60], tensions:[2,4],  chomage:[3,6] },
+  avance:   { coffres:[80,160],  solde:[-700,400],   croissance:[0.6,1.8], dette:[70,115],  popularite:[42,55], tensions:[3,5],  chomage:[6,10] },
+  emergent: { coffres:[40,110],  solde:[-900,300],   croissance:[1.8,4.5], dette:[45,85],   popularite:[40,58], tensions:[4,6],  chomage:[7,13] },
+  fragile:  { coffres:[10,45],   solde:[-1200,100],  croissance:[1.0,3.5], dette:[55,100],  popularite:[35,52], tensions:[5,7],  chomage:[10,20] },
+  crise:    { coffres:[2,20],    solde:[-1800,-200], croissance:[-3.5,1.0],dette:[90,175],  popularite:[25,45], tensions:[7,9],  chomage:[15,28] }
+};
+
+const COUNTRY_PROFILES = {
+  riche: ['Suisse','Norvège','Luxembourg','Singapour','Danemark','Suède','Pays-Bas','Irlande','Autriche','Finlande','Islande','Qatar','Émirats Arabes Unis','Koweït','Australie','Nouvelle-Zélande','Canada','Allemagne'],
+  avance: ['France','Royaume-Uni','Japon','Italie','Espagne','États-Unis','Belgique','Corée du Sud','Israël','Portugal','Taïwan','Slovénie','République Tchèque','Estonie','Chypre','Malte'],
+  emergent: ['Brésil','Inde','Chine','Mexique','Turquie','Pologne','Indonésie','Afrique du Sud','Argentine','Thaïlande','Malaisie','Vietnam','Maroc','Chili','Colombie','Pérou','Roumanie','Hongrie','Bulgarie','Slovaquie','Croatie','Lituanie','Lettonie','Serbie','Kazakhstan','Arabie Saoudite','Oman','Philippines','Uruguay','Costa Rica','Panama'],
+  fragile: ['Nigeria','Pakistan','Égypte','Kenya','Bangladesh','Ghana','Sénégal','Bolivie','Tunisie','Algérie','Jordanie','Cambodge','Népal','Ouzbékistan','Mongolie','Paraguay','Équateur','Guatemala','Honduras','Nicaragua','Jamaïque','Tanzanie','Ouganda','Cameroun','Côte d\'Ivoire','Rwanda','Namibie','Mozambique','Albanie','Macédoine du Nord','Bosnie-Herzégovine','Moldavie','Géorgie','Arménie','Azerbaïdjan','Sri Lanka','Laos','Angola','Éthiopie','Congo','Irak','Iran','Biélorussie','Cuba'],
+  crise: ['Afghanistan','Syrie','Yémen','Somalie','Soudan','Venezuela','Liban','Libye','Zimbabwe','Ukraine','Myanmar','Mali','Niger','Corée du Nord','Russie']
+};
+
+function profileFor(country) {
+  var keys = Object.keys(COUNTRY_PROFILES);
+  for (var i = 0; i < keys.length; i++) {
+    if (COUNTRY_PROFILES[keys[i]].indexOf(country) !== -1) return keys[i];
+  }
+  return 'emergent';
+}
+
+function randIn(range, decimals) {
+  var v = range[0] + Math.random() * (range[1] - range[0]);
+  var p = Math.pow(10, decimals || 0);
+  return Math.round(v * p) / p;
+}
+
+// Tire l'état de départ côté code, une fois pour toutes.
+function rollInitialState(country) {
+  var r = PROFILE_RANGES[profileFor(country)];
+  return {
+    coffres:    randIn(r.coffres, 0),
+    solde:      randIn(r.solde, 0),
+    croissance: randIn(r.croissance, 1),
+    dette:      randIn(r.dette, 1),
+    popularite: randIn(r.popularite, 0),
+    tensions:   randIn(r.tensions, 1),
+    chomage:    randIn(r.chomage, 1)
+  };
+}
 
 const ARROW_TO_LEVEL = {'⬆⬆':'TresBien','⬆':'Bien','⬇⬇':'TresMauvais','⬇':'Mauvais'};
 
@@ -1719,35 +2016,126 @@ const IND_MAP = {
 
 var pendingImpacts = [];
 
+const BOUNDS = {
+  popularite: [5, 95], tensions: [0, 10], croissance: [-6, 6],
+  chomage: [2, 25], dette: [20, 200], coffres: [-200, 1200], solde: [-3000, 3000]
+};
+
+// Rendements décroissants : plus on approche d'un extrême, plus il est dur d'y aller.
+// Sans ça, dix tours identiques collent tous les indicateurs à leur borne et le jeu se fige.
+function resistance(stateKey, cur, delta) {
+  var b = BOUNDS[stateKey];
+  if (!b) return 1;
+  var span = b[1] - b[0];
+  var headroom = delta > 0 ? (b[1] - cur) : (cur - b[0]);
+  if (headroom <= 0) return 0;
+  return Math.min(1, (headroom / span) / 0.35);
+}
+
 function applyDelta(stateKey, delta) {
-  if (gameState[stateKey] === null || gameState[stateKey] === undefined) return;
-  var newVal = Math.round((gameState[stateKey] + delta) * 10) / 10;
-  if (stateKey === 'popularite') newVal = Math.max(5, Math.min(95, newVal));
-  if (stateKey === 'tensions')   newVal = Math.max(0, Math.min(10, newVal));
-  if (stateKey === 'croissance') newVal = Math.max(-5, Math.min(8, newVal));
-  if (stateKey === 'chomage')    newVal = Math.max(2, Math.min(25, newVal));
-  if (stateKey === 'dette')      newVal = Math.max(20, Math.min(200, newVal));
+  var cur = gameState[stateKey];
+  if (cur === null || cur === undefined || !delta) return;
+  var effective = delta * resistance(stateKey, cur, delta);
+  var newVal = Math.round((cur + effective) * 10) / 10;
+  var b = BOUNDS[stateKey];
+  if (b) newVal = Math.max(b[0], Math.min(b[1], newVal));
   updateGameState(stateKey, newVal);
 }
 
+// ===== Journal de causalité =====
+// Le joueur doit comprendre POURQUOI ses chiffres bougent. On mémorise donc, pour le tour
+// en cours, l'état avant/après et l'origine de chaque effet.
+var tourAvant = null;
+var causesDuTour = [];
+
+function ouvrirTour() {
+  tourAvant = JSON.parse(JSON.stringify(gameState));
+  causesDuTour = [];
+}
+
+function noterCause(libelle, cles) {
+  if (cles && cles.length) causesDuTour.push({ libelle: libelle, cles: cles });
+}
+
+// Variation nette d'un indicateur sur le tour, formatée pour l'affichage.
+function variationDuTour(key) {
+  if (!tourAvant) return null;
+  var avant = tourAvant[key], apres = gameState[key];
+  if (avant === null || avant === undefined || apres === null || apres === undefined) return null;
+  var d = Math.round((apres - avant) * 10) / 10;
+  if (d === 0) return null;
+  return d;
+}
+
 function parseImpactMarker(text) {
-  var match = text.match(/\[IMPACT:\s*(TresBien|TresMauvais|Bien|Mauvais)\s*\|\s*([^\]]+)\]/i);
+  var match = text.match(/\[IMPACT:\s*(TresBien|TresMauvais|Bien|Mauvais|Neutre)\s*\|\s*([^\]]+)\]/i);
   if (!match) return null;
   var niveau = match[1];
   if (/tres\s*mauvais/i.test(match[1])) niveau = 'TresMauvais';
-  if (/tres\s*bien/i.test(match[1]))    niveau = 'TresBien';
+  else if (/tres\s*bien/i.test(match[1])) niveau = 'TresBien';
+  else if (/^neutre$/i.test(match[1]))  niveau = 'Neutre';
+  else if (/^mauvais$/i.test(match[1])) niveau = 'Mauvais';
+  else if (/^bien$/i.test(match[1]))    niveau = 'Bien';
   var indicateurs = match[2].split(',').map(function(s){ return s.trim().toLowerCase(); });
   return { niveau: niveau, indicateurs: indicateurs };
 }
 
+// Sens « favorable » de chaque indicateur — sert à savoir si un delta est un bonus ou un malus.
+const GOOD_IF_POSITIVE = {
+  popularite:true, croissance:true, coffres:true, solde:true,
+  tensions:false, chomage:false, dette:false
+};
+
 function applyImpact(niveau, indicateurs, multiplier) {
   var values = IMPACT_VALUES[niveau];
   if (!values) return;
+  var scale = diffScaling();
   indicateurs.forEach(function(ind) {
     var stateKey = IND_MAP[ind.toLowerCase()] || ind;
-    var delta = (values[stateKey] || 0) * multiplier;
-    if (delta !== 0) applyDelta(stateKey, delta);
+    var base = values[stateKey] || 0;
+    if (base === 0) return;
+    var isGood = GOOD_IF_POSITIVE[stateKey] ? base > 0 : base < 0;
+    var jitter = 0.85 + Math.random() * 0.3; // ±15 % pour éviter des tours identiques
+    var delta = base * multiplier * (isGood ? scale.good : scale.bad) * jitter;
+    applyDelta(stateKey, delta);
   });
+}
+
+// Évolution naturelle de l'économie entre deux tours, indépendante des choix.
+// 1 tour = 2 mois : le solde mensuel alimente ou vide les coffres, la croissance
+// tire le chômage, un solde négatif creuse la dette.
+function applyEconomicTick() {
+  if (gameState.popularite === null) return;
+  if (gameState.solde !== null && gameState.coffres !== null) {
+    applyDelta('coffres', (gameState.solde * 2) / 1000);
+  }
+  if (gameState.croissance !== null && gameState.chomage !== null) {
+    applyDelta('chomage', -(gameState.croissance - 1.2) * 0.15);
+  }
+  if (gameState.solde !== null && gameState.dette !== null) {
+    applyDelta('dette', gameState.solde < 0 ? 0.25 : -0.15);
+  }
+  // Gravité : l'usure du pouvoir ramène la popularité vers la moyenne, et les indicateurs
+  // économiques vers le niveau structurel du pays (son état de départ). Sans ça, un mandat
+  // sans faute fige tout au plafond dès le tour 15 — et un pays finit à 7 % de croissance
+  // avec 2 % de chômage, ce qui n'existe pas.
+  // La popularité revient vers le niveau initial du pays, pas vers un 50 universel : sinon
+  // un pays qui démarre à 35 gagnait des points gratuits et un pays à 60 en perdait, ce qui
+  // rendait le classement dépendant du pays choisi. L'usure du pouvoir, elle, frappe à
+  // l'identique tout le monde.
+  applyGravity('popularite', 50, 0.04);
+  applyDelta('popularite', -0.15);
+  applyGravity('tensions',   4,   0.06);
+  applyGravity('croissance', 1.5, 0.10);
+  applyGravity('chomage',    8,   0.07);
+}
+
+// Ramène un indicateur vers le niveau structurel du pays, ou vers un défaut raisonnable.
+function applyGravity(key, defaut, force) {
+  if (gameState[key] === null || gameState[key] === undefined) return;
+  var ancre = (initialState && initialState[key] !== null && initialState[key] !== undefined)
+    ? initialState[key] : defaut;
+  applyDelta(key, (ancre - gameState[key]) * force);
 }
 
 function processPendingImpacts() {
@@ -1765,44 +2153,206 @@ function addNewImpact(niveau, indicateurs) {
   pendingImpacts.push({ niveau: niveau, indicateurs: indicateurs, toursRestants: 3 });
 }
 
-// Parser le tableau projets depuis le texte brut et mettre à jour gameState
-function parseProjectTableFromText(text) {
-  var lines = text.split('\n');
-  var inProjectTable = false;
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i];
-    if (/\|\s*projet en cours/i.test(line)) { inProjectTable = true; continue; }
-    if (!inProjectTable) continue;
-    if (/^\|[\s\-|]+\|/.test(line)) continue; // ligne de séparation
-    if (!line.trim().startsWith('|')) break; // fin du tableau
-    var cells = line.split('|').map(function(c){ return c.trim(); }).filter(Boolean);
-    if (cells.length < 4) continue;
-    var impactCell = cells[3];
-    if (!impactCell) continue;
-    // Parser chaque item: "Coffres ⬆⬆ · Solde ⬇"
-    impactCell.split('·').forEach(function(part) {
-      part = part.trim();
-      var match = part.match(/^(.+?)\s*(⬆⬆|⬇⬇|⬆|⬇)\s*$/);
-      if (!match) return;
-      var indName = match[1].trim().toLowerCase();
-      var arrow = match[2].trim();
-      var niveau = ARROW_TO_LEVEL[arrow];
-      var stateKey = IND_MAP[indName];
-      if (!niveau || !stateKey) return;
-      var delta = (IMPACT_VALUES[niveau][stateKey] || 0) * 0.25;
-      if (delta !== 0) applyDelta(stateKey, delta);
-    });
-  }
+// Une relance ne doit pas faire avancer le moteur d'un tour.
+var skipEngineNextCall = false;
+
+// ===== PROJETS STRUCTURELS =====
+// Un projet inscrit au tableau produit un effet réel à chaque tour tant qu'il y figure.
+// Avant, la colonne « Impact attendu » ne promettait rien de mécanique : le joueur lançait
+// un chantier sur 8 tours sans jamais en voir la contrepartie.
+var MAX_PROJETS_ACTIFS = 3;
+var PART_PROJET = 0.22; // fraction de l'amplitude d'une bonne décision, au lancement
+
+// Un projet paie fort à son lancement puis s'essouffle. Sans cette usure, le modèle n'avait
+// qu'à recopier ses lignes indéfiniment pour offrir un bonus permanent et gratuit : mesuré
+// à +21 points de popularité sur un mandat moyen, soit presque une bonne décision par tour.
+// L'âge est conservé même si le projet disparaît puis revient, pour qu'on ne puisse pas
+// remettre le compteur à zéro en le retirant un tour.
+// L'effet s'éteint complètement au bout de 10 tours : le total qu'un projet peut rapporter
+// sur sa vie entière est ainsi borné (~2 bonnes décisions étalées), et le recopier
+// indéfiniment ne rapporte plus rien. Un plancher non nul ferait réapparaître le bonus
+// permanent, en plus discret.
+var ageProjets = {};
+var USURE_PAR_TOUR = 0.1;
+var USURE_PLANCHER = 0;
+
+function facteurUsure(nom) {
+  return Math.max(USURE_PLANCHER, 1 - (ageProjets[nom] || 0) * USURE_PAR_TOUR);
 }
 
-// Fonctions vides gardées pour compatibilité
-function parseImpactMarker(text) { return null; }
-function processPendingImpacts() {}
-function addNewImpact() {}
-function parseAndApplyProjectFlèches() {}
-function applyProjectsImpact() {}
-function applyProjectsImpactFromPreviousMsg() {}
-function applyProjectsImpactFromContainer() {}
+function parseProjets(text) {
+  var lignes = text.split('\n');
+  var dansTableau = false;
+  var projets = [];
+  for (var i = 0; i < lignes.length; i++) {
+    var l = lignes[i];
+    if (/^\s*\|/.test(l) && /projet en cours/i.test(l)) { dansTableau = true; continue; }
+    if (!dansTableau) continue;
+    if (!/^\s*\|/.test(l)) break;
+    if (/^\s*\|[\s\-|:]+\|\s*$/.test(l)) continue;
+    var cells = l.split('|').map(function(c){ return c.trim(); });
+    cells = cells.slice(1, cells.length - 1);
+    if (cells.length < 4 || !cells[0]) continue;
+    var effets = [];
+    cells[3].split('·').forEach(function(part) {
+      var m = part.trim().match(/(📈|📉)\s*([A-Za-zÀ-ÿ]+)/);
+      if (!m) return;
+      var key = IND_MAP[m[2].toLowerCase()];
+      if (!key) return;
+      effets.push({ key: key, positif: m[1] === '📈' });
+    });
+    if (effets.length) projets.push({ nom: cells[0], effets: effets });
+  }
+  return projets.slice(0, MAX_PROJETS_ACTIFS);
+}
+
+function applyProjets(projets) {
+  if (!projets.length) return;
+  var scale = diffScaling();
+  var touches = [];
+  var noms = [];
+  projets.forEach(function(p) {
+    var usure = facteurUsure(p.nom);
+    ageProjets[p.nom] = (ageProjets[p.nom] || 0) + 1;
+    if (usure <= 0) return; // chantier épuisé : plus aucun effet
+    noms.push(p.nom + (usure <= 0.4 ? ' (s\'essouffle)' : ''));
+    p.effets.forEach(function(e) {
+      var amplitude = Math.abs(IMPACT_VALUES.Bien[e.key] || 0);
+      if (!amplitude) return;
+      // 📈 = l'indicateur monte, 📉 = il descend. Monter n'est pas toujours favorable :
+      // « 📉 tensions » est une bonne nouvelle, « 📉 croissance » une mauvaise.
+      var sens = e.positif ? 1 : -1;
+      var favorable = GOOD_IF_POSITIVE[e.key] ? sens > 0 : sens < 0;
+      applyDelta(e.key, amplitude * sens * PART_PROJET * usure * (favorable ? scale.good : scale.bad));
+      if (touches.indexOf(e.key) === -1) touches.push(e.key);
+    });
+  });
+  noterCause('Projets en cours (' + noms.join(', ') + ')', touches);
+}
+
+// ===== CRISES MONDIALES =====
+// Le prompt demandait une crise majeure aux tours 12 et 24, mais rien ne l'imposait.
+// Le moteur applique désormais un vrai choc, et le modèle se contente de l'habiller.
+var TOURS_DE_CRISE = [12, 24];
+function estTourDeCrise(tour) { return TOURS_DE_CRISE.indexOf(tour) !== -1; }
+
+function applyCrisisShock() {
+  var cibles = ['croissance', 'chomage', 'coffres', 'tensions'];
+  addNewImpact('TresMauvais', cibles);
+  noterCause('⚠ Crise mondiale', cibles);
+}
+
+var prochainImpactMajore = 1;
+
+// Un tour complet du moteur : effets traînants, économie, projets, crise, puis le choix.
+function runEngineTurn(text) {
+  ouvrirTour();
+  processPendingImpacts();
+  applyEconomicTick();
+  applyProjets(parseProjets(text));
+  if (estTourDeCrise(currentTurn)) applyCrisisShock();
+
+  var impact = parseImpactMarker(text);
+  if (impact) {
+    var mult = prochainImpactMajore;
+    applyImpact(impact.niveau, impact.indicateurs, mult);
+    pendingImpacts.push({ niveau: impact.niveau, indicateurs: impact.indicateurs, toursRestants: 3 });
+    noterCause(libelleImpact(impact.niveau, mult > 1), impact.indicateurs.map(function(i){
+      return IND_MAP[i.toLowerCase()] || i;
+    }));
+  }
+  prochainImpactMajore = 1;
+  stateLog.push(JSON.parse(JSON.stringify(gameState)));
+  causeLog.push(construireExplication());
+}
+
+const LIBELLES_IMPACT = {
+  TresBien: 'Décision très bien accueillie', Bien: 'Décision bien accueillie',
+  Neutre: 'Décision sans effet marquant', Mauvais: 'Décision mal accueillie',
+  TresMauvais: 'Décision très mal accueillie'
+};
+function libelleImpact(niveau, majore) {
+  return (LIBELLES_IMPACT[niveau] || 'Votre décision') + (majore ? ' · issue de négociation' : '');
+}
+
+// Le LLM n'a plus le droit d'afficher un tableau d'indicateurs — on retire ceux
+// qu'il produirait encore par habitude, ainsi que les balises techniques.
+function stripEngineArtifacts(text) {
+  var lines = text.split('\n');
+  var out = [];
+  var i = 0;
+  while (i < lines.length) {
+    if (!/^\s*\|/.test(lines[i])) { out.push(lines[i]); i++; continue; }
+    // Bloc de tableau : on décide sur sa PREMIÈRE ligne, pas sur chaque ligne — sinon un
+    // projet dont l'impact attendu est "📈 Popularité" ferait disparaître tout le tableau.
+    var start = i;
+    while (i < lines.length && /^\s*\|/.test(lines[i])) i++;
+    var bloc = lines.slice(start, i);
+    var estTableauIndicateurs = /indicateur|coffres de l|solde mensuel/i.test(bloc[0])
+      || (/popularit/i.test(bloc[0]) && !/projet/i.test(bloc[0]));
+    if (!estTableauIndicateurs) out = out.concat(bloc);
+  }
+  return out.join('\n')
+    .replace(/\[IMPACT:[^\]]*\]/gi, '')
+    .replace(/\[THEME:[^\]]*\]/gi, '')
+    .replace(/\[BILAN:[^\]]*\]/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+var stateLog = [];
+var causeLog = [];
+var dossier = []; // Ce que le joueur a décidé jusqu'ici — mémoire politique du mandat.
+
+const LIBELLES_COURTS = {
+  coffres:'Coffres', solde:'Solde', croissance:'Croissance', dette:'Dette',
+  popularite:'Popularité', tensions:'Tensions', chomage:'Chômage'
+};
+
+function fmtDelta(key, d) {
+  var v = (key === 'coffres' || key === 'solde') ? Math.round(d) : Math.round(d * 10) / 10;
+  return (v > 0 ? '+' : '') + v;
+}
+
+// En dessous de ces seuils, la variation est du bruit de fond (dérive économique) : l'afficher
+// noierait le signal — et un « Coffres 0 » arrondi à l'entier n'apprend rien au joueur.
+const SEUILS_AFFICHAGE = {
+  coffres: 1, solde: 1, croissance: 0.2, dette: 0.2,
+  popularite: 0.2, tensions: 0.2, chomage: 0.2
+};
+
+function construireExplication() {
+  var variations = [];
+  Object.keys(LIBELLES_COURTS).forEach(function(key) {
+    var d = variationDuTour(key);
+    if (d === null) return;
+    if (Math.abs(d) < (SEUILS_AFFICHAGE[key] || 0.2)) return;
+    variations.push({ key: key, delta: d });
+  });
+  return { causes: causesDuTour.map(function(c){ return c.libelle; }), variations: variations };
+}
+
+// Bloc « pourquoi vos chiffres ont bougé » affiché sous le tableau.
+function renderExplication(exp) {
+  if (!exp || !exp.variations || !exp.variations.length) return '';
+  var chips = exp.variations.map(function(v) {
+    var bon = GOOD_IF_POSITIVE[v.key] ? v.delta > 0 : v.delta < 0;
+    return '<span class="cause-chip ' + (bon ? 'cause-bon' : 'cause-mauvais') + '">'
+      + LIBELLES_COURTS[v.key] + ' ' + fmtDelta(v.key, v.delta) + '</span>';
+  }).join('');
+  var titre = exp.causes.length ? esc(exp.causes.join(' · ')) : 'Évolution du tour';
+  return '<div class="cause-bloc"><div class="cause-titre">' + titre + '</div>'
+       + '<div class="cause-chips">' + chips + '</div></div>';
+}
+
+function extraireBilan(text) {
+  var m = text.match(/\[BILAN:\s*([^\]]+)\]/i);
+  if (!m) return;
+  var phrase = m[1].trim().slice(0, 120);
+  if (!phrase || dossier[dossier.length - 1] === phrase) return;
+  dossier.push(phrase);
+  if (dossier.length > 8) dossier.shift();
+}
 
 var currentSituation = '';
 var situationHistory = []; // Historique résumé des situations passées
@@ -1818,12 +2368,12 @@ function extractSituation(text) {
 }
 
 function addToSituationHistory(situation) {
-  if (!situation || situation.length < 10) return;
-  // Garder seulement les 8 dernières situations
+  if (!situation || situation.length < 3) return;
+  // 3 derniers thèmes seulement : au-delà, on interdisait presque tous les thèmes possibles.
   var short = situation.substring(0, 60);
   if (situationHistory[situationHistory.length-1] !== short) {
     situationHistory.push(short);
-    if (situationHistory.length > 8) situationHistory.shift();
+    if (situationHistory.length > 3) situationHistory.shift();
   }
 }
 
@@ -1835,23 +2385,62 @@ async function sendChoiceMessage(text) {
   // Incrémenter le tour après chaque choix
   currentTurn++;
   updateTurnCounter();
-  if (maxTurns && currentTurn >= maxTurns) {
-    showResultScreen();
-    return;
-  }
   addMessage('user',text);
   conversationHistory.push({role:'user',content:text});
+  // Le dernier choix est joué et sa conséquence affichée avant l'écran de bilan.
   await callAPI(null,false);
+  if (gameOver) return;
+  if (maxTurns && currentTurn >= maxTurns) setTimeout(showResultScreen, 2500);
 }
 
-function addMessage(role,content){
-  var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
-  var div=document.createElement('div');div.className='msg '+role;
-  var header=document.createElement('div');header.className='msg-header';header.textContent=role==='ai'?t('aiHeader'):t('userHeader');
+// Défaite pilotée par le moteur — le LLM peut toujours déclencher [GAME OVER] de son côté.
+// Il faut rester en zone rouge deux tours d'affilée : un pic isolé ne fait pas tomber
+// un gouvernement, et des seuils extrêmes ne se déclenchaient jamais.
+var gameOver = false;
+var toursEnZoneRouge = 0;
+
+function checkEngineDefeat() {
+  if (gameOver || gameState.popularite === null) return false;
+  var zoneRouge = gameState.popularite <= 15 || gameState.tensions >= 9;
+  toursEnZoneRouge = zoneRouge ? toursEnZoneRouge + 1 : 0;
+  if (toursEnZoneRouge >= 2) {
+    gameOver = true;
+    setTimeout(function(){ showDefeatScreen(); }, 2000);
+    return true;
+  }
+  return false;
+}
+
+// En mode streamé la bulle doit exister avant d'avoir le texte : on la crée vide, on la
+// remplit au fil de l'eau, puis finaliserBulleIA pose le tableau et les boutons.
+function creerBulleIA(){
+  var container=document.getElementById('chat-messages');
+  var typing=document.getElementById('typing');
+  var div=document.createElement('div');div.className='msg ai';
+  var header=document.createElement('div');header.className='msg-header';header.textContent=t('aiHeader');
   var body=document.createElement('div');body.className='msg-body';
+  div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing);
+  return {wrapper:div, body:body};
+}
+
+function finaliserBulleIA(enveloppe, contenu, indicatorsHTML){
+  addMessage('ai', contenu, indicatorsHTML, enveloppe || undefined);
+}
+
+function addMessage(role,content,indicatorsHTML,enveloppe){
+  var container=document.getElementById('chat-messages');var typing=document.getElementById('typing');
+  var reutilise=!!enveloppe;
+  var div=reutilise?enveloppe.wrapper:document.createElement('div');
+  var header,body;
+  if(reutilise){ body=enveloppe.body; body.innerHTML=''; }
+  else{
+    div.className='msg '+role;
+    header=document.createElement('div');header.className='msg-header';header.textContent=role==='ai'?t('aiHeader'):t('userHeader');
+    body=document.createElement('div');body.className='msg-body';
+  }
   if(role==='ai'){
     var cleaned=extractAndShowNews(content);
-    body.innerHTML=window.marked.parse(cleaned);
+    body.innerHTML=(indicatorsHTML||'')+window.marked.parse(cleaned);
     var retryBtn=document.createElement('button');
     retryBtn.className='retry-btn';
     retryBtn.textContent=t('retryBtn');
@@ -1863,7 +2452,7 @@ function addMessage(role,content){
       enrichTables(body, true);
       if (Object.keys(initialState).length === 0 && gameState.popularite !== null) saveInitialState();
       Stats.record(body,dateLabel);
-      detectAudioMode(body);
+      detectAudioMode();
       // Coloriser les flèches du tableau projets
       body.querySelectorAll('table').forEach(function(table) {
         var headers = table.querySelectorAll('th');
@@ -1890,7 +2479,7 @@ function addMessage(role,content){
       renderChoices(body);
     },50);
   }else{body.textContent=content;}
-  div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing);
+  if(!reutilise){ div.appendChild(header);div.appendChild(body);container.insertBefore(div,typing); }
   if(role==='ai'){scrollToMessage(container,div);}else{scrollToBottom(container);}
 }
 
@@ -1910,102 +2499,15 @@ function updateHUD(text){
   if(dm)document.getElementById('hud-date').textContent=dm[0];
   var countries=['France','États-Unis','Allemagne','Royaume-Uni','Chine','Russie','Brésil','Inde','Japon','Canada','Espagne','Italie','Mexique','Australie','Corée du Sud','Argentine','Nigeria','Turquie','Pologne','Ukraine','Suisse','Belgique','Portugal','Pays-Bas'];
   for(var i=0;i<countries.length;i++){if(text.includes(countries[i])&&document.getElementById('hud-country').textContent==='—'){document.getElementById('hud-country').textContent=countries[i];break;}}
-  var dm2=text.match(/\b(Facile|Normal|Difficile|Réaliste)\b/i);if(dm2)document.getElementById('hud-diff').textContent=dm2[0];
+  // La difficulté vient du choix du joueur, jamais du texte de l'IA : un simple
+  // « la situation est difficile » suffisait à changer le multiplicateur de score.
 }
 
 // ===== INDICATEURS DYNAMIQUES =====
 function enrichTables(container, isLatest){
-
-  // Snapshot de l'état AVANT ce tableau pour les flèches
-  var stateSnapshot = JSON.parse(JSON.stringify(gameState));
-
+  // Le tableau d indicateurs est rendu par le moteur : ici on ne traite plus que le tableau projets.
   container.querySelectorAll('table').forEach(function(table){
-    table.querySelectorAll('tr').forEach(function(row){
-      var cells=row.querySelectorAll('td');if(!cells.length)return;
-      var label=cells[0]?cells[0].textContent.trim().toLowerCase():'';
-      var valCell=cells[1];if(!valCell)return;
-      var rawVal=valCell.textContent.trim();
-      // Pour les valeurs X/10, extraire uniquement le numérateur
-      var n;
-      var slashMatch = rawVal.match(/^(\d+(?:[.,]\d+)?)\s*\/\s*10/);
-      if(slashMatch){ n = parseFloat(slashMatch[1].replace(',','.')); }
-      else { n = parseFloat(rawVal.replace(',','.').replace(/[^\d.\-]/g,'')); }
-      if(isNaN(n))return;
 
-      var arrow='';var cls='';var display=rawVal;
-
-      // Calcul flèche basé sur le snapshot (état AVANT ce tableau)
-      function getArrowLocal(key, newVal) {
-        var prev = stateSnapshot[key];
-        if (prev === null || prev === undefined) return '';
-        var better = {
-          popularite: newVal > prev, tensions: newVal < prev,
-          croissance: newVal > prev, chomage: newVal < prev,
-          dette: newVal < prev, coffres: newVal > prev, solde: newVal > prev
-        };
-        if (newVal === prev) return '';
-        return better[key] ? ' ▲' : ' ▼';
-      }
-
-      // POPULARITÉ
-      if(label.includes('popularit')){
-        arrow=getArrowLocal('popularite',n);
-        updateGameState('popularite',n);
-        if(n>=55){cls='ind-ok';row.classList.add('row-good');}
-        else if(n>=40){cls='ind-warn';row.classList.add('row-warn');}
-        else{cls='ind-crit';row.classList.add('row-crit');}
-      }
-      // TENSIONS SOCIALES
-      else if(label.includes('tension') && (label.includes('social') || label === 'tensions sociales' || label === 'tensions')){
-        arrow=getArrowLocal('tensions',n);
-        updateGameState('tensions',n);
-        if(n<=4){cls='ind-ok';row.classList.add('row-good');}
-        else if(n<=7){cls='ind-warn';row.classList.add('row-warn');}
-        else{cls='ind-crit';row.classList.add('row-crit');}
-      }
-      // CROISSANCE
-      else if(label.includes('croissance')){
-        arrow=getArrowLocal('croissance',n);
-        updateGameState('croissance',n);
-        if(n>=1){cls='ind-ok';row.classList.add('row-good');}
-        else if(n>=0){cls='ind-warn';row.classList.add('row-warn');}
-        else{cls='ind-crit';row.classList.add('row-crit');}
-      }
-      // CHÔMAGE
-      else if(label.includes('ch'+'ômage')||label.includes('chomage')){
-        arrow=getArrowLocal('chomage',n);
-        updateGameState('chomage',n);
-        if(n<5){cls='ind-ok';row.classList.add('row-good');}
-        else if(n<=10){cls='ind-warn';row.classList.add('row-warn');}
-        else{cls='ind-crit';row.classList.add('row-crit');}
-      }
-      // DETTE
-      else if(label.includes('dette')){
-        arrow=getArrowLocal('dette',n);
-        updateGameState('dette',n);
-        if(n<60){cls='ind-ok';row.classList.add('row-good');}
-        else if(n<=90){cls='ind-warn';row.classList.add('row-warn');}
-        else{cls='ind-crit';row.classList.add('row-crit');}
-      }
-      // COFFRES
-      else if(label.includes('coffre')){
-        arrow=getArrowLocal('coffres',n);
-        updateGameState('coffres',n);
-        if(n>100){cls='ind-ok';row.classList.add('row-good');}
-        else if(n>0){cls='ind-warn';row.classList.add('row-warn');}
-        else{cls='ind-crit';row.classList.add('row-crit');}
-      }
-      // SOLDE MENSUEL
-      else if(label.includes('solde')){
-        arrow=getArrowLocal('solde',n);
-        updateGameState('solde',n);
-        if(n>0){cls='ind-ok';row.classList.add('row-good');}
-        else if(n===0){cls='ind-warn';row.classList.add('row-warn');}
-        else{cls='ind-crit';row.classList.add('row-crit');}
-      }
-
-      if(cls) valCell.innerHTML='<span class="'+cls+'">'+display+arrow+'</span>';
-    });
 
     // Accordéon sur le tableau projets (2ème tableau — celui avec "Projet en cours")
     var headers = table.querySelectorAll('th');
@@ -2078,7 +2580,18 @@ function toggleFullscreen(){var btn=document.getElementById('fs-btn');if(!docume
 document.addEventListener('fullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.fullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
 document.addEventListener('webkitfullscreenchange',function(){var btn=document.getElementById('fs-btn');if(!btn)return;btn.textContent=document.webkitFullscreenElement?'⛶ QUITTER':'⛶ PLEIN ÉCRAN';});
 function toggleAudio(){AudioPlayer.toggle();}
-function detectAudioMode(container){if(!AudioPlayer.isRunning())return;var tensions=-1,popularite=-1,croissance=0;container.querySelectorAll('table').forEach(function(table){table.querySelectorAll('tr').forEach(function(row){var cells=row.querySelectorAll('td');if(cells.length<2)return;var label=cells[0].textContent.toLowerCase();var m=cells[1].textContent.match(/-?\d+(\.\d+)?/);if(!m)return;var val=parseFloat(m[0]);if(isNaN(val))return;if(label.includes('tension'))tensions=val;if(label.includes('popular'))popularite=val;if(label.includes('croissance'))croissance=val;});});var nm='calm';if(tensions>=7||popularite<30||croissance<-1)nm='crisis';else if(tensions>=5||popularite<45||croissance<0)nm='tension';AudioPlayer.setMode(nm);}
+// Lit l'état du moteur, plus le DOM.
+function detectAudioMode(){
+  if(!AudioPlayer.isRunning())return;
+  if(gameState.popularite===null)return;
+  var tensions=gameState.tensions!==null?gameState.tensions:-1;
+  var popularite=gameState.popularite;
+  var croissance=gameState.croissance!==null?gameState.croissance:0;
+  var nm='calm';
+  if(tensions>=7||popularite<30||croissance<-1)nm='crisis';
+  else if(tensions>=5||popularite<45||croissance<0)nm='tension';
+  AudioPlayer.setMode(nm);
+}
 
 // ===== STATISTIQUES =====
 const Stats=(()=>{
@@ -2118,6 +2631,7 @@ function relancerDiscussion() {
   var msg = t('relanceMsg');
   addMessage('user', msg);
   conversationHistory.push({ role: 'user', content: msg });
+  skipEngineNextCall = true; // une relance rejoue l'affichage, pas le tour
   callAPI(null, false);
 }
 
@@ -2126,6 +2640,7 @@ function resetGame(){
   AudioPlayer.stop();Stats.reset();clearSave();gamePhase='init';
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
   prevState={};currentSituation="";situationHistory=[];
+  pendingImpacts=[];stateLog=[];causeLog=[];dossier=[];ageProjets={};gameOver=false;toursEnZoneRouge=0;prochainImpactMajore=1;dernierTourNego=-99;
   document.getElementById('nego-badge').classList.remove('active');
   document.getElementById('game').classList.remove('active');document.getElementById('landing').style.display='';
   document.getElementById('save-info').style.display='none';
@@ -2149,8 +2664,8 @@ function updatePseudoDisplay() {
   if (playerPseudo) {
     var initial = playerPseudo.charAt(0).toUpperCase();
     area.innerHTML = '<div class="pseudo-chip" onclick="changePseudo()" title="Changer de pseudo">'
-      + '<div class="pseudo-avatar">' + initial + '</div>'
-      + '<span class="pseudo-chip-name">' + playerPseudo + '</span>'
+      + '<div class="pseudo-avatar">' + esc(initial) + '</div>'
+      + '<span class="pseudo-chip-name">' + esc(playerPseudo) + '</span>'
       + '<span class="pseudo-chip-edit">✎</span>'
       + '</div>';
   } else {
@@ -2194,8 +2709,15 @@ function launchGame() {
     document.getElementById('landing').style.display='none';
     document.getElementById('game').classList.add('active');
     conversationHistory=[];Stats.reset();gamePhase='init';
-    callAPI("Commence le jeu. Recherche les événements réels actuels dans le monde et lance une introduction immersive courte basée sur la date d'aujourd'hui et l'actualité géopolitique du moment. STOP après l'intro — ne demande PAS encore le pays. L'interface présentera ensuite un bouton pour que le joueur choisisse son pays et sa difficulté. LANGUE DU JEU : joue et réponds EXCLUSIVEMENT en " + {'fr':'français','en':'anglais','es':'espagnol','de':'allemand'}[selectedLang] + ".",true);
-  },2000);
+    gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
+    prevState={};initialState={};pendingImpacts=[];stateLog=[];causeLog=[];dossier=[];ageProjets={};
+    gameOver=false;toursEnZoneRouge=0;prochainImpactMajore=1;dernierTourNego=-99;
+    currentSituation='';situationHistory=[];
+    // L'introduction était un appel Gemini complet : plusieurs secondes d'attente pour un
+    // texte générique, avant même de pouvoir choisir son pays. Elle est désormais statique,
+    // et le sélecteur s'ouvre immédiatement.
+    addMessage('ai', t('introText'));
+  },700);
 }
 
 var initialState = {};
@@ -2222,43 +2744,53 @@ function saveInitialState() {
   initialState = JSON.parse(JSON.stringify(gameState));
 }
 
+// Pondération du score : somme = 100. Le solde est exclu (trop volatil d'un tour à l'autre).
+const SCORE_WEIGHTS = {
+  popularite: 25, tensions: 20, croissance: 15, chomage: 15, dette: 15, coffres: 10
+};
+
+// Progrès d'un indicateur, ramené dans [-1, 1] : non pas « combien de points gagnés »,
+// mais « quelle part de la marge disponible a été exploitée ».
+// C'est ce qui rend les scores comparables entre pays : diriger la Suisse, c'est défendre
+// une position déjà haute ; diriger le Yémen, c'est remonter de loin. En points bruts, le
+// second gagnait mécaniquement — en part de marge, les deux jouent la même partie.
+function progression(key) {
+  var ini = initialState[key], fin = gameState[key];
+  if (ini === null || ini === undefined || fin === null || fin === undefined) return 0;
+  var b = BOUNDS[key];
+  if (!b) return 0;
+  var versLeHaut = GOOD_IF_POSITIVE[key];
+  var borneBonne  = versLeHaut ? b[1] : b[0];
+  var borneMauvaise = versLeHaut ? b[0] : b[1];
+  var progres = versLeHaut ? (fin - ini) : (ini - fin);
+  if (progres === 0) return 0;
+  var marge = progres > 0 ? Math.abs(borneBonne - ini) : Math.abs(ini - borneMauvaise);
+  if (marge <= 0) return 0;
+  return Math.max(-1, Math.min(1, progres / marge));
+}
+
 function computeScore() {
-  var diff = document.getElementById('hud-diff').textContent || 'Facile';
+  var diff = selectedDiff || 'Facile';
   var mult = DIFF_MULTIPLIERS[diff] || 1;
-  var base = 0;
 
-  function delta(key, goodIfPositive, weight) {
-    var ini = initialState[key], fin = gameState[key];
-    if (ini === null || ini === undefined || fin === null || fin === undefined) return 0;
-    var d = goodIfPositive ? (fin - ini) : (ini - fin);
-    return Math.round(d * weight);
-  }
+  var indice = 0;
+  var detail = {};
+  Object.keys(SCORE_WEIGHTS).forEach(function(key) {
+    var p = progression(key);
+    detail[key] = Math.round(p * 100) / 100;
+    indice += (SCORE_WEIGHTS[key] / 100) * p;
+  });
 
-  // Score basé sur les variations
-  base += delta('popularite', true,  30);
-  base += delta('tensions',   false, 25);
-  base += delta('croissance', true,  25);
-  base += delta('chomage',    false, 20);
-  base += delta('coffres',    true,  15);
-  base += delta('dette',      false, 15);
+  // indice ∈ [-1, 1] → score ∈ [0, 6000], sans écrêtage brutal : un mandat catastrophique
+  // doit rester distinguable d'un mandat simplement médiocre, pas tomber à 0 comme les autres.
+  var base = Math.round(6000 * Math.pow((indice + 1) / 2, 2));
 
-  // Bonus basé sur les valeurs finales absolues
-  if (gameState.popularite !== null) {
-    if (gameState.popularite >= 60) base += 300;
-    else if (gameState.popularite >= 50) base += 150;
-  }
-  if (gameState.tensions !== null) {
-    if (gameState.tensions <= 3) base += 300;
-    else if (gameState.tensions <= 5) base += 150;
-  }
-  if (gameState.coffres !== null && gameState.coffres > 100) base += 200;
-  if (gameState.croissance !== null && gameState.croissance >= 1.5) base += 200;
-
-  base += 1000; // bonus mandat terminé (augmenté)
+  // Pénalités country-neutral : finir en zone rouge coûte, quel que soit le pays de départ.
+  if (gameState.popularite !== null && gameState.popularite <= 20) base = Math.round(base * 0.8);
+  if (gameState.tensions !== null && gameState.tensions >= 8.5) base = Math.round(base * 0.8);
 
   base = Math.max(0, base);
-  var total = Math.round(base * mult);
-  return {total, base, mult, diff};
+  return { total: Math.round(base * mult), base: base, mult: mult, diff: diff, detail: detail };
 }
 
 function buildIndicatorsHTML() {
@@ -2375,13 +2907,13 @@ async function openLeaderboard() {
       var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
       var isMe = lastResultData.score === s.score && lastResultData.name === s.name;
       var rowStyle = isMe ? 'background:rgba(66,133,244,0.08);' : '';
-      var nameDisplay = isMe ? '★ ' + s.name : s.name;
+      var nameDisplay = (isMe ? '★ ' : '') + esc(s.name);
       html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);'+rowStyle+'">'
         +'<td style="padding:0.55rem 0.4rem;color:var(--muted);">'+(medal||('#'+(i+1)))+'</td>'
         +'<td style="padding:0.55rem 0.4rem;color:'+(isMe?'var(--accent)':'var(--text)')+';">'+nameDisplay+'</td>'
-        +'<td style="padding:0.55rem 0.4rem;color:var(--accent4);font-size:0.7rem;">'+s.note+'</td>'
-        +'<td style="padding:0.55rem 0.4rem;color:var(--muted);">'+s.diff+'</td>'
-        +'<td style="padding:0.55rem 0.4rem;text-align:right;color:var(--accent);font-weight:700;">'+s.score.toLocaleString()+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;color:var(--accent4);font-size:0.7rem;">'+esc(s.note)+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;color:var(--muted);">'+esc(s.diff)+'</td>'
+        +'<td style="padding:0.55rem 0.4rem;text-align:right;color:var(--accent);font-weight:700;">'+Number(s.score||0).toLocaleString()+'</td>'
         +'</tr>';
     });
     html += '</table><div style="margin-top:0.8rem;text-align:center;font-size:0.62rem;color:var(--muted);border-top:1px solid var(--border);padding-top:0.6rem;">'+t('lbMe')+'</div>';
@@ -2411,6 +2943,7 @@ function goHome() {
   Stats.reset(); clearSave();
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
   prevState={};initialState={};currentSituation="";situationHistory=[];
+  pendingImpacts=[];stateLog=[];causeLog=[];dossier=[];ageProjets={};gameOver=false;toursEnZoneRouge=0;prochainImpactMajore=1;dernierTourNego=-99;
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
   currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
@@ -2425,6 +2958,7 @@ function replayGame() {
   Stats.reset();clearSave();
   gameState={popularite:null,tensions:null,croissance:null,chomage:null,dette:null,coffres:null,solde:null};
   prevState={};initialState={};currentSituation="";situationHistory=[];
+  pendingImpacts=[];stateLog=[];causeLog=[];dossier=[];ageProjets={};gameOver=false;toursEnZoneRouge=0;prochainImpactMajore=1;dernierTourNego=-99;
   document.getElementById('chat-messages').innerHTML='<div class="typing-indicator" id="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   document.getElementById('hud-country').textContent='—';document.getElementById('hud-date').textContent='—';document.getElementById('hud-diff').textContent='—';
   currentTurn=0;maxTurns=0;gamePhase='init';conversationHistory=[];updateTurnCounter();
