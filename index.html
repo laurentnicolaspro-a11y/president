@@ -87,6 +87,11 @@ header{
 .opt:hover:not(:disabled){background:#26365580;border-color:var(--or);transform:translateX(3px)}
 .opt:disabled{opacity:.4;cursor:not-allowed}
 .opt small{color:var(--dim);font-size:11.5px;white-space:nowrap}
+.opt .fleche{color:#42506b;font-size:19px;line-height:1;transition:.15s}
+.opt:hover:not(:disabled) .fleche{color:var(--or);transform:translateX(2px)}
+.carte.consequence .eff{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.carte.consequence .eff::before{content:"Ce que cela a changé";display:block;width:100%;
+  font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--vert);margin-bottom:8px}
 
 .suite{
   width:100%;padding:14px;border-radius:11px;font-size:16px;font-weight:600;
@@ -169,6 +174,8 @@ header{
 svg.toilesvg{display:block;width:100%;height:auto;max-height:min(66vh,540px)}
 .fil{stroke:#2b3a56;stroke-width:1.6;fill:none}
 .fil.act{stroke:var(--or);stroke-width:2.4}
+.fil.pont{stroke-width:1.4;stroke-dasharray:5 4;opacity:.45}
+.fil.pont.act{stroke-width:2.2;stroke-dasharray:none;opacity:1}
 .web{stroke:#1e2b42;stroke-width:1;fill:none}
 .nd{cursor:pointer}
 .nd circle{transition:.2s}
@@ -471,39 +478,195 @@ const LOIS = [
  {id:"i5",br:"institutions",ico:"📜",nom:"VIᵉ République",cout:16,
   txt:"Réécriture de la Constitution. L'acte politique ultime.",
   eff:{social:12,securite:-5,groups:{salaries:10,jeunes:14,ruraux:8,patrons:-9}},
-  tour:{social:.2}}
+  tour:{social:.2}},
+
+/* ---- LOIS DE JONCTION ----------------------------------------------------
+   Elles siègent entre deux branches voisines de la toile et ne s'ouvrent que
+   si vous avez déjà légiféré des deux côtés. Ce sont les textes qu'aucune
+   famille politique ne peut voter seule.                                     */
+ {id:"j1", entre:["social","securite"], ico:"🏘️", nom:"Police de proximité", cout:8,
+  txt:"Des brigades ancrées dans les quartiers, formées à la médiation autant qu'à l'interpellation.",
+  eff:{sec:{interieure:20},soc:{pauvrete:14},groups:{jeunes:9,ruraux:7,retraites:6,salaries:5}},
+  tour:{budget:-1.0,securite:.10,social:.08}},
+
+ {id:"j2", entre:["securite","ecologie"], ico:"🚁", nom:"Sécurité civile climatique", cout:10,
+  txt:"Feux, inondations, canicules : la protection civile devient un service permanent du climat.",
+  eff:{sec:{interieure:12,defense:10},cli:{foret:22,eau:16},
+       groups:{ruraux:11,retraites:7,jeunes:6}},
+  tour:{budget:-1.2,securite:.10,climat:.12}},
+
+ {id:"j3", entre:["ecologie","economie"], ico:"⚙️", nom:"Pacte pour l'industrie verte", cout:12,
+  txt:"Décarboner en produisant ici : commande publique fléchée, électricité bas carbone à prix garanti, formation des salariés.",
+  eff:{economie:13,cac:7,pib:1.8,cli:{air:28,sols:8},
+       groups:{patrons:11,salaries:11,jeunes:9,ruraux:4}},
+  tour:{economie:.20,climat:.14,budget:-.8}},
+
+ {id:"j4", entre:["economie","institutions"], ico:"🔒", nom:"Souveraineté économique", cout:9,
+  txt:"Contrôle des investissements stratégiques, transparence des bénéficiaires effectifs, traque de l'évasion fiscale.",
+  eff:{economie:8,budget:11,social:7,cac:-4,
+       groups:{salaries:10,jeunes:8,ruraux:5,patrons:-9}},
+  tour:{budget:.9,economie:.08}},
+
+ {id:"j5", entre:["institutions","social"], ico:"🗣️", nom:"Démocratie sociale", cout:10,
+  txt:"Les salariés entrent aux conseils d'administration, les accords de branche priment, la convention citoyenne devient permanente.",
+  eff:{social:9,soc:{pouvoir:18,pauvrete:10},
+       groups:{salaries:15,jeunes:10,ruraux:5,patrons:-13}},
+  tour:{social:.14,economie:-.06}},
 ];
 
+/* Les chantiers sont rangés par domaine : avec vingt projets, une grille brute
+   devient illisible. */
+const DOMAINES = {
+  transition:{nom:"Transition écologique", ico:"🌍"},
+  transports:{nom:"Transports & réseaux",  ico:"🚈"},
+  social:    {nom:"Santé, école & social", ico:"❤️"},
+  regalien:  {nom:"Régalien",              ico:"🛡️"},
+  economie:  {nom:"Économie & industrie",  ico:"📈"}
+};
 const PROJETS = [
- {id:"nuc",ico:"⚛️",nom:"Relance du nucléaire",cout:40,duree:6,
+ {id:"nuc",ico:"⚛️",nom:"Relance du nucléaire",cout:40,duree:6,dom:"transition",
   txt:"Six nouveaux réacteurs. Énergie décarbonée et souveraineté retrouvée.",
   fin:{cli:{air:44,eau:4},economie:10,cac:6,pib:3.0,groups:{patrons:8,salaries:6}},
   tour:{budget:2.2,economie:.2}},
- {id:"tgv",ico:"🚄",nom:"Nouvelles lignes à grande vitesse",cout:26,duree:4,
+ {id:"tgv",ico:"🚄",nom:"Nouvelles lignes à grande vitesse",cout:26,duree:4,dom:"transports",
   txt:"Désenclaver les territoires par le rail.",
   fin:{economie:9,cli:{air:20,sols:4},pib:1.6,groups:{ruraux:14,salaries:5}},tour:{economie:.16}},
- {id:"hop",ico:"🏥",nom:"Plan hôpitaux",cout:30,duree:5,
+ {id:"hop",ico:"🏥",nom:"Plan hôpitaux",cout:30,duree:5,dom:"social",
   txt:"Rénover les services d'urgence et recruter des soignants.",
   fin:{soc:{sante:44,pauvrete:12},pib:0.6,groups:{salaries:9,retraites:14}},
   tour:{budget:-.6,social:.16}},
- {id:"arm",ico:"🎖️",nom:"Modernisation des armées",cout:35,duree:5,
+ {id:"arm",ico:"🎖️",nom:"Modernisation des armées",cout:35,duree:5,dom:"regalien",
   txt:"Drones, cyber, munitions : reconstituer l'outil militaire.",
   fin:{sec:{defense:26,interieure:4},economie:5,pib:1.1,groups:{retraites:7,ruraux:6}},
   tour:{securite:.18}},
- {id:"log",ico:"🏘️",nom:"Plan logement",cout:28,duree:5,
+ {id:"log",ico:"🏘️",nom:"Plan logement",cout:28,duree:5,dom:"social",
   txt:"500 000 logements abordables en cinq ans.",
   fin:{soc:{pauvrete:30,pouvoir:22},economie:5,pib:1.0,groups:{jeunes:15,salaries:8}},
   tour:{social:.14}},
- {id:"bat",ico:"🔋",nom:"Gigafactory de batteries",cout:32,duree:6,
+ {id:"bat",ico:"🔋",nom:"Gigafactory de batteries",cout:32,duree:6,dom:"economie",
   txt:"Produire en France les batteries de demain.",
   fin:{economie:14,cac:8,cli:{air:22,sols:6},pib:2.6,groups:{patrons:10,salaries:8}},
   tour:{economie:.26}},
- {id:"num",ico:"🛰️",nom:"Fibre & IA souveraine",cout:24,duree:4,
+ {id:"num",ico:"🛰️",nom:"Fibre & IA souveraine",cout:24,duree:4,dom:"economie",
   txt:"Infrastructures numériques et calcul national.",
   fin:{economie:11,cac:7,sec:{defense:6},pib:2.2,groups:{jeunes:11,patrons:7}},tour:{economie:.2}},
- {id:"eco",ico:"🎓",nom:"Rénovation des écoles",cout:20,duree:4,
+ {id:"eco",ico:"🎓",nom:"Rénovation des écoles",cout:20,duree:4,dom:"social",
   txt:"Bâtiments scolaires remis à neuf partout en France.",
-  fin:{soc:{educ:34,pauvrete:6},pib:0.7,groups:{jeunes:12,salaries:7}},tour:{social:.1,economie:.06}}
+  fin:{soc:{educ:34,pauvrete:6},pib:0.7,groups:{jeunes:12,salaries:7}},tour:{social:.1,economie:.06}},
+
+ {id:"eol",ico:"🌬️",nom:"Éolien en mer et solaire",cout:34,duree:6,dom:"transition",
+  txt:"Six parcs offshore et quarante mille hectares de photovoltaïque au sol.",
+  fin:{cli:{air:38,sols:-6},economie:9,cac:6,pib:2.2,
+       groups:{jeunes:12,patrons:8,ruraux:-7,salaries:6}},
+  tour:{budget:1.4,climat:.16,economie:.12}},
+
+ {id:"iso",ico:"🧱",nom:"Isolation massive des logements",cout:33,duree:6,dom:"transition",
+  txt:"Cinq millions de passoires thermiques traitées, chantier par chantier.",
+  fin:{cli:{air:30,eau:6},soc:{pouvoir:22,sante:10},economie:7,pib:1.1,
+       groups:{salaries:13,ruraux:9,retraites:8,patrons:5}},
+  tour:{climat:.14,social:.12,budget:-.5}},
+
+ {id:"eaup",ico:"💧",nom:"Grand plan pour l'eau",cout:30,duree:5,dom:"transition",
+  txt:"Réseaux repris, réutilisation des eaux usées, interconnexion des bassins.",
+  fin:{cli:{eau:36,sols:14},soc:{sante:10},economie:4,
+       groups:{ruraux:14,jeunes:8,salaries:5}},
+  tour:{climat:.18,budget:-.4}},
+
+ {id:"agr",ico:"🌱",nom:"Transition agricole",cout:27,duree:6,dom:"transition",
+  txt:"Conversion, haies, stockage carbone : payer les agriculteurs pour le sol qu'ils tiennent.",
+  fin:{cli:{sols:32,eau:16,foret:12},economie:-4,soc:{sante:6},
+       groups:{ruraux:15,jeunes:9,patrons:-6}},
+  tour:{climat:.18,budget:-.9}},
+
+ {id:"vel",ico:"🚲",nom:"Plan mobilités douces",cout:16,duree:3,dom:"transition",
+  txt:"Vingt mille kilomètres de pistes protégées et des gares équipées.",
+  fin:{cli:{air:16},soc:{sante:12},economie:3,
+       groups:{jeunes:13,salaries:7,ruraux:-4}},
+  tour:{climat:.08,social:.06}},
+
+ {id:"rer",ico:"🚈",nom:"RER métropolitains",cout:36,duree:7,dom:"transports",
+  txt:"Des trains du quotidien toutes les dix minutes autour de dix métropoles.",
+  fin:{cli:{air:22},soc:{pouvoir:16,pauvrete:8},economie:10,pib:1.3,
+       groups:{salaries:15,ruraux:10,jeunes:9,patrons:6}},
+  tour:{economie:.14,climat:.10,budget:-.6}},
+
+ {id:"por",ico:"⚓",nom:"Grands ports et fret ferroviaire",cout:29,duree:5,dom:"transports",
+  txt:"Reprendre aux camions ce que le rail et la mer savent faire moins cher.",
+  fin:{economie:13,cac:7,cli:{air:14},pib:1.6,
+       groups:{patrons:12,salaries:10,ruraux:5}},
+  tour:{economie:.20,budget:.8}},
+
+ {id:"med",ico:"🔬",nom:"Institut de recherche médicale",cout:22,duree:5,dom:"social",
+  txt:"Quatre mille chercheurs sur le vieillissement, le cancer et les maladies rares.",
+  fin:{soc:{sante:26,educ:12},economie:8,cac:5,pib:0.9,
+       groups:{jeunes:11,retraites:12,patrons:6}},
+  tour:{social:.14,economie:.10}},
+
+ {id:"ehp",ico:"👵",nom:"Plan grand âge",cout:31,duree:5,dom:"social",
+  txt:"Cent mille postes en EHPAD et à domicile, et des établissements enfin dignes.",
+  fin:{soc:{sante:30,pauvrete:14},social:6,
+       groups:{retraites:19,salaries:12,jeunes:5}},
+  tour:{budget:-1.4,social:.18}},
+
+ {id:"cre",ico:"🍼",nom:"Deux cent mille places de crèche",cout:25,duree:4,dom:"social",
+  txt:"Le service public de la petite enfance, promis depuis vingt ans.",
+  fin:{soc:{pauvrete:20,pouvoir:14},economie:7,pib:0.8,
+       groups:{salaries:14,jeunes:12,patrons:6}},
+  tour:{budget:-.9,social:.14,economie:.08}},
+
+ {id:"uni",ico:"🎓",nom:"Campus universitaires",cout:28,duree:5,dom:"social",
+  txt:"Bâtiments, laboratoires et logements étudiants dans quinze villes.",
+  fin:{soc:{educ:30,pauvrete:8},economie:8,pib:1.1,
+       groups:{jeunes:17,salaries:7,patrons:5}},
+  tour:{social:.12,economie:.12}},
+
+ {id:"cyb",ico:"🖥️",nom:"Commandement cyber",cout:26,duree:4,dom:"regalien",
+  txt:"Trois mille spécialistes, une doctrine, et des hôpitaux qu'on ne coupe plus.",
+  fin:{sec:{defense:24,interieure:14},economie:6,soc:{sante:6},
+       groups:{jeunes:8,patrons:6,retraites:6}},
+  tour:{securite:.16,economie:.06}},
+
+ {id:"pri",ico:"⛓️",nom:"Programme pénitentiaire",cout:24,duree:5,dom:"regalien",
+  txt:"Quinze mille places, et la fin des matelas au sol dans les maisons d'arrêt.",
+  fin:{sec:{interieure:22},soc:{pauvrete:-6},social:-4,
+       groups:{retraites:12,ruraux:9,jeunes:-8}},
+  tour:{budget:-1.1,securite:.12}},
+
+ {id:"jus",ico:"⚖️",nom:"Plan pour la justice",cout:23,duree:5,dom:"regalien",
+  txt:"Mille cinq cents magistrats, des greffes équipés, des délais divisés par deux.",
+  fin:{sec:{interieure:18},social:9,soc:{pauvrete:8},
+       groups:{salaries:9,jeunes:8,ruraux:6,retraites:6}},
+  tour:{budget:-.9,securite:.10,social:.08}},
+
+ {id:"spa",ico:"🛰️",nom:"Programme spatial souverain",cout:38,duree:7,dom:"regalien",
+  txt:"Lanceurs réutilisables et constellation d'observation : voir par nous-mêmes.",
+  fin:{sec:{defense:26},economie:11,cac:8,pib:1.2,
+       groups:{patrons:11,jeunes:10,ruraux:4}},
+  tour:{securite:.14,economie:.16}},
+
+ {id:"ind",ico:"🏗️",nom:"Réindustrialisation des territoires",cout:35,duree:6,dom:"economie",
+  txt:"Vingt sites clés en main, dépollués et raccordés, prêts à accueillir des usines.",
+  fin:{economie:16,cac:9,pib:2.4,soc:{pauvrete:10},
+       groups:{patrons:14,salaries:13,ruraux:12}},
+  tour:{economie:.26,budget:.6}},
+
+ {id:"pha",ico:"💊",nom:"Souveraineté pharmaceutique",cout:28,duree:6,dom:"economie",
+  txt:"Produire ici les principes actifs essentiels, avec une commande publique garantie.",
+  fin:{economie:9,soc:{sante:20},pib:1.0,
+       groups:{patrons:8,salaries:9,retraites:11}},
+  tour:{economie:.10,social:.10}},
+
+ {id:"for",ico:"🛠️",nom:"Plan de formation professionnelle",cout:21,duree:4,dom:"economie",
+  txt:"Un million de personnes formées aux métiers qui manquent vraiment.",
+  fin:{economie:12,soc:{educ:16,pauvrete:12},pib:1.0,
+       groups:{salaries:13,jeunes:11,patrons:9}},
+  tour:{economie:.16,social:.08}},
+
+ {id:"ia",ico:"🧠",nom:"Calcul et IA souveraine",cout:31,duree:5,dom:"economie",
+  txt:"Deux supercalculateurs et des modèles entraînés en France, sur nos données.",
+  fin:{economie:14,cac:10,sec:{defense:8},pib:1.9,
+       groups:{patrons:13,jeunes:12,salaries:4}},
+  tour:{economie:.22}},
 ];
 
 const EVENTS = [
@@ -3178,6 +3341,866 @@ const HISTOIRE = [
       n'aurez pas à choisir : vous serez déjà parti.`,
    e:{economie:3,groups:{patrons:4,retraites:3}}, final:true}
  ]},
+
+{id:"n53", ch:9, mois:53, ico:"🏚️", t:"La cité",
+ intro:[[()=>S.axes.autorite>=4, `Vous avez durci pendant cinq ans. Ce quartier-là en a
+   reçu sa part.`]],
+ d:`Quatre tours de quatorze étages, construites en 1968, promises à la démolition depuis
+    onze ans. Un ascenseur sur six fonctionne.<br><br>
+    Une femme de trente-huit ans est morte dans la cage d'escalier, faute d'avoir pu être
+    évacuée au douzième étage. Les pompiers ont mis cinquante minutes à la descendre.<br><br>
+    Le maire, qui vous soutient, vous écrit une lettre publique de deux pages.`,
+ o:[
+  {l:"Lancer la démolition-reconstruction, financée par l'État",
+   r:`Trois cents millions, quatre ans de travaux, mille deux cents relogements garantis
+      dans la commune.<br><br>
+      Les premières familles emménagent trente mois plus tard. Le maire vous invite à
+      l'inauguration ; vous n'y allez pas, pour que ce soit son inauguration.`,
+   e:{budget:-14,soc:{pauvrete:18,sante:8},social:8,
+      groups:{salaries:10,jeunes:12,ruraux:-4}},
+   axe:{social:1}, pose:"renovation_urbaine", dauphin:3},
+  {l:"Un plan national sur le bâti dégradé : trois cents quartiers",
+   r:`Deux milliards, trois cents quartiers, une agence dédiée.<br><br>
+      C'est trop pour être fait vite et trop peu pour tout traiter. Cinquante quartiers
+      seront rénovés en cinq ans, deux cent cinquante attendront. Les habitants des
+      cinquante ne sauront pas qu'ils ont eu de la chance.`,
+   e:{budget:-19,soc:{pauvrete:14},economie:5,
+      groups:{salaries:8,jeunes:9,ruraux:5}},
+   pose:"plan_bati"},
+  {l:"Renvoyer au bailleur social et à la commune",
+   r:`Compétence locale, financement local, réponse en trois lignes.<br><br>
+      Le maire publie votre courrier. Il est parfaitement exact juridiquement et il fait
+      un effet désastreux, parce qu'une femme est morte et qu'on répond par un partage de
+      compétences.`,
+   e:{soc:{pauvrete:-8},social:-9,groups:{salaries:-9,jeunes:-11}},
+   pose:"renvoi_bailleur", rival:8}
+ ]},
+
+{id:"n57", ch:10, mois:57, ico:"📋", t:"Le rapport annuel",
+ intro:[[()=>S.dette>185, `Le rapport est plus dur que les précédents. Il a de bonnes
+   raisons de l'être.`]],
+ d:`La Cour des comptes rend son rapport public. Le chapitre qui vous concerne s'intitule
+    « Huit ans de dépenses non financées » et il n'y a pas d'ambiguïté sur le sujet.<br><br>
+    Le Premier président vous reçoit à sa demande. « Je ne fais pas de politique. Mais je
+    vous dois de vous dire que si rien n'est fait dans les dix-huit mois, ce sera fait
+    contre vous, et beaucoup plus brutalement. »<br><br>
+    Il vous laisse cinquante-deux recommandations classées par ordre de faisabilité.`,
+ o:[
+  {l:"Appliquer les vingt premières recommandations",
+   r:`Vingt mesures techniques, sept milliards d'économies, aucune ligne de programme
+      politique touchée.<br><br>
+      La Cour salue publiquement, ce qui n'arrive presque jamais. Le pays ne le remarque
+      pas. C'est exactement le genre de travail qui rend un État gouvernable et qui ne
+      gagne aucune élection.`,
+   e:{budget:11,dette:-6,economie:4,groups:{patrons:9,salaries:-4}},
+   pose:"recommandations_appliquees"},
+  {l:"Contester la méthode et défendre vos choix",
+   r:`Une réponse officielle de quarante pages, argumentée, publiée en annexe du rapport.<br><br>
+      Votre argumentaire tient sur les deux tiers. Le tiers restant est repris par tous vos
+      adversaires, et la séquence rappelle à tout le monde que la dette existe — ce que
+      vous vouliez précisément éviter.`,
+   e:{economie:-3,cac:-4,groups:{patrons:-6,salaries:3}},
+   pose:"contestation_cour", rival:6},
+  {l:"Créer une règle d'or budgétaire dans la loi organique",
+   r:`Toute dépense nouvelle devra être gagée. Le texte passe en huit mois.<br><br>
+      C'est contraignant pour vous et surtout pour vos successeurs, qui n'ont rien
+      demandé. Deux d'entre eux tenteront de le défaire et échoueront, parce qu'on ne
+      défait pas une règle de sérieux sans expliquer pourquoi.`,
+   e:{budget:8,dette:-5,economie:5,cac:6,soc:{pouvoir:-6},
+      groups:{patrons:12,salaries:-7,jeunes:-4}},
+   axe:{social:-1}, pose:"regle_or"}
+ ]},
+
+{id:"n58", ch:10, mois:58, ico:"❄️", t:"Le grand froid",
+ intro:[[()=>S.projetsFinis.includes("nuc"), `Vos réacteurs tournent à plein. C'est la
+   seule raison pour laquelle on ne parle pas de coupures.`]],
+ d:`Onze jours à moins huit en moyenne nationale. La consommation électrique bat son
+    record historique un mardi à dix-neuf heures.<br><br>
+    Le réseau tient, de justesse. Ce qui ne tient pas, c'est le reste : quatre cent mille
+    foyers en précarité énergétique déclarée, deux morts dans la rue à Lille, et un système
+    d'hébergement d'urgence saturé depuis huit jours.<br><br>
+    Le préfet d'Île-de-France demande l'autorisation de réquisitionner des bâtiments vides.`,
+ o:[
+  {l:"Autoriser la réquisition de bâtiments vides",
+   r:`Quatre-vingts immeubles de bureaux vacants réquisitionnés en six jours, onze mille
+      places ouvertes.<br><br>
+      Les propriétaires attaquent, le Conseil d'État valide au nom de la dignité humaine.
+      Personne ne meurt de froid en France cet hiver-là. C'est mesurable, c'est rare, et
+      ça vous vaudra un procès de trois ans.`,
+   e:{budget:-7,soc:{pauvrete:20,sante:8},social:9,
+      groups:{salaries:9,jeunes:11,patrons:-13}},
+   axe:{social:2}, pose:"requisition_batiments"},
+  {l:"Chèque énergie exceptionnel et places d'hébergement financées",
+   r:`Trois cents euros pour quatre millions de foyers, quatre mille places
+      supplémentaires financées à l'hôtel.<br><br>
+      C'est immédiat, coûteux et sans conflit. Les places à l'hôtel coûteront quatre fois
+      le prix d'un logement pérenne, ce que tout le monde sait depuis vingt ans et que
+      personne ne change parce que l'hiver arrive toujours trop vite.`,
+   e:{budget:-15,soc:{pouvoir:12,pauvrete:10},
+      groups:{salaries:9,retraites:8,jeunes:6}},
+   pose:"cheque_hiver"},
+  {l:"Gérer avec les moyens existants",
+   r:`Le dispositif habituel, activé un peu plus tôt, avec les mêmes capacités.<br><br>
+      Il y aura sept morts dans la rue cet hiver-là, chiffre communiqué en mars par une
+      association et jamais confirmé officiellement. C'est à peu près la moyenne des dix
+      dernières années, ce qui est précisément le problème.`,
+   e:{soc:{pauvrete:-10},social:-7,groups:{salaries:-7,jeunes:-9}},
+   pose:"hiver_ordinaire", rival:7}
+ ]},
+
+{id:"n59", ch:10, mois:59, ico:"⚖️", t:"Le procès",
+ intro:[[()=>S.flags.transparence, `Vous aviez tout publié à l'époque. Le procès s'ouvre
+   sans que personne ne puisse dire que vous avez caché.`]],
+ d:`Le procès de l'affaire s'ouvre. Deux anciens collaborateurs sur le banc, sept ans après
+    les faits, et vous cité comme témoin.<br><br>
+    Vous n'êtes pas mis en cause. Vous devrez néanmoins répondre sous serment à des
+    questions sur ce que vous saviez et sur ce que vous avez fait de ce que vous saviez.<br><br>
+    L'audience est publique. Elle est filmée, à titre exceptionnel.`,
+ o:[
+  {l:"Témoigner sans rien esquiver",
+   r:`Trois heures et quarante minutes. Vous reconnaissez avoir su, avoir sous-estimé, et
+      n'avoir pas voulu voir.<br><br>
+      Un ancien collaborateur pleure dans le box. La présidente vous remercie d'une phrase
+      inhabituelle : « Il est rare qu'un témoin de votre rang réponde à ce que nous
+      demandons. » Le verdict tombera dans neuf mois.`,
+   e:{social:11,groups:{salaries:9,jeunes:12,ruraux:7,retraites:6}},
+   pose:"temoignage_franc", rival:-9},
+  {l:"Répondre strictement aux questions, rien de plus",
+   r:`Une heure vingt, des réponses courtes et exactes, aucun développement.<br><br>
+      C'est irréprochable et froid. Les commentateurs parlent de « rigueur »,
+      les proches des prévenus de « lâchage ». Les deux ont raison.`,
+   e:{groups:{patrons:4,retraites:3,salaries:-3}},
+   pose:"temoignage_minimal"},
+  {l:"Invoquer votre immunité pour ne pas comparaître",
+   r:`Vos avocats saisissent, la Cour de cassation tranche en votre faveur en six semaines.<br><br>
+      Vous ne témoignez pas. C'est votre droit constitutionnel et c'est la seule image
+      que retiendra le pays : un président qui ne vient pas. Les deux prévenus seront
+      condamnés seuls.`,
+   e:{social:-13,groups:{jeunes:-14,salaries:-11,ruraux:-7}},
+   pose:"immunite_invoquee", rival:12}
+ ]},
+
+{id:"n60", ch:10, mois:60, ico:"🥂", t:"Cinq ans",
+ intro:[
+  [()=>popularite()<35, `Vous partez du principe que personne ne regardera. Sept
+    millions de personnes regarderont.`],
+  [()=>S.dauphin>=45, `Votre successeur possible sera dans la salle demain. Ce que vous
+    direz ce soir le concernera autant que vous.`]
+ ],
+ d:`Cinquième allocution de vœux. Vous connaissez le studio, l'éclairagiste, la marque au
+    sol.<br><br>
+    Votre plume a écrit un texte de bilan. Votre directrice de cabinet pense qu'il faut
+    parler de l'après. Et pour la première fois, quelqu'un a osé la phrase à voix haute
+    dans une réunion : « Il faudra bien commencer à préparer la sortie. »<br><br>
+    Il vous reste trois ans.`,
+ o:[
+  {l:"Fixer trois objectifs pour les trois années restantes",
+   r:`Trois engagements, chiffrés, datés, avec une clause : un point d'étape public tous
+      les six mois.<br><br>
+      C'est piégeant et c'est le but : vous venez de vous obliger. Deux seront tenus, un
+      ne le sera pas, et vous aurez à l'expliquer devant les caméras à trois reprises.`,
+   e:{economie:5,social:6,groups:{salaries:6,patrons:6,jeunes:5}},
+   pose:"trois_objectifs", dauphin:3},
+  {l:"Parler de ce que la France sera dans vingt ans",
+   r:`Douze minutes sur le climat, l'école et le vieillissement. Pas un mot sur vous.<br><br>
+      L'audience est moyenne et le texte circule pendant des mois dans les milieux qui
+      lisent. Ce n'est pas un discours de président en exercice : c'est déjà autre chose,
+      et certains le remarquent avec inquiétude.`,
+   e:{social:7,cli:{air:5},groups:{jeunes:11,salaries:5}},
+   pose:"voeux_horizon"},
+  {l:"Un bilan classique, chiffres à l'appui",
+   r:`Huit minutes de résultats, correctement présentés et parfaitement oubliés le
+      lendemain.<br><br>
+      C'est le format le plus sûr et le moins utile. Vous avez consommé une des rares
+      occasions où sept millions de Français vous écoutent sans y être obligés.`,
+   e:{economie:3,groups:{patrons:5,retraites:4}},
+   pose:"voeux_classique"}
+ ]},
+
+{id:"n64", ch:11, mois:64, ico:"🇪🇺", t:"Les européennes",
+ intro:[[()=>S.rival>=55, `Sa liste est donnée en tête depuis trois mois. Ce sera un test
+   grandeur nature.`]],
+ d:`Scrutin de mi-mandat, proportionnel, un tour. C'est-à-dire : le moment idéal pour
+    sanctionner un président sans conséquence.<br><br>
+    Vingt heures. Votre liste fait 17,4 %. Celle de Ferrand, 29,1 %. C'est la première fois
+    qu'il arrive en tête d'un scrutin national.<br><br>
+    Il parle à vingt heures vingt et il a la sobriété de ceux qui savent qu'ils n'ont pas
+    besoin d'en rajouter.`,
+ o:[
+  {l:"Prendre acte publiquement et changer de méthode",
+   r:`Vous parlez le soir même : vous ne contestez rien, vous annoncez deux inflexions.<br><br>
+      Ce n'est pas glorieux et c'est efficace : la séquence dure trois jours au lieu de
+      trois semaines. Vos députés, qui craignaient un déni, respirent.`,
+   e:{social:7,groups:{salaries:7,ruraux:7,jeunes:5}},
+   pose:"lecon_europeennes", rival:-7, dauphin:3},
+  {l:"Rappeler que c'est un scrutin européen, pas national",
+   r:`L'argument est juste : la participation est faible, le mode de scrutin favorise les
+      oppositions.<br><br>
+      Personne ne l'entend. C'est la troisième fois de votre mandat que vous relativisez
+      une défaite électorale, et à la troisième, l'argument ne fonctionne plus du tout.`,
+   e:{groups:{salaries:-6,ruraux:-7,jeunes:-5}},
+   pose:"relativisation_2", rival:8},
+  {l:"Remanier profondément dans les quinze jours",
+   r:`Six ministres remplacés, deux ministères fusionnés, une équipe rajeunie de sept ans
+      de moyenne.<br><br>
+      Le signal est fort. Il est aussi coûteux : six ministres sortants, dont deux
+      compétents, deviennent six personnes disponibles pour raconter des choses aux
+      journalistes.`,
+   e:{economie:4,social:4,groups:{jeunes:7,salaries:4,patrons:-3}},
+   pose:"remaniement_2", dauphin:-4}
+ ]},
+
+{id:"n68", ch:12, mois:68, ico:"🗳️", t:"Le référendum",
+ intro:[[()=>S.flags.referendum||S.flags.convention, `Vous avez déjà consulté les Français
+   directement. Ils s'en souviennent, en bien.`]],
+ d:`Une proposition de loi d'initiative citoyenne atteint les quatre millions sept cent
+    mille signatures. Le seuil est franchi pour la première fois depuis la création du
+    dispositif.<br><br>
+    Le texte demande l'inscription de la protection de l'eau dans la Constitution. Il est
+    court, bien rédigé, et il gêne quatre filières économiques.<br><br>
+    Vous n'êtes pas obligé de convoquer le référendum. La Constitution vous en laisse le
+    choix, et tout le monde le sait.`,
+ o:[
+  {l:"Convoquer le référendum",
+   r:`Scrutin en octobre. Le oui l'emporte à 61,3 %, avec une participation de 44 %.<br><br>
+      L'eau entre dans la Constitution. Deux filières industrielles devront revoir leurs
+      process en cinq ans. Vous n'avez rien décidé : vous avez laissé décider, et c'est
+      la seule fois de vos huit ans où ça s'est produit à cette échelle.`,
+   e:{cli:{eau:26,sols:12},economie:-6,cac:-6,social:10,
+      groups:{jeunes:15,salaries:8,ruraux:-6,patrons:-13}},
+   axe:{ecologie:2}, pose:"referendum_eau", rival:-10, dauphin:4},
+  {l:"Reprendre le texte par voie parlementaire, sans référendum",
+   r:`Le texte est repris, amendé, adopté en dix mois — vidé d'un tiers de sa portée.<br><br>
+      Les initiateurs dénoncent une « confiscation ». Ils ont raison sur la forme et la
+      loi existe quand même, ce qui n'était pas acquis. Le compromis a ce défaut de ne
+      contenter personne et cette qualité d'exister.`,
+   e:{cli:{eau:12,sols:6},social:3,groups:{jeunes:5,patrons:-5}},
+   pose:"voie_parlementaire"},
+  {l:"Ne pas donner suite",
+   r:`Vous ne convoquez rien et vous ne reprenez rien. Le texte reste lettre morte.<br><br>
+      Quatre millions sept cent mille signatures pour rien. C'est la démonstration la plus
+      efficace jamais faite en France que le dispositif d'initiative citoyenne ne sert à
+      rien, et c'est vous qui l'avez administrée.`,
+   e:{social:-12,cli:{eau:-6},
+      groups:{jeunes:-16,salaries:-9,ruraux:-6}},
+   pose:"ric_enterre", rival:14}
+ ]},
+
+{id:"n69", ch:12, mois:69, ico:"🚨", t:"La nuit de Marseille",
+ intro:[[()=>valeur("securite")<45, `Les moyens manquent depuis des années dans cette
+   ville. Le rapport le disait en 2027.`]],
+ d:`Trois règlements de comptes en une nuit, dont un devant une école. Un enfant de neuf
+    ans est mort dans la voiture de sa mère.<br><br>
+    Le préfet de police demande des moyens exceptionnels. Le procureur demande des
+    magistrats. Le maire demande les deux et un plan sur dix ans.<br><br>
+    Vous serez sur place demain. Cette fois, personne n'attend un discours.`,
+ o:[
+  {l:"Opération d'ampleur : mille policiers, six mois, saturation",
+   r:`Mille hommes déployés, deux cent quarante interpellations en six semaines,
+      quatre-vingts armes saisies.<br><br>
+      Les fusillades cessent pendant huit mois. Elles reprennent en juin, avec des acteurs
+      plus jeunes. Un commissaire résume : « Nous avons enlevé une couche. Il y en avait
+      une en dessous. »`,
+   e:{budget:-11,sec:{interieure:20},social:-4,
+      groups:{retraites:12,ruraux:8,jeunes:-6}},
+   axe:{autorite:2}, pose:"operation_marseille"},
+  {l:"Frapper l'argent : moyens judiciaires et saisies d'avoirs",
+   r:`Quarante magistrats spécialisés, une agence de saisie renforcée, coopération
+      bancaire européenne.<br><br>
+      C'est lent : dix-huit mois avant les premiers résultats. Puis quatre cents millions
+      d'avoirs saisis en deux ans et trois réseaux démantelés par le haut. Personne n'en
+      fera un journal télévisé.`,
+   e:{budget:-9,sec:{interieure:14},economie:4,
+      groups:{salaries:7,patrons:6,retraites:7}},
+   pose:"saisies_avoirs", dauphin:3},
+  {l:"Un plan global : sécurité, école, emploi, sur dix ans",
+   r:`Deux milliards, dix ans, quatre ministères. C'est ce que demandent tous les rapports
+      depuis vingt ans.<br><br>
+      Le plan est lancé. Il survivra deux ans après votre départ, puis sera « redéployé »,
+      ce qui est le mot administratif pour dire abandonné. Ce que vous aurez construit en
+      trois ans tiendra quand même : deux collèges, un commissariat, six cents emplois.`,
+   e:{budget:-17,sec:{interieure:12},soc:{educ:12,pauvrete:10},
+      groups:{salaries:8,jeunes:9,retraites:6}},
+   pose:"plan_global_marseille"}
+ ]},
+
+{id:"n70", ch:12, mois:70, ico:"🎓", t:"L'université",
+ d:`Quarante mille étudiants sans affectation à la rentrée. Le système d'admission a
+    saturé, et cette fois, ce sont des bacheliers avec mention qui restent sur le carreau.<br><br>
+    Les présidents d'université écrivent une lettre commune : ils accueillent trente pour
+    cent d'étudiants de plus qu'il y a quinze ans avec le même nombre d'enseignants.<br><br>
+    Une occupation commence à Nanterre le lundi.`,
+ o:[
+  {l:"Créer quinze mille postes et rouvrir des filières",
+   r:`Quinze mille postes sur cinq ans, huit milliards, la première hausse réelle du
+      budget par étudiant depuis vingt ans.<br><br>
+      Le taux d'encadrement remonte pour la première fois depuis 2005. Les effets sur la
+      réussite en licence apparaîtront dans six ans, dans une étude que trois cents
+      personnes liront.`,
+   e:{budget:-17,soc:{educ:24},economie:5,
+      groups:{jeunes:16,salaries:8,patrons:-5}},
+   axe:{social:1}, pose:"universite_financee", dauphin:4},
+  {l:"Développer massivement l'apprentissage et les formations courtes",
+   r:`Deux cent mille places d'apprentissage supplémentaires, financées par une réforme
+      des exonérations.<br><br>
+      L'insertion professionnelle est excellente et les universités restent saturées. Vous
+      avez répondu à un problème d'emploi par une politique d'emploi, et le problème posé
+      était celui de l'université.`,
+   e:{budget:-9,economie:10,soc:{educ:8},pib:0.8,
+      groups:{patrons:12,jeunes:7,salaries:5}},
+   pose:"apprentissage"},
+  {l:"Instaurer une sélection assumée à l'entrée",
+   r:`Sélection généralisée en licence, votée en huit mois après trois mois de blocages.<br><br>
+      Le système cesse de saturer parce qu'il refuse ouvertement au lieu de refuser par
+      tirage. C'est plus honnête et parfaitement inacceptable pour la moitié du pays.
+      Quarante mille jeunes restent dehors, mais on leur dit pourquoi.`,
+   e:{budget:4,soc:{educ:6,pauvrete:-12},economie:4,
+      groups:{patrons:10,jeunes:-17,salaries:-7}},
+   axe:{social:-2}, pose:"selection_universite", rival:6}
+ ]},
+
+{id:"n71", ch:12, mois:71, ico:"🔥", t:"L'été qui ne finit pas",
+ intro:[[()=>S.axes.ecologie>=5, `Vous avez tout fait, ou presque. Ça arrive quand même,
+   et il faut l'expliquer.`]],
+ d:`Cinquante-deux jours consécutifs au-dessus de trente degrés. Deux cent quarante mille
+    hectares brûlés dans le Sud-Ouest, la plus grande surface jamais enregistrée.<br><br>
+    Le directeur de la sécurité civile est net : « Nos moyens ont été dimensionnés pour un
+    climat qui n'existe plus. Nous tenons parce que nos gens ne dorment pas. »<br><br>
+    Trois pompiers sont morts en août.`,
+ o:[
+  {l:"Doubler les moyens de la sécurité civile",
+   r:`Quarante appareils, six mille postes, une flotte européenne mutualisée dont la
+      France prend la tête.<br><br>
+      L'été suivant est aussi chaud et la surface brûlée est divisée par trois. C'est le
+      genre de chiffre qu'on ne peut pas contester et dont personne ne parle, parce que
+      ce qui n'a pas brûlé ne fait pas d'images.`,
+   e:{budget:-18,cli:{foret:16,air:6},sec:{interieure:8},
+      groups:{ruraux:14,salaries:8,retraites:7}},
+   pose:"securite_civile", dauphin:4},
+  {l:"Reboiser autrement : forêts résilientes, coupe-feu, gestion",
+   r:`Un milliard sur quinze ans, essences méditerranéennes, pare-feu entretenus,
+      sylviculture repensée.<br><br>
+      Ça ne produira rien avant vingt ans, ce que vous dites explicitement. C'est
+      probablement la décision la plus rationnelle de votre second mandat et la moins
+      commentée.`,
+   e:{budget:-9,cli:{foret:24,sols:10,eau:6},
+      groups:{ruraux:9,jeunes:9,patrons:-4}},
+   axe:{ecologie:2}, pose:"forets_resilientes"},
+  {l:"Gérer avec l'existant et compenser les sinistrés",
+   r:`Six cents millions d'indemnisation, aucun moyen supplémentaire.<br><br>
+      Les sinistrés sont indemnisés correctement, ce qui n'est pas rien. L'été suivant,
+      la même chose se produit et on indemnise à nouveau. Un pompier volontaire déclare à
+      la radio : « On nous paie les dégâts, on ne nous donne pas les moyens de les
+      éviter. »`,
+   e:{budget:-12,cli:{foret:-8},groups:{ruraux:6,jeunes:-8}},
+   pose:"indemnisation_seule", rival:6}
+ ]},
+
+{id:"n72", ch:12, mois:72, ico:"🕰️", t:"Six ans",
+ intro:[
+  [()=>S.dauphin>=50, `Votre camp a un candidat crédible. C'est le moment de le dire ou
+    de se taire définitivement.`],
+  [()=>popularite()<32, `Vous êtes au plus bas. Cet exercice-là va être long.`]
+ ],
+ d:`Interview de mi-second mandat, deux heures, deux journalistes. Le même exercice qu'il
+    y a quatre ans, avec une différence : personne ne vous demande plus ce que vous ferez,
+    on vous demande ce que vous laissez.<br><br>
+    Première question, posée d'emblée : « Qu'est-ce qui, dans votre bilan, ne survivra pas
+    à votre départ ? »<br><br>
+    C'est une bonne question et vous n'avez pas préparé de réponse.`,
+ o:[
+  {l:"Répondre franchement : nommer ce qui est fragile",
+   r:`Vous citez deux réformes qui seront défaites et vous expliquez pourquoi elles n'ont
+      pas pris.<br><br>
+      C'est inhabituel au point d'être désarçonnant. Les deux journalistes changent de
+      rythme. Le lendemain, l'extrait le plus partagé est celui-là, et le commentaire qui
+      revient est : « On n'a jamais entendu ça. »`,
+   e:{social:10,groups:{jeunes:11,salaries:9,ruraux:7,retraites:5}},
+   pose:"franchise_bilan", rival:-9, dauphin:4},
+  {l:"Défendre l'ensemble : tout tiendra",
+   r:`Deux heures à soutenir que le bilan est cohérent et durable.<br><br>
+      C'est ce qu'on attend d'un président et personne n'y croit, à commencer par les
+      journalistes qui ont préparé la liste des dispositifs déjà détricotés. La séquence
+      est propre et parfaitement inutile.`,
+   e:{economie:3,groups:{patrons:6,retraites:4,jeunes:-4}},
+   pose:"defense_bilan"},
+  {l:"Parler de la suite : ce qu'il faudra faire après vous",
+   r:`Vous consacrez l'essentiel de l'entretien à trois chantiers que vous ne mènerez pas.<br><br>
+      C'est généreux et ça sonne comme un aveu d'inachèvement. Deux des trois chantiers
+      figureront dans le programme de votre successeur, quel qu'il soit. Vous aurez fixé
+      l'agenda de quelqu'un d'autre.`,
+   e:{social:7,economie:4,groups:{jeunes:9,salaries:6,patrons:5}},
+   pose:"agenda_suivant", dauphin:6}
+ ]},
+
+{id:"n75", ch:13, mois:75, ico:"🩺", t:"Les internes",
+ d:`Neuf mille internes en grève illimitée. Ils tiennent l'hôpital public la nuit et les
+    week-ends depuis toujours, pour un salaire horaire inférieur au SMIC quand on compte
+    les heures réelles.<br><br>
+    Ils ne demandent pas d'argent en premier : ils demandent que les heures soient
+    comptées. C'est plus embarrassant, parce que ça se vérifie.<br><br>
+    Trois hôpitaux ont déprogrammé toutes les opérations non urgentes.`,
+ o:[
+  {l:"Décompter et payer toutes les heures réelles",
+   r:`Comptage obligatoire, paiement rétroactif sur douze mois, plafond horaire opposable.<br><br>
+      Un milliard huit cents millions par an, un chiffre que personne n'avait osé calculer
+      parce que le calculer obligeait à le payer. La grève cesse en neuf jours. Deux mille
+      internes qui allaient quitter la médecine hospitalière restent.`,
+   e:{budget:-13,soc:{sante:22},social:8,
+      groups:{salaries:11,jeunes:14,retraites:8}},
+   axe:{social:1}, pose:"internes_payes", dauphin:4},
+  {l:"Revaloriser sans changer le décompte des heures",
+   r:`Plus quatre cents euros mensuels, sans toucher au comptage.<br><br>
+      La grève s'arrête à moitié : deux syndicats signent, un continue trois semaines. Le
+      problème de fond reste entier et reviendra dans deux ans, exactement au même endroit,
+      avec des gens plus jeunes et plus en colère.`,
+   e:{budget:-7,soc:{sante:10},groups:{jeunes:6,salaries:5}},
+   pose:"revalorisation_partielle"},
+  {l:"Réquisitionner : la continuité des soins d'abord",
+   r:`Réquisition dans onze établissements, notifiée par les préfets.<br><br>
+      Les blocs rouvrent en quatre jours. Sept cents internes annoncent qu'ils ne
+      s'inscriront pas au tableau de l'Ordre en France. Les deux tiers le feront quand
+      même. Le tiers restant, ce sont deux cents médecins de moins par an.`,
+   e:{soc:{sante:4},social:-12,
+      groups:{jeunes:-16,salaries:-10,retraites:5}},
+   axe:{autorite:2}, pose:"requisition_internes", rival:9}
+ ]},
+
+{id:"n77", ch:13, mois:77, ico:"🛰️", t:"L'écoute",
+ intro:[[()=>S.flags.attribution_publique||S.flags.riposte_discrete, `Vous avez déjà eu
+   affaire à eux. Cette fois, c'est chez vous.`]],
+ d:`Un logiciel espion a été trouvé sur les téléphones de quatre ministres et de deux de
+    vos conseillers. Il y est depuis onze mois.<br><br>
+    L'attribution technique est établie à un niveau de certitude que les services
+    qualifient de « très élevé ». Le pays concerné est un partenaire commercial de premier
+    plan et un allié militaire de circonstance.<br><br>
+    Le Conseil de défense se réunit à vingt-deux heures.`,
+ o:[
+  {l:"Rendre public et convoquer l'ambassadeur",
+   r:`Communiqué à sept heures, ambassadeur convoqué à neuf, expulsion de trois
+      diplomates à midi.<br><br>
+      L'affaire est mondiale en vingt-quatre heures. Deux contrats sont gelés, un
+      partenariat de renseignement est suspendu six mois. Et les écoutes s'arrêtent, ce
+      qui était le but et ce que personne ne pourra vérifier publiquement.`,
+   e:{sec:{defense:12,interieure:8},economie:-6,cac:-5,pib:-0.6,
+      groups:{retraites:8,ruraux:6,patrons:-9}},
+   axe:{autorite:1}, pose:"expulsion_diplomates"},
+  {l:"Traiter en silence et durcir la protection",
+   r:`Aucune déclaration. Téléphones souverains pour trois cents personnes, audit complet,
+      un message passé par le canal direct.<br><br>
+      Les écoutes cessent en trois semaines. Personne ne saura jamais qu'il s'est passé
+      quelque chose, ce qui est exactement ce que vous vouliez et qui ne vous rapportera
+      rien.`,
+   e:{budget:-8,sec:{defense:16},groups:{patrons:4}},
+   pose:"traitement_silencieux"},
+  {l:"Répondre par une capacité offensive assumée",
+   r:`Doctrine cyber offensive publiée, commandement dédié, budget quadruplé.<br><br>
+      La France devient le troisième pays européen à assumer publiquement une capacité
+      offensive. C'est dissuasif et c'est une escalade : deux autres pays annoncent la
+      même chose dans les dix-huit mois.`,
+   e:{budget:-13,sec:{defense:22,interieure:6},economie:4,
+      groups:{retraites:9,patrons:6,jeunes:-5}},
+   axe:{autorite:2}, pose:"cyber_offensif"}
+ ]},
+
+{id:"n79", ch:14, mois:79, ico:"💶", t:"Le budget qu'on ne votera pas",
+ intro:[[()=>popularite()<35, `Votre majorité ne vous doit plus rien. Ce budget-là va
+   se négocier ligne par ligne.`]],
+ d:`Le projet de loi de finances est rejeté en première lecture par soixante-treize voix.
+    Ce n'est pas arrivé depuis 1979.<br><br>
+    Onze députés de votre majorité ont voté contre, sept se sont abstenus. Aucun n'a
+    demandé de contrepartie : ils ont simplement estimé qu'ils n'avaient plus rien à perdre
+    à vous désavouer.<br><br>
+    Il reste six semaines avant la date limite constitutionnelle.`,
+ o:[
+  {l:"Négocier un budget de compromis avec l'opposition modérée",
+   r:`Quatre semaines de négociation, deux milliards de concessions, un texte adopté par
+      une majorité inédite qui ne durera pas au-delà du vote.<br><br>
+      Le budget existe. Il n'est ni le vôtre ni le leur, il est médiocre et il est voté,
+      ce qui, en la circonstance, ressemble beaucoup à une réussite.`,
+   e:{budget:-6,economie:3,social:5,
+      groups:{salaries:5,ruraux:5,patrons:3}},
+   pose:"budget_compromis", dauphin:3},
+  {l:"Engager la responsabilité du gouvernement une dernière fois",
+   r:`Le 49.3, pour la énième fois, dans un climat où plus personne n'y croit.<br><br>
+      Le budget passe. Une motion de censure est déposée dans l'heure et échoue à six
+      voix. Vous gouvernez désormais à six voix près, et tout le monde le sait, y compris
+      les marchés.`,
+   e:{budget:5,economie:-3,cac:-5,social:-9,
+      groups:{salaries:-9,jeunes:-8,patrons:5}},
+   axe:{autorite:2}, pose:"49_3_final", rival:10},
+  {l:"Gouverner par ordonnances budgétaires",
+   r:`L'article 47 s'applique : le budget entre en vigueur par ordonnance faute de vote
+      dans les délais.<br><br>
+      C'est constitutionnel et ça n'était arrivé qu'une fois sous la Ve République. Le
+      pays retient qu'un budget a été appliqué sans être voté, et l'expression
+      « fin de règne » apparaît le lendemain dans quatre éditoriaux.`,
+   e:{budget:8,social:-12,cac:-4,
+      groups:{salaries:-11,jeunes:-10,ruraux:-7,patrons:6}},
+   axe:{autorite:2}, pose:"ordonnances", rival:12}
+ ]},
+
+{id:"n81", ch:14, mois:81, ico:"💧", t:"Le partage",
+ intro:[[()=>S.flags.referendum_eau, `L'eau est dans la Constitution depuis un an.
+   L'arbitrage change complètement de nature.`]],
+ d:`Le lac de barrage qui alimente une agglomération de quatre cent mille habitants est à
+    dix-sept pour cent de sa capacité. Il alimente aussi trois cents exploitations et une
+    centrale.<br><br>
+    Il n'y a pas assez pour les trois. Le préfet a besoin d'une doctrine nationale, pas
+    d'un arbitrage local, et il a raison : ce sera le premier cas d'une longue série.<br><br>
+    Vous avez huit jours pour écrire une règle qui vaudra pour trente ans.`,
+ o:[
+  {l:"Priorité absolue à l'eau potable, puis santé, puis le reste",
+   r:`Décret de hiérarchisation : boisson, santé, sécurité, puis agriculture, puis
+      industrie.<br><br>
+      C'est net et brutal. Trois cents exploitations perdent leur saison, la centrale
+      réduit de moitié. Mais la règle existe, elle est publiée, et les vingt années
+      suivantes s'appuieront dessus sans avoir à la réinventer dans l'urgence.`,
+   e:{cli:{eau:20},economie:-7,soc:{sante:8},
+      groups:{ruraux:-14,salaries:7,jeunes:9,patrons:-8}},
+   axe:{ecologie:2}, pose:"hierarchie_eau"},
+  {l:"Répartition négociée localement, sous arbitrage préfectoral",
+   r:`Une commission par bassin, un préfet qui tranche en dernier ressort.<br><br>
+      Ça fonctionne cette année-là parce que les gens se connaissent. Ça ne fonctionnera
+      pas partout et personne ne pourra dire pourquoi ça a marché ici et pas ailleurs. La
+      subsidiarité a ce défaut : elle ne se réplique pas.`,
+   e:{cli:{eau:8},groups:{ruraux:6,salaries:3}},
+   pose:"gestion_bassin"},
+  {l:"Investir en urgence : interconnexions et réutilisation",
+   r:`Neuf cents millions pour relier trois bassins et réutiliser les eaux usées de
+      l'agglomération.<br><br>
+      Rien avant trois ans. Vous arbitrez donc quand même pour cette année-là, en
+      urgence, sans règle. Mais dans quatre ans, ce conflit précis n'existera plus, ce qui
+      est la seule vraie manière de régler un arbitrage.`,
+   e:{budget:-13,cli:{eau:14},economie:4,
+      groups:{ruraux:8,patrons:5,jeunes:6}},
+   pose:"interconnexions", dauphin:3}
+ ]},
+
+{id:"n83", ch:14, mois:83, ico:"🏙️", t:"Trois nuits",
+ intro:[[()=>S.axes.autorite>=5, `Sept ans de fermeté. On va voir ce qu'elle vaut quand
+   ça déborde vraiment.`]],
+ d:`Un adolescent de seize ans tué par un tir policier lors d'un refus d'obtempérer. La
+    vidéo dure onze secondes et ne laisse pas de place au doute.<br><br>
+    Trois nuits d'émeutes dans deux cents communes. Quatre-vingt-dix bâtiments publics
+    brûlés, dont douze écoles. Mille huit cents interpellations, dont une majorité de
+    mineurs.<br><br>
+    Le policier est en détention provisoire. Deux syndicats de police appellent à la
+    « mise à l'arrêt ».`,
+ o:[
+  {l:"Rappeler que la justice s'applique à tous, y compris à la police",
+   r:`Vous le dites en trois phrases, sans ambiguïté, en soutenant l'institution
+      judiciaire.<br><br>
+      Les syndicats de police vous accusent de lâchage et le mouvement d'humeur dure dix
+      jours. Les émeutes, elles, cessent la quatrième nuit. Les préfets attribueront cet
+      arrêt à votre déclaration, dans une note que vous ne lirez jamais.`,
+   e:{sec:{interieure:-6},social:9,
+      groups:{jeunes:14,salaries:7,retraites:-9,ruraux:-6}},
+   axe:{autorite:-1}, pose:"justice_pour_tous", rival:6},
+  {l:"État d'urgence et couvre-feu dans les communes touchées",
+   r:`Couvre-feu à vingt et une heures dans deux cents communes, quarante mille policiers
+      et gendarmes mobilisés.<br><br>
+      La quatrième nuit est calme. La cinquième aussi. Le couvre-feu sera levé au bout de
+      trois semaines, et douze mille jeunes auront un contrôle judiciaire pour des faits
+      qui, pour la plupart, seront requalifiés plus tard.`,
+   e:{sec:{interieure:18},social:-13,
+      groups:{retraites:14,ruraux:11,jeunes:-19,salaries:-6}},
+   axe:{autorite:2}, pose:"couvre_feu", rival:5},
+  {l:"Réforme immédiate de la doctrine du refus d'obtempérer",
+   r:`Suspension de l'usage des armes hors légitime défense caractérisée, dans l'attente
+      d'une révision législative.<br><br>
+      Le nombre de tirs mortels lors de refus d'obtempérer passe de treize à deux par an.
+      Deux syndicats de police déposent un préavis de grève de six mois. Vous avez sauvé
+      onze vies par an et perdu la police pour le reste du mandat.`,
+   e:{sec:{interieure:-10},social:11,
+      groups:{jeunes:16,salaries:8,retraites:-11,ruraux:-8}},
+   axe:{autorite:-2}, pose:"doctrine_reformee", rival:8}
+ ]},
+
+{id:"n84", ch:14, mois:84, ico:"📊", t:"Sept ans",
+ intro:[
+  [()=>S.pib>3700, `L'économie a tenu. C'est votre argument le plus solide et le plus
+    silencieux.`],
+  [()=>S.dette>190, `La dette est le seul chiffre dont on parlera. Il écrase tous les
+    autres.`]
+ ],
+ d:`L'INSEE publie le bilan économique et social de la décennie. Ce n'est pas un document
+    politique : c'est deux cents pages de séries statistiques.<br><br>
+    Il y a des courbes qui montent et d'autres qui descendent, et à peu près tout le monde
+    peut y trouver de quoi vous accabler ou vous défendre.<br><br>
+    Votre directrice de la communication propose d'en faire quelque chose. Votre directrice
+    de cabinet propose de ne rien en faire.`,
+ o:[
+  {l:"Publier une lecture honnête : les réussites et les échecs",
+   r:`Un document de vingt pages, signé de vous, qui reprend les séries de l'INSEE sans
+      en écarter une seule.<br><br>
+      Trois économistes de sensibilités opposées le qualifient d'« exercice inhabituel de
+      sincérité ». Il ne fait pas la une. Il sera cité pendant dix ans.`,
+   e:{social:8,economie:4,groups:{jeunes:9,salaries:7,patrons:6}},
+   pose:"bilan_honnete", dauphin:4},
+  {l:"Communiquer sur les chiffres favorables",
+   r:`Une campagne de quatre semaines, six indicateurs bien choisis, une vidéo par
+      thème.<br><br>
+      Trois fact-checkers relèvent les omissions dans la semaine. Ce n'est pas du
+      mensonge et ça n'en donne pas moins l'impression. Vous avez dépensé quatre millions
+      pour renforcer ceux qui vous soutenaient déjà.`,
+   e:{groups:{patrons:6,retraites:5,jeunes:-6,salaries:-4}},
+   pose:"com_bilan", rival:5},
+  {l:"Laisser les chiffres parler seuls",
+   r:`Aucun commentaire officiel. Le rapport vit sa vie.<br><br>
+      Les journaux en font ce qu'ils veulent, c'est-à-dire trois articles nuancés et
+      quinze reprises orientées. Vous n'avez pas pesé sur la lecture de votre propre
+      bilan, ce qui est une forme d'élégance ou de démission.`,
+   e:{groups:{patrons:3,salaries:2}},
+   pose:"silence_insee"}
+ ]},
+
+{id:"n86", ch:15, mois:86, ico:"🎤", t:"Le débat de la primaire",
+ intro:[[()=>S.dauphin<30, `Votre camp cherche encore quelqu'un. Ce débat sera un
+   inventaire des absences.`]],
+ d:`Trois candidats de votre camp débattent en direct. On vous cite trente-quatre fois en
+    deux heures, et pas toujours en bien.<br><br>
+    Deux d'entre eux prennent leurs distances avec votre bilan. Le troisième le défend et
+    perd le débat.<br><br>
+    À la fin, une question aux trois : « Demanderez-vous au président sortant de faire
+    campagne avec vous ? » Il y a un silence de deux secondes.`,
+ o:[
+  {l:"Ne pas réagir : c'est leur campagne",
+   r:`Aucun commentaire, aucun message privé.<br><br>
+      Ils s'émancipent, ce qui est nécessaire et douloureux. Le candidat désigné aura les
+      mains libres pour construire son propre récit, et c'est probablement ce qui lui
+      donnera sa chance.`,
+   e:{groups:{jeunes:3,salaries:2}},
+   dauphin:6, pose:"laisser_faire_primaire"},
+  {l:"Rappeler publiquement ce que votre bilan leur permet",
+   r:`Une intervention de six minutes, factuelle, sur ce qu'ils héritent : des comptes,
+      des lois, des infrastructures.<br><br>
+      C'est légitime et c'est maladroit : un président sortant qui recadre ses propres
+      candidats donne à voir un camp divisé. L'opposition n'a plus qu'à laisser tourner
+      les images.`,
+   e:{social:-4,groups:{patrons:4,jeunes:-5,salaries:-4}},
+   dauphin:-7, pose:"recadrage_primaire", rival:6},
+  {l:"Recevoir les trois ensemble, sans caméras",
+   r:`Deux heures dans le salon vert. Vous ne prenez pas parti, vous leur donnez ce que
+      vous avez : les dossiers, les échéances, les pièges.<br><br>
+      Ils sortent séparément et ne racontent rien. La campagne de votre camp sera de
+      meilleure qualité pour ça, et personne ne saura jamais pourquoi.`,
+   e:{social:4,groups:{patrons:4,salaries:4,jeunes:3}},
+   dauphin:11, pose:"reunion_trois"}
+ ]},
+
+{id:"n87", ch:15, mois:87, ico:"🌍", t:"Le dernier sommet",
+ d:`Votre dernier G7. On vous applaudit à l'entrée, ce qui ne se fait pas et se fait pour
+    les sortants.<br><br>
+    Un texte est sur la table sur la taxation minimale des multinationales. Il manque une
+    signature pour atteindre le seuil qui le rend applicable. La France peut la donner ou
+    la retenir, et deux de vos industriels vous ont écrit cette semaine.<br><br>
+    Votre successeur, quel qu'il soit, héritera de ce que vous signez ce matin.`,
+ o:[
+  {l:"Signer et emporter l'accord",
+   r:`Vous signez à onze heures dix. Le seuil est atteint, l'accord entre en vigueur en
+      2035.<br><br>
+      Onze milliards de recettes annuelles pour la France, à terme. Quatre groupes
+      annoncent une revue de leur implantation européenne. On vous applaudit une seconde
+      fois à la sortie, ce qui n'arrive jamais deux fois.`,
+   e:{budget:9,economie:-4,cac:-8,social:7,
+      groups:{salaries:9,jeunes:8,patrons:-14}},
+   axe:{social:1}, pose:"taxation_signee", dauphin:4},
+  {l:"Conditionner votre signature à des contreparties industrielles",
+   r:`Trente-six heures de négociation pour obtenir un mécanisme de compensation
+      européen.<br><br>
+      Vous signez au dernier moment, avec une annexe. L'accord est plus faible et vos
+      industriels sont protégés. C'est de la bonne diplomatie et un texte un peu moins
+      utile.`,
+   e:{budget:5,economie:3,groups:{patrons:6,salaries:4}},
+   pose:"signature_conditionnee"},
+  {l:"Refuser de signer",
+   r:`Vous ne signez pas. Le seuil n'est pas atteint, l'accord est reporté sine die.<br><br>
+      Vos industriels vous remercient par communiqué. Six pays publient une déclaration
+      commune où la France n'apparaît pas, et c'est la dernière image de vous dans une
+      enceinte internationale.`,
+   e:{economie:6,cac:7,social:-8,
+      groups:{patrons:14,salaries:-9,jeunes:-11}},
+   axe:{social:-1}, pose:"refus_taxation", rival:7}
+ ]},
+
+{id:"n89", ch:15, mois:89, ico:"📉", t:"Le choc",
+ intro:[[()=>S.dette>180, `Avec cette dette, vous n'avez presque aucune marge de
+   manœuvre. C'est le moment que ça choisit.`]],
+ d:`Un défaut souverain à l'autre bout du monde déclenche une réaction en chaîne. En six
+    séances, les marchés européens perdent quatorze pour cent.<br><br>
+    Ce n'est pas 2008 : le système bancaire tient. Mais le crédit se resserre, deux
+    grandes entreprises annoncent des plans, et le mot « récession » entre dans les
+    prévisions officielles.<br><br>
+    Vous avez quinze mois avant de partir. Votre successeur héritera de ce que vous ferez
+    de ces quinze mois.`,
+ o:[
+  {l:"Plan de soutien massif, financé par la dette",
+   r:`Vingt-cinq milliards : chômage partiel, garanties de prêts, report de charges.<br><br>
+      La récession est évitée de justesse, la dette prend onze points. Votre successeur
+      passera son mandat à la rembourser en expliquant que ce n'était pas son choix. Il
+      aura raison, et l'économie aura tenu.`,
+   e:{budget:-24,dette:11,economie:9,cac:7,soc:{pouvoir:8},pib:0.9,
+      groups:{salaries:12,patrons:11,jeunes:6}},
+   pose:"soutien_massif"},
+  {l:"Soutien ciblé sur les secteurs stratégiques uniquement",
+   r:`Huit milliards, quatre filières, des critères stricts.<br><br>
+      Les secteurs protégés tiennent, les autres encaissent. Trente mille emplois perdus
+      dans les services. C'est le choix comptable et il produit exactement ce qu'il
+      promettait : moins de dette et plus de chômage.`,
+   e:{budget:-9,dette:3,economie:4,
+      groups:{patrons:8,salaries:-7,jeunes:-5}},
+   pose:"soutien_cible"},
+  {l:"Ne rien faire : laisser passer le cycle",
+   r:`Aucun plan. Vous expliquez que la France n'a plus les moyens d'amortir chaque choc.<br><br>
+      C'est probablement vrai et c'est indéfendable devant quiconque perd son emploi. La
+      récession dure trois trimestres. Deux cent mille chômeurs de plus, et une phrase de
+      vous qui tourne en boucle : « Nous n'avons plus les moyens. »`,
+   e:{economie:-11,cac:-9,soc:{pouvoir:-14,pauvrete:-12},pib:-1.4,
+      groups:{salaries:-15,jeunes:-11,patrons:-6}},
+   pose:"laisser_passer", rival:13}
+ ]},
+
+{id:"n90", ch:15, mois:90, ico:"📖", t:"Le dernier texte",
+ intro:[[()=>popularite()<32, `Vous n'avez plus de majorité. Faire voter quoi que ce soit
+   relève de l'exploit.`]],
+ d:`Il vous reste six mois de session utile. Votre directrice de cabinet a posé trois
+    textes sur la table : le dernier que vous pourrez faire adopter.<br><br>
+    Une loi sur la fin de vie, si elle n'a pas été faite. Une loi sur la transmission des
+    entreprises familiales. Une loi de programmation de l'éducation sur quinze ans.<br><br>
+    « Un seul, monsieur le Président. Après, l'Assemblée sera en campagne. »`,
+ o:[
+  {l:"La programmation éducative sur quinze ans",
+   r:`Quinze ans de trajectoire budgétaire votée pour l'école : effectifs, salaires,
+      bâti.<br><br>
+      Trois gouvernements successifs devront s'y tenir ou l'abroger publiquement, ce qui
+      est très différent de ne rien faire discrètement. Aucun ne l'abrogera. Ce sera votre
+      loi la plus durable et personne ne l'associera jamais à votre nom.`,
+   e:{budget:-9,soc:{educ:26},economie:5,
+      groups:{jeunes:14,salaries:9,patrons:-4}},
+   axe:{social:1}, pose:"loi_education", dauphin:4},
+  {l:"La transmission des entreprises familiales",
+   r:`Fiscalité de la transmission allégée sous condition de maintien de l'emploi et du
+      siège.<br><br>
+      Onze mille entreprises transmises au lieu d'être vendues à des fonds sur cinq ans.
+      C'est technique, invisible et c'est du tissu industriel qui reste français. Le
+      patronat vous en sera reconnaissant, ce qui ne s'était jamais produit.`,
+   e:{budget:-6,economie:11,cac:6,pib:1.1,
+      groups:{patrons:16,ruraux:8,salaries:5}},
+   pose:"loi_transmission"},
+  {l:"Renoncer : laisser le champ libre à votre successeur",
+   r:`Aucun texte. Vous consacrez les six derniers mois à l'exécution de ce qui est déjà
+      voté.<br><br>
+      C'est une forme rare de discipline. Deux commentateurs y voient de la sagesse,
+      quinze de l'épuisement. Vos services, eux, rattrapent en six mois un retard
+      d'application de deux ans.`,
+   e:{economie:6,soc:{sante:6,educ:5},groups:{patrons:5,salaries:5}},
+   pose:"renoncement_final", dauphin:3}
+ ]},
+
+{id:"n91", ch:16, mois:91, ico:"🏅", t:"Ce qu'on vous propose",
+ d:`Trois propositions arrivent la même semaine : la présidence d'une fondation
+    internationale, un siège au Conseil constitutionnel qui vous revient de droit, et une
+    maison d'édition qui offre beaucoup pour vos mémoires.<br><br>
+    Aucune n'est indigne. Toutes engagent la manière dont on parlera de vous, et la
+    liberté de ce que vous pourrez dire.<br><br>
+    Votre épouse vous a posé une seule question hier soir : « Tu as envie de quoi,
+    exactement ? »`,
+ o:[
+  {l:"Le Conseil constitutionnel : rester utile, en silence",
+   r:`Vous annoncez que vous siégerez. C'est votre droit et c'est discret.<br><br>
+      Vous vous déporterez sur onze dossiers en trois ans, ce qui est beaucoup et
+      correct. Deux juristes écriront que la présence d'anciens présidents dans cette
+      institution est un problème. Ils auront raison et vous serez irréprochable.`,
+   e:{groups:{retraites:5,patrons:4}},
+   pose:"conseil_constit"},
+  {l:"La fondation internationale : continuer sur le climat et la santé",
+   r:`Vous acceptez, sans rémunération, en le disant.<br><br>
+      Quatre ans plus tard, la fondation aura levé deux milliards et financé onze
+      programmes. C'est une vraie deuxième vie et c'est ce qui vous vaudra, tardivement,
+      une réévaluation de votre bilan par des gens qui vous détestaient.`,
+   e:{social:6,cli:{air:4},groups:{jeunes:9,salaries:5}},
+   pose:"fondation", dauphin:3},
+  {l:"Les mémoires : raconter, sans ménagement",
+   r:`Vous signez pour un livre à paraître dans deux ans. Vous prévenez l'éditeur : il n'y
+      aura ni règlement de comptes ni auto-célébration.<br><br>
+      Le livre paraîtra et fera exactement ce qu'il annonce, ce qui décevra tout le monde
+      la première année et en fera une source la décennie suivante.`,
+   e:{social:4,groups:{jeunes:5,salaries:4,patrons:-3}},
+   pose:"memoires"}
+ ]},
+
+{id:"n93", ch:16, mois:93, ico:"🤝", t:"La passation",
+ intro:[
+  [()=>S.rival>=58, `Ce sera Ferrand. Vous préparez la passation pour l'homme que vous
+    avez combattu huit ans.`],
+  [()=>S.dauphin>=55, `Ce sera probablement le vôtre. Ça ne rend pas l'exercice plus
+    simple.`]
+ ],
+ d:`Le secrétaire général prépare le dossier de passation : cent quarante notes, quatre
+    classeurs, et une liste de dossiers sensibles à transmettre de vive voix.<br><br>
+    La tradition est de tout transmettre. La pratique, depuis vingt ans, est de transmettre
+    l'essentiel et de garder deux ou trois choses.<br><br>
+    « Que fait-on des trois dossiers de la dernière chemise, monsieur le Président ? »`,
+ o:[
+  {l:"Tout transmettre, y compris ce qui vous met en cause",
+   r:`Les trois dossiers sont dans le classeur, avec une note explicative de votre main.<br><br>
+      L'un d'eux concerne une décision qui vous vaudra des ennuis dans quatre ans, et vous
+      le savez en le mettant là. Le secrétaire général vous regarde faire sans rien dire.
+      Il travaille ici depuis vingt-deux ans et il n'avait jamais vu ça.`,
+   e:{social:9,groups:{jeunes:10,salaries:8,ruraux:6,retraites:5}},
+   pose:"transmission_totale", dauphin:4},
+  {l:"Transmettre l'essentiel, garder ce qui n'engage que vous",
+   r:`Deux dossiers sur trois. Le troisième part aux archives sous dérogation de
+      vingt-cinq ans.<br><br>
+      C'est ce que font tous vos prédécesseurs. Ce n'est ni illégal ni glorieux. Dans
+      vingt-cinq ans, un historien ouvrira ce carton et écrira un article.`,
+   e:{groups:{patrons:3,retraites:3}},
+   pose:"transmission_partielle"},
+  {l:"Détruire ce qui peut l'être légalement",
+   r:`Deux dossiers versés aux archives, un détruit selon la procédure applicable aux
+      documents de travail.<br><br>
+      C'est légal, tracé, et il en restera une ligne dans un registre. Cette ligne suffira
+      à un journaliste, dans six ans, pour poser une question à laquelle personne ne
+      pourra répondre.`,
+   e:{social:-9,groups:{jeunes:-10,salaries:-8}},
+   pose:"destruction_dossiers", rival:8}
+ ]},
+
+{id:"n94", ch:16, mois:94, ico:"🕯️", t:"L'appel de nuit",
+ d:`Trois heures du matin. C'est le standard de l'Élysée : une prise d'otages dans un
+    centre commercial, quatre personnes retenues, un homme qui demande à vous parler.<br><br>
+    Ce sera votre dernière crise. Le RAID est en place, le négociateur est en ligne, et le
+    preneur d'otages répète qu'il ne parlera qu'au président.<br><br>
+    Le directeur du RAID vous prévient : « Ça peut durer douze heures ou finir en douze
+    secondes. »`,
+ o:[
+  {l:"Lui parler, sous conduite du négociateur",
+   r:`Onze minutes de conversation, sur haut-parleur, avec le négociateur à côté de vous.<br><br>
+      Il libère deux otages pendant l'appel et se rend à sept heures dix. Personne n'est
+      blessé. Le directeur du RAID vous dira plus tard que c'était risqué et que ça a
+      marché, dans cet ordre.`,
+   e:{sec:{interieure:14},social:8,
+      groups:{retraites:11,salaries:9,ruraux:8,jeunes:6}},
+   pose:"negociation_directe"},
+  {l:"Refuser et laisser les professionnels travailler",
+   r:`Vous ne prenez pas la ligne. Le négociateur travaille six heures.<br><br>
+      Assaut à neuf heures vingt : le preneur d'otages est tué, un otage est blessé au
+      bras. C'est le protocole, il a été respecté, et le bilan est celui d'une opération
+      réussie. Vous n'arrivez pas à le formuler comme ça.`,
+   e:{sec:{interieure:10},social:-3,
+      groups:{retraites:7,ruraux:5,jeunes:-4}},
+   pose:"protocole_respecte"},
+  {l:"Vous rendre sur place",
+   r:`Vous arrivez à cinq heures. Vous restez dans le PC de crise, sans intervenir, sans
+      caméras.<br><br>
+      L'assaut a lieu à huit heures et se passe bien. Votre présence n'a servi à rien
+      d'opérationnel. Elle a servi à autre chose : quarante hommes ont vu que le président
+      était debout à cinq heures du matin pour quatre inconnus.`,
+   e:{sec:{interieure:11},social:6,
+      groups:{retraites:9,salaries:7,ruraux:7}},
+   pose:"presence_pc", dauphin:3}
+ ]},
 ];
 
 const SCENES = {};
@@ -3675,7 +4698,7 @@ function rendre(){
   const mo = MOIS[(S.tour-1)%12];
   const dCol = S.dette>=200 ? "#c0455a" : (S.dette>=160 ? "#d99a4a" : "#93a3bd");
   document.getElementById("date").innerHTML =
-    `${mo} ${an} · mois ${Math.min(S.tour,DUREE_MANDAT)} / ${DUREE_MANDAT}` +
+    `${mo} ${an} · mois ${Math.min(S.tour,DUREE_MANDAT*S.mandat)} / ${DUREE_MANDAT*S.mandat}` + (S.mandat>1 ? ` · 2ᵉ mandat` : ``) +
     ` · PIB ${nb(S.pib)} Md€` +
     ` · <b style="color:${dCol}">dette ${Math.round(S.dette)} %</b>`;
   document.getElementById("rang").textContent = ordinal(rang());
@@ -3716,7 +4739,7 @@ function rendre(){
           n.d.split("<br><br>").map(p=>`<p>${p.trim()}</p>`).join("")}</div>
         <div class="choix">${opts.map((o,i)=>
           `<button class="opt" onclick="choisir(${i})">
-             <span>${o.l}</span><small>${apercu(o.e)}</small></button>`).join("")}</div>
+             <span>${o.l}</span><span class="fleche">›</span></button>`).join("")}</div>
       </div>`;
     }
   }
@@ -3759,25 +4782,6 @@ function couleurUnie(v){
 }
 
 /* aperçu compact des effets d'une option */
-function apercu(e){
-  const p=[], ico={securite:"🛡️",climat:"🌍",social:"⚖️",economie:"📈"};
-  if(e.budget) p.push("💰"+(e.budget>0?"+":"")+e.budget);
-  for(const k in ico) if(e[k]) p.push(ico[k]+(e[k]>0?"+":"")+e[k]);
-  const grp=[["sec","🛡️",S.sec],["cli","🌍",S.cli],["soc","⚖️",S.soc]];
-  grp.forEach(([cle,i,ref])=>{
-    if(!e[cle]) return;
-    const n=Object.keys(ref).length;
-    let s=0; for(const g in e[cle]) s+=e[cle][g];
-    s=Math.round(s/n);
-    if(s) p.push(i+(s>0?"+":"")+s);
-  });
-  if(e.groups){
-    let s=0; for(const g in e.groups) s+=e.groups[g]*(GROUPES[g]?GROUPES[g].poids:0);
-    if(Math.abs(s)>=.5) p.push("❤️"+(s>0?"+":"")+Math.round(s));
-  }
-  if(e.cac) p.push("📊"+(e.cac>0?"+":"")+e.cac+"%");
-  return p.join("  ");
-}
 
 function ecranFin(){
   const f=S.fini;
@@ -4072,20 +5076,49 @@ function ouvrirClassement(){
 const CLES = Object.keys(BRANCHES);
 const RAYONS = [92,150,208,266,320];
 
+const RAYON_PONT = 238;      // les jonctions siègent entre deux branches
+const SEUIL_PONT = 2;        // lois requises de chaque côté
+
+/* indice angulaire d'une jonction : à mi-chemin des deux branches voisines */
+function midPont(loi){
+  const [a,b]=loi.entre, ia=CLES.indexOf(a), ib=CLES.indexOf(b);
+  const lo=Math.min(ia,ib), hi=Math.max(ia,ib);
+  return (hi-lo>1) ? ((lo+hi+CLES.length)/2)%CLES.length : (lo+hi)/2;
+}
 function posLoi(loi){
+  if(loi.entre){
+    const a=(-90+midPont(loi)*72)*Math.PI/180;
+    return {x:400+Math.cos(a)*RAYON_PONT, y:400+Math.sin(a)*RAYON_PONT, pont:true};
+  }
   const bi=CLES.indexOf(loi.br);
   const ti=LOIS.filter(l=>l.br===loi.br).indexOf(loi);
   const a=(-90+bi*72)*Math.PI/180, r=RAYONS[ti];
   return {x:400+Math.cos(a)*r, y:400+Math.sin(a)*r, ti, bi};
 }
+/* combien de lois votées dans une branche */
+function votees(br){
+  return S.lois.map(id=>LOIS.find(l=>l.id===id)).filter(l=>l&&l.br===br).length;
+}
 function prereq(loi){
+  if(loi.entre) return null;
   const s=LOIS.filter(l=>l.br===loi.br), i=s.indexOf(loi);
   return i===0 ? null : s[i-1];
 }
 function accessible(loi){
   if(S.lois.includes(loi.id)) return false;
+  if(loi.entre) return loi.entre.every(b=>votees(b)>=SEUIL_PONT);
   const p=prereq(loi);
   return !p || S.lois.includes(p.id);
+}
+/* couleur et libellé : une jonction emprunte aux deux branches qu'elle relie */
+function couleurLoi(l){
+  return l.entre ? BRANCHES[l.entre[0]].col : BRANCHES[l.br].col;
+}
+function libelleBranche(l){
+  return l.entre
+    ? BRANCHES[l.entre[0]].ico+" "+BRANCHES[l.entre[0]].nom+" × "+
+      BRANCHES[l.entre[1]].ico+" "+BRANCHES[l.entre[1]].nom
+    : BRANCHES[l.br].ico+" "+BRANCHES[l.br].nom;
 }
 
 let noeudSel = null;
@@ -4119,17 +5152,36 @@ function ouvrirLois(sel){
     }
     web+=`<path class="web" d="${d}"/>`;
   });
+  // fils des jonctions vers les deux branches qu'elles relient
+  let defs="", ponts="";
+  LOIS.filter(l=>l.entre).forEach(l=>{
+    const p=posLoi(l), ouvert=accessible(l)||S.lois.includes(l.id);
+    const c1=BRANCHES[l.entre[0]].col, c2=BRANCHES[l.entre[1]].col;
+    defs+=`<linearGradient id="g_${l.id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient>`;
+    l.entre.forEach((br,k)=>{
+      const anc=LOIS.filter(x=>x.br===br)[1];
+      if(!anc) return;
+      const q=posLoi(anc);
+      ponts+=`<line class="fil pont ${ouvert?"act":""}" stroke="${k?c2:c1}"
+        x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}"
+        x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}"/>`;
+    });
+  });
+
   let noeuds="";
   LOIS.forEach(l=>{
-    const p=posLoi(l), col=BRANCHES[l.br].col;
+    const p=posLoi(l), col=couleurLoi(l);
     const vote=S.lois.includes(l.id), dispo=accessible(l);
-    const fill=vote?col:(dispo?"#1c2740":"#141b28");
-    const stroke=noeudSel===l.id?"#d9b26a":(vote?col:(dispo?col:"#2a3550"));
+    const grad = l.entre ? "url(#g_"+l.id+")" : col;
+    const fill = vote ? grad : (dispo?"#1c2740":"#141b28");
+    const stroke = noeudSel===l.id ? "#d9b26a" : (vote?grad:(dispo?grad:"#2a3550"));
+    const rr = l.entre ? 28 : 25;
+    const tirets = (l.entre && !vote && !dispo) ? " stroke-dasharray=" + JSON.stringify("4 3") : "";
     noeuds+=`<g class="nd" opacity="${vote?1:(dispo?.95:.42)}" onclick="ouvrirLois('${l.id}')">
-      <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="25" fill="${fill}"
-        stroke="${stroke}" stroke-width="${noeudSel===l.id?3.5:2}"/>
+      <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rr}" fill="${fill}"
+        stroke="${stroke}" stroke-width="${noeudSel===l.id?3.5:(l.entre?3:2)}"${tirets}/>
       <text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle"
-        font-size="21" pointer-events="none">${l.ico}</text></g>`;
+        font-size="${l.entre?23:21}" pointer-events="none">${l.ico}</text></g>`;
   });
   let etq="";
   CLES.forEach((br,bi)=>{
@@ -4139,7 +5191,7 @@ function ouvrirLois(sel){
       fill="${BRANCHES[br].col}" font-size="16" font-family="Georgia,serif"
       letter-spacing="1">${BRANCHES[br].nom}</text>`;
   });
-  const svg=`<svg class="toilesvg" viewBox="0 0 800 800">${web}${fils}
+  const svg=`<svg class="toilesvg" viewBox="0 0 800 800"><defs>${defs}</defs>${web}${ponts}${fils}
     <circle cx="400" cy="400" r="34" fill="#1b2740" stroke="#d9b26a" stroke-width="2.5"/>
     <text x="400" y="409" text-anchor="middle" font-size="26">🏛️</text>
     ${noeuds}${etq}</svg>`;
@@ -4148,16 +5200,26 @@ function ouvrirLois(sel){
   const assez=S.tres>=loi.cout, pret=S.delaiLoi===0;
   let etat="", act=true;
   if(vote){ etat="Loi promulguée."; act=false; }
+  else if(!dispo && loi.entre){
+    const manque = loi.entre
+      .map(b=>({b, n:votees(b)}))
+      .filter(x=>x.n<SEUIL_PONT)
+      .map(x=>BRANCHES[x.b].nom+" ("+x.n+"/"+SEUIL_PONT+")");
+    etat = "Loi de jonction : il faut " + SEUIL_PONT + " lois votées dans chacune des deux " +
+           "branches voisines. Manque : " + manque.join(", ") + ".";
+    act=false;
+  }
   else if(!dispo){ etat=`Nécessite d'abord : « ${pr.nom} ».`; act=false; }
   else if(!pret){ etat=`Le Parlement est saisi. Disponible dans ${S.delaiLoi} mois.`; act=false; }
   else if(!assez){ etat=`Trésorerie insuffisante (${loi.cout} requis).`; act=false; }
 
   ouvrir("📜 Les lois de la République",
     `${S.lois.length} / ${LOIS.length} votées` +
+      ` · ${S.lois.filter(id=>{const l=LOIS.find(x=>x.id===id);return l&&l.entre;}).length}/${LOIS.filter(l=>l.entre).length} jonctions` +
       (S.delaiLoi ? ` · prochaine dans ${S.delaiLoi} mois` : " · vote possible"),
     `<div class="toile"><div class="svgwrap">${svg}</div>
       <div class="detail">
-        <div class="br">${BRANCHES[loi.br].ico} ${BRANCHES[loi.br].nom}</div>
+        <div class="br">${libelleBranche(loi)}${loi.entre?" · jonction":""}</div>
         <h3>${loi.ico} ${loi.nom}</h3>
         <p>${loi.txt}</p>
         <div class="eff">${tagsEffet(loi.eff).join("")}</div>${tagsMensuels(loi.tour)}
@@ -4206,8 +5268,9 @@ function voter(id){
 }
 
 /* ---- 2. les chantiers ---- */
-function ouvrirProjets(){
-  const html=`<div class="grille">${PROJETS.map(p=>{
+/* fabrique la vignette d'un chantier */
+function vignetteProjet(p){
+  {
     const fini=S.projetsFinis.includes(p.id);
     const ch=S.chantiers.find(c=>c.id===p.id);
     const plein=S.chantiers.length>=MAX_CHANTIERS, assez=S.tres>=p.cout;
@@ -4222,9 +5285,22 @@ function ouvrirProjets(){
     return `<div class="pj ${fini?"fini":(ch?"en":"")}">
       <h4>${p.ico} ${p.nom}</h4><p>${p.txt}</p>
       <div class="eff">${tagsEffet(p.fin).join("")}</div>${bas}</div>`;
-  }).join("")}</div>`;
+  }
+}
+
+function ouvrirProjets(){
+  const html = Object.keys(DOMAINES).map(d=>{
+    const lot = PROJETS.filter(p=>p.dom===d);
+    if(!lot.length) return "";
+    const livres = lot.filter(p=>S.projetsFinis.includes(p.id)).length;
+    return `<h3 style="color:#d9b26a;font-size:13px;letter-spacing:1px;
+      text-transform:uppercase;margin:22px 0 12px">${DOMAINES[d].ico} ${DOMAINES[d].nom}
+      <span style="color:#93a3bd;letter-spacing:0;text-transform:none;font-size:12px">
+        · ${livres}/${lot.length} livrés</span></h3>
+      <div class="grille">${lot.map(vignetteProjet).join("")}</div>`;
+  }).join("");
   ouvrir("🏗️ Grands chantiers",
-    `${S.chantiers.length}/${MAX_CHANTIERS} en cours · ${S.projetsFinis.length} livrés`,
+    `${S.chantiers.length}/${MAX_CHANTIERS} en cours · ${S.projetsFinis.length}/${PROJETS.length} livrés`,
     html, "projets");
 }
 function lancer(id){
@@ -4289,6 +5365,10 @@ function regler(grp,cle,val){
 /* ---- 4. bilan ---- */
 function ouvrirBilan(){
   const b=calculBudget();
+  const jonctions = S.lois.map(id=>LOIS.find(x=>x.id===id)).filter(x=>x&&x.entre);
+  const blocJonctions = jonctions.length
+    ? `<div style="margin-bottom:9px"><b style="color:#d9b26a">Jonctions</b><br><span style="font-size:13px;color:#c2cee2">${jonctions.map(x=>x.ico+" "+x.nom).join("<br>")}</span></div>`
+    : "";
   const lois = S.lois.length
     ? CLES.map(br=>{
         const l=S.lois.map(id=>LOIS.find(x=>x.id===id)).filter(x=>x&&x.br===br);
@@ -4296,7 +5376,7 @@ function ouvrirBilan(){
           <b style="color:${BRANCHES[br].col}">${BRANCHES[br].nom}</b><br>
           <span style="font-size:13px;color:#c2cee2">${l.map(x=>x.ico+" "+x.nom).join("<br>")}</span>
           </div>`:"";
-      }).join("")
+      }).join("") + blocJonctions
     : `<p class="vide">Aucune loi votée pour l'instant.</p>`;
   const ch = S.chantiers.length
     ? S.chantiers.map(c=>{const p=PROJETS.find(x=>x.id===c.id);
